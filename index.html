@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>งานบริการระบบแก๊สทางการแพทย์</title>
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-base:     #0d1117;
+  --bg-card:     #161b22;
+  --bg-card2:    #1c2230;
+  --bg-input:    #0d1117;
+  --border:      #30363d;
+  --border-focus:#4493f8;
+  --accent:      #1f6feb;
+  --accent-h:    #388bfd;
+  --green:       #3fb950;
+  --green-bg:    #0d2d1a;
+  --yellow:      #d29922;
+  --yellow-bg:   #2d1f00;
+  --red:         #f85149;
+  --red-bg:      #2d0e0e;
+  --text-1:      #e6edf3;
+  --text-2:      #8b949e;
+  --text-3:      #6e7681;
+  --cyan:        #58a6ff;
+  --purple:      #bc8cff;
+  --teal:        #39d353;
+  --font:        'Segoe UI', 'Sarabun', sans-serif;
+  --radius:      8px;
+  --radius-lg:   12px;
+  --shadow:      0 4px 24px rgba(0,0,0,0.5);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg-base);
+  color: var(--text-1);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ===== LAYOUT ===== */
+.app-wrapper { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ===== TOPBAR ===== */
+.topbar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 56px;
+}
+.topbar-logo {
+  display: flex; align-items: center; gap: 10px; text-decoration: none;
+}
+.topbar-logo svg { width: 28px; height: 28px; flex-shrink: 0; }
+.topbar-title {
+  display: flex; flex-direction: column; line-height: 1.2;
+}
+.topbar-title span:first-child { font-size: 13px; font-weight: 700; color: var(--cyan); }
+.topbar-title span:last-child  { font-size: 10px; color: var(--text-2); }
+.topbar-nav {
+  display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap;
+}
+.nav-btn {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-2);
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 13px;
+  font-family: var(--font);
+  transition: all .15s;
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
+}
+.nav-btn:hover { color: var(--text-1); background: var(--bg-card2); }
+.nav-btn.active { color: var(--cyan); border-color: var(--border-focus); background: rgba(68,147,248,.1); }
+
+/* ===== PAGE SYSTEM ===== */
+.page { display: none; padding: 24px 20px; max-width: 960px; margin: 0 auto; width: 100%; }
+.page.active { display: block; }
+
+/* ===== PAGE HEADER ===== */
+.page-header { margin-bottom: 24px; }
+.page-header h1 { font-size: 20px; font-weight: 700; color: var(--text-1); }
+.page-header p  { font-size: 13px; color: var(--text-2); margin-top: 4px; }
+
+/* ===== CARD ===== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cyan);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.card-title svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* ===== FORM ELEMENTS ===== */
+.form-row { display: grid; gap: 14px; margin-bottom: 14px; }
+.form-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.form-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.form-row.cols-1 { grid-template-columns: 1fr; }
+
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .04em; }
+.form-label .req { color: var(--red); margin-left: 2px; }
+
+.form-input, .form-select, .form-textarea {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-1);
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 9px 12px;
+  width: 100%;
+  transition: border-color .15s, box-shadow .15s;
+  -webkit-appearance: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(68,147,248,.15);
+}
+.form-textarea { resize: vertical; min-height: 72px; }
+.form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%238b949e'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px; }
+.form-select option { background: var(--bg-card2); }
+
+/* ===== SERVICE TABLE ===== */
+.service-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.service-table thead tr { background: var(--bg-card2); }
+.service-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  border-bottom: 1px solid var(--border);
+}
+.service-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(48,54,61,.5);
+  vertical-align: middle;
+}
+.service-table tbody tr:hover { background: rgba(255,255,255,.02); }
+.service-table .group-header td {
+  background: rgba(88,166,255,.06);
+  color: var(--cyan);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+}
+.service-table .sub-row td:first-child { padding-left: 28px; color: var(--text-2); }
+
+.qty-input {
+  width: 72px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-1);
+  font-family: var(--font);
+  font-size: 13px;
+  padding: 6px 8px;
+  text-align: center;
+  transition: border-color .15s;
+}
+.qty-input:focus { outline: none; border-color: var(--border-focus); }
+.qty-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.checkbox-cell { text-align: center; }
+.custom-check {
+  width: 18px; height: 18px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.problem-input {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-1);
+  font-family: var(--font);
+  font-size: 12px;
+  padding: 5px 8px;
+  width: 100%;
+  min-width: 140px;
+}
+.problem-input:focus { outline: none; border-color: var(--border-focus); }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-h); }
+.btn-success { background: var(--green); color: #0d1117; }
+.btn-success:hover { filter: brightness(1.1); }
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-2);
+}
+.btn-outline:hover { border-color: var(--text-2); color: var(--text-1); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { filter: brightness(1.1); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
+
+/* ===== BADGE ===== */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-pending  { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(210,153,34,.3); }
+.badge-progress { background: rgba(68,147,248,.15); color: var(--cyan); border: 1px solid rgba(68,147,248,.3); }
+.badge-done     { background: var(--green-bg); color: var(--green); border: 1px solid rgba(63,185,80,.3); }
+
+/* ===== TOAST ===== */
+#toast-container {
+  position: fixed; bottom: 24px; right: 24px;
+  z-index: 9999; display: flex; flex-direction: column; gap: 8px;
+}
+.toast {
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  font-size: 13px;
+  color: var(--text-1);
+  box-shadow: var(--shadow);
+  display: flex; align-items: center; gap: 10px;
+  animation: slideIn .2s ease;
+  min-width: 260px; max-width: 360px;
+}
+.toast.success { border-left: 3px solid var(--green); }
+.toast.error   { border-left: 3px solid var(--red); }
+.toast.info    { border-left: 3px solid var(--cyan); }
+@keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* ===== PIN MODAL ===== */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.hidden { display: none; }
+.modal-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px 28px;
+  width: 320px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.modal-box h2 { font-size: 18px; color: var(--text-1); margin-bottom: 6px; }
+.modal-box p  { font-size: 13px; color: var(--text-2); margin-bottom: 20px; }
+.pin-input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-1);
+  font-size: 24px;
+  letter-spacing: 8px;
+  padding: 12px;
+  text-align: center;
+  font-family: monospace;
+  margin-bottom: 16px;
+}
+.pin-input:focus { outline: none; border-color: var(--border-focus); }
+.pin-error { color: var(--red); font-size: 12px; margin-bottom: 12px; min-height: 18px; }
+
+/* ===== HISTORY TABLE ===== */
+.history-filters {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: flex-end;
+}
+.history-filters .form-group { min-width: 160px; flex: 1; }
+
+.data-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 700px; }
+.data-table th {
+  background: var(--bg-card2);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(48,54,61,.5);
+  color: var(--text-1);
+  vertical-align: middle;
+}
+.data-table tbody tr:hover { background: rgba(255,255,255,.025); cursor: pointer; }
+.data-table tbody tr:last-child td { border-bottom: none; }
+
+/* ===== DASHBOARD ===== */
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+}
+.stat-card .label { font-size: 11px; color: var(--text-2); font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+.stat-card .value { font-size: 28px; font-weight: 700; line-height: 1; }
+.stat-card.yellow .value { color: var(--yellow); }
+.stat-card.blue   .value { color: var(--cyan); }
+.stat-card.green  .value { color: var(--green); }
+.stat-card.red    .value { color: var(--red); }
+.stat-card .sub   { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+}
+.chart-card h3 { font-size: 13px; font-weight: 700; color: var(--text-2); margin-bottom: 14px; text-transform: uppercase; letter-spacing: .04em; }
+
+/* ===== BAR CHART (CSS) ===== */
+.bar-list { display: flex; flex-direction: column; gap: 10px; }
+.bar-item { display: flex; flex-direction: column; gap: 4px; }
+.bar-item-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-2); }
+.bar-track { background: var(--bg-base); border-radius: 4px; height: 8px; overflow: hidden; }
+.bar-fill  { height: 100%; border-radius: 4px; background: var(--accent); transition: width .4s ease; }
+.bar-fill.green  { background: var(--green); }
+.bar-fill.yellow { background: var(--yellow); }
+.bar-fill.red    { background: var(--red); }
+
+/* ===== DETAIL PANEL ===== */
+.detail-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  z-index: 200;
+  display: flex; align-items: flex-start; justify-content: flex-end;
+  backdrop-filter: blur(2px);
+}
+.detail-overlay.hidden { display: none; }
+.detail-panel {
+  background: var(--bg-card);
+  border-left: 1px solid var(--border);
+  width: 480px;
+  max-width: 100vw;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 24px;
+  animation: slideLeft .2s ease;
+}
+@keyframes slideLeft { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.detail-panel h2 { font-size: 16px; margin-bottom: 4px; }
+.detail-close {
+  position: absolute; top: 16px; right: 20px;
+  background: none; border: none; color: var(--text-2); cursor: pointer; font-size: 20px;
+}
+.detail-section { margin-top: 16px; }
+.detail-section h3 { font-size: 11px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.detail-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px solid rgba(48,54,61,.3); }
+.detail-row:last-child { border-bottom: none; }
+.detail-row .dk { color: var(--text-2); }
+.detail-row .dv { color: var(--text-1); font-weight: 500; text-align: right; max-width: 60%; }
+
+/* ===== LOADING ===== */
+.loading-spinner {
+  display: inline-block; width: 20px; height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty-state {
+  text-align: center; padding: 48px 20px; color: var(--text-3);
+}
+.empty-state svg { width: 40px; height: 40px; margin-bottom: 12px; opacity: .4; }
+.empty-state p { font-size: 14px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .topbar { height: auto; padding: 10px 14px; flex-wrap: wrap; }
+  .topbar-nav { margin-left: 0; width: 100%; justify-content: center; }
+  .nav-btn { font-size: 12px; padding: 5px 8px; }
+  .page { padding: 16px 12px; }
+  .form-row.cols-3 { grid-template-columns: 1fr; }
+  .form-row.cols-2 { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .chart-grid { grid-template-columns: 1fr; }
+  .detail-panel { width: 100vw; }
+  .service-table { font-size: 12px; }
+  .service-table th, .service-table td { padding: 6px 8px; }
+  .qty-input { width: 56px; }
+}
+@media (max-width: 480px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .form-actions { flex-direction: column; }
+  .btn { width: 100%; justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== TOPBAR ===== -->
+<div class="app-wrapper">
+<nav class="topbar">
+  <div class="topbar-logo">
+    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="28" height="28" rx="6" fill="#1f6feb"/>
+      <path d="M8 14h4m4 0h4M14 8v4m0 4v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="14" cy="14" r="3" stroke="#58a6ff" stroke-width="1.5"/>
+    </svg>
+    <div class="topbar-title">
+      <span>งานบริการระบบแก๊สทางการแพทย์</span>
+      <span>แผนกระบบแก๊สทางการแพทย์</span>
+    </div>
+  </div>
+  <div class="topbar-nav">
+    <button class="nav-btn active" onclick="showPage('request')" id="nav-request">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+      แจ้งขอรับบริการ
+    </button>
+    <button class="nav-btn" onclick="requirePin('service')" id="nav-service">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      บันทึกให้บริการ
+    </button>
+    <button class="nav-btn" onclick="showPage('history')" id="nav-history">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      ประวัติ
+    </button>
+    <button class="nav-btn" onclick="showPage('dashboard')" id="nav-dashboard">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+  </div>
+</nav>
+
+<!-- ==================== PAGE 1: แจ้งขอรับบริการ ==================== -->
+<div class="page active" id="page-request">
+  <div class="page-header">
+    <h1>📋 แจ้งขอรับบริการ</h1>
+    <p>กรอกข้อมูลการขอรับบริการระบบแก๊สทางการแพทย์</p>
+  </div>
+
+  <form id="form-request" autocomplete="off">
+    <!-- ข้อมูลผู้แจ้ง -->
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        ข้อมูลผู้แจ้ง
+      </div>
+      <div class="form-row cols-3">
+        <div class="form-group">
+          <label class="form-label">วันที่แจ้ง <span class="req">*</span></label>
+          <input type="date" class="form-input" id="req-date" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ผู้แจ้ง <span class="req">*</span></label>
+          <input type="text" class="form-input" id="req-name" placeholder="ชื่อ-นามสกุล" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">แผนก <span class="req">*</span></label>
+          <select class="form-select" id="req-dept" required onchange="toggleOtherDept(this)">
+            <option value="">-- เลือกแผนก --</option>
+            <optgroup label="Ward 100">
+              <option>100/9</option><option>100/8</option><option>100/7</option><option>100/6</option>
+            </optgroup>
+            <optgroup label="Ward 80">
+              <option>80/10</option><option>80/9</option><option>80/8</option>
+              <option>80/5</option><option>80/2</option><option>80/1</option>
+            </optgroup>
+            <optgroup label="ICU/Special">
+              <option>PICU</option><option>CICU</option><option>SICU</option><option>MICU</option>
+            </optgroup>
+            <optgroup label="Ward 14">
+              <option>14/9.</option><option>14/8.</option><option>14/7.</option>
+            </optgroup>
+            <optgroup label="ห้องผ่าตัด">
+              <option>ORสูติ</option><option>ORตา</option><option>OR ศัลย์</option><option>OR ENT</option>
+            </optgroup>
+            <optgroup label="OPD">
+              <option>OPD อายุรกรรม</option><option>OPD โรคเลือด</option><option>OPD ENT</option>
+              <option>OPD ทันตกรรม</option><option>OPD ทางเดินอาหาร</option>
+              <option>OPD ทางเดินหายใจ</option><option>OPD กระดูก</option><option>OPD ศัยกรรม</option>
+              <option>OPD จักษุ</option><option>OPD นรีเวชกรรม</option><option>OPD กุมาร</option>
+            </optgroup>
+            <optgroup label="แผนกอื่น">
+              <option>ศช</option><option>ศญ</option><option>อญ</option><option>อช</option>
+              <option>ER</option><option>เวรแปล</option><option>รังสี</option><option>HBO</option>
+              <option>ห้องตรวจ พิเศษศัลย์ ฯ</option><option>แผนกไตเทียม</option>
+              <option>Cath lab</option><option>ห้องเคมีบำบัด</option><option>ศูนย์สมอง</option>
+              <option value="other">อื่นๆ (ระบุ)</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+      <div class="form-row cols-1" id="dept-other-row" style="display:none">
+        <div class="form-group">
+          <label class="form-label">ระบุแผนก <span class="req">*</span></label>
+          <input type="text" class="form-input" id="req-dept-other" placeholder="ระบุชื่อแผนก...">
+        </div>
+      </div>
+    </div>
+
+    <!-- รายการบริการ -->
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        รายการขอรับบริการ <span style="font-size:11px;color:var(--text-3);font-weight:400">(เลือกได้มากกว่า 1 รายการ)</span>
+      </div>
+      <div style="overflow-x:auto">
+      <table class="service-table">
+        <thead>
+          <tr>
+            <th style="width:32px">✓</th>
+            <th>รายการ</th>
+            <th style="width:90px;text-align:center">จำนวนขอ</th>
+            <th style="width:120px">หมายเหตุ/ขนาด</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 1.1 Oxygen -->
+          <tr class="group-header"><td colspan="4">1.1  แลกท่อแก๊ส Oxygen</td></tr>
+          <tr class="sub-row">
+            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="o2_05q"></td>
+            <td>ขนาด 0.5 Q</td>
+            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-o2_05q" min="0" value="0"></td>
+            <td>—</td>
+          </tr>
+          <tr class="sub-row">
+            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="o2_07q"></td>
+            <td>ขนาด 0.7 Q</td>
+            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-o2_07q" min="0" value="0"></td>
+            <td>—</td>
+          </tr>
+          <tr class="sub-row">
+            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="o2_15q"></td>
+            <td>ขนาด 1.5 Q</td>
+            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-o2_15q" min="0" value="0"></td>
+            <td>—</td>
+          </tr>
+          <tr class="sub-row">
+            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="o2_6q"></td>
+            <td>ขนาด 6 Q</td>
+            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-o2_6q" min="0" value="0"></td>
+            <td>—</td>
+          </tr>
+          <tr class="sub-row">
+            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="o2_7q"></td>
+            <td>ขนาด 7 Q</td>
+            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-o2_7q" min="0" value="0"></td>
+            <td>—</td>
+          </tr>
+          <tr class="sub-row" id="row-o2-other">
+            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="o2_other"></td>
+            <td>ขนาดอื่นๆ</td>
+            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-o2_other_qty" min="0" value="0"></td>
+            <td><input type="text" class="problem-input" id="txt-o2_other_size" placeholder="ระบุขนาด..."></td>
+          </tr>
+
+          <!-- 1.2 ชนิดอื่นๆ -->
+          <tr class="group-header"><td colspan="4">1.2  แลกท่อแก๊สชนิดอื่นๆ</td></tr>
+          <tr class="sub-row">
+            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="co2_6kg"></td>
+            <td>แลกท่อ CO₂ ขนาด 6 Kg</td>
+            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-co2_6kg" min="0" value="0"></td>
+            <td>—</td>
+          </tr>
+          <tr class="sub-row">
+            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="co2_25kg"></td>
+            <td>แลกท่อ CO₂ ขนาด 25 Kg</td>
+            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-co2_25kg" min="0" value="0"></td>
+            <td>—</td>
+          </tr>
+          <tr class="sub-row">
+            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="n2o_25kg"></td>
+            <td>แลกท่อ N₂O ขนาด 25 Kg</td>
+            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-n2o_25kg" min="0" value="0"></td>
+            <td>—</td>
+          </tr>
+          <tr class="sub-row">
+            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="n2_7q"></td>
+            <td>แลกท่อ N₂ ขนาด 7 Q</td>
+            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-n2_7q" min="0" value="0"></td>
+            <td>—</td>
+          </tr>
+
+          <!-- 1.3-1.4 ยืมอุปกรณ์ -->
+          <tr class="group-header"><td colspan="4">1.3 – 1.4  ยืมอุปกรณ์</td></tr>
+          <tr class="sub-row">
+            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="loan_flowmeter"></td>
+            <td>ยืม Oxygen flow meter regulator</td>
+            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-loan_flowmeter" min="0" value="0"></td>
+            <td>—</td>
+          </tr>
+          <tr class="sub-row">
+            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="loan_flowmeter_pto"></td>
+            <td>ยืม Oxygen flow meter regulator with power take off</td>
+            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-loan_flowmeter_pto" min="0" value="0"></td>
+            <td>—</td>
+          </tr>
+
+          <!-- 1.5 แจ้งซ่อม -->
+          <tr class="group-header"><td colspan="4">1.5  แจ้งซ่อมระบบ Pipeline</td></tr>
+          <tr class="sub-row">
+            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="repair_medical_air"></td>
+            <td>Medical Air</td>
+            <td class="checkbox-cell">—</td>
+            <td><input type="text" class="problem-input" id="txt-repair_air_problem" placeholder="ปัญหาที่พบ..."></td>
+          </tr>
+          <tr class="sub-row">
+            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="repair_oxygen"></td>
+            <td>Medical Oxygen</td>
+            <td class="checkbox-cell">—</td>
+            <td><input type="text" class="problem-input" id="txt-repair_oxygen_problem" placeholder="ปัญหาที่พบ..."></td>
+          </tr>
+          <tr class="sub-row">
+            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="repair_vacuum"></td>
+            <td>Medical Vacuum</td>
+            <td class="checkbox-cell">—</td>
+            <td><input type="text" class="problem-input" id="txt-repair_vacuum_problem" placeholder="ปัญหาที่พบ..."></td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <!-- หมายเหตุ -->
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        หมายเหตุเพิ่มเติม
+      </div>
+      <div class="form-group">
+        <textarea class="form-textarea" id="req-note" placeholder="ข้อมูลเพิ่มเติม หรือรายละเอียดที่ต้องการแจ้ง..." rows="3"></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-outline" onclick="resetRequestForm()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        ล้างข้อมูล
+      </button>
+      <button type="submit" class="btn btn-primary" id="btn-submit-request">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        ส่งคำร้องขอรับบริการ
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- ==================== PAGE 2: บันทึกให้บริการ ==================== -->
+<div class="page" id="page-service">
+  <div class="page-header">
+    <h1>✏️ บันทึกให้บริการ</h1>
+    <p>รายการรอดำเนินการ — เลือกรายการเพื่อบันทึกผลการให้บริการ</p>
+  </div>
+
+  <!-- รายการ pending -->
+  <div class="card">
+    <div class="card-title" style="justify-content:space-between">
+      <span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        รายการรอดำเนินการ
+      </span>
+      <button class="btn btn-outline btn-sm" onclick="loadPendingList()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        รีเฟรช
+      </button>
+    </div>
+    <div id="pending-list-wrap">
+      <div class="empty-state">
+        <div class="loading-spinner"></div>
+        <p style="margin-top:12px">กำลังโหลด...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ฟอร์มบันทึก (ซ่อนไว้ก่อน) -->
+  <div class="card" id="service-form-card" style="display:none">
+    <div class="card-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      บันทึกผลการให้บริการ — คำร้องที่ <span id="svc-req-id" style="color:var(--cyan)">—</span>
+    </div>
+
+    <div id="svc-request-summary" style="background:var(--bg-card2);border-radius:var(--radius);padding:14px;margin-bottom:16px;font-size:13px;color:var(--text-2);line-height:1.8"></div>
+
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">ผู้ให้บริการ (ช่าง) <span class="req">*</span></label>
+        <input type="text" class="form-input" id="svc-tech" placeholder="ชื่อช่างผู้ให้บริการ" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">สถานะ <span class="req">*</span></label>
+        <select class="form-select" id="svc-status">
+          <option value="in_progress">🔵 กำลังดำเนินการ</option>
+          <option value="done">🟢 เสร็จสิ้น</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label class="form-label">เวลาเริ่มให้บริการ</label>
+        <input type="datetime-local" class="form-input" id="svc-start">
+      </div>
+      <div class="form-group">
+        <label class="form-label">เวลาเสร็จสิ้น</label>
+        <input type="datetime-local" class="form-input" id="svc-end">
+      </div>
+    </div>
+
+    <!-- จำนวนจ่ายจริง (dynamic) -->
+    <div id="actual-qty-section"></div>
+
+    <!-- ผลการซ่อม (ถ้ามีซ่อม) -->
+    <div id="repair-result-section" style="display:none">
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label">ผลการซ่อม / วิธีการแก้ไข</label>
+        <textarea class="form-textarea" id="svc-repair-result" rows="3" placeholder="บันทึกผลการซ่อม..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">หมายเหตุ</label>
+      <textarea class="form-textarea" id="svc-note" rows="2" placeholder="หมายเหตุเพิ่มเติม..."></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-outline" onclick="cancelServiceForm()">ยกเลิก</button>
+      <button class="btn btn-success" onclick="submitServiceRecord()" id="btn-save-service">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        บันทึกผลการให้บริการ
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE 3: ประวัติ ==================== -->
+<div class="page" id="page-history">
+  <div class="page-header">
+    <h1>🕐 ประวัติการให้บริการ</h1>
+    <p>รายการทั้งหมด — ค้นหาและกรองตามเงื่อนไข</p>
+  </div>
+
+  <div class="card" style="padding-bottom:14px">
+    <div class="history-filters">
+      <div class="form-group">
+        <label class="form-label">วันที่เริ่มต้น</label>
+        <input type="date" class="form-input" id="hist-date-from">
+      </div>
+      <div class="form-group">
+        <label class="form-label">วันที่สิ้นสุด</label>
+        <input type="date" class="form-input" id="hist-date-to">
+      </div>
+      <div class="form-group">
+        <label class="form-label">สถานะ</label>
+        <select class="form-select" id="hist-status">
+          <option value="">ทั้งหมด</option>
+          <option value="pending">รอดำเนินการ</option>
+          <option value="in_progress">กำลังดำเนินการ</option>
+          <option value="done">เสร็จสิ้น</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">แผนก</label>
+        <input type="text" class="form-input" id="hist-dept" placeholder="ค้นหาแผนก...">
+      </div>
+      <div class="form-group" style="align-self:flex-end;min-width:auto">
+        <button class="btn btn-primary" onclick="loadHistory()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          ค้นหา
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>วันที่แจ้ง</th>
+            <th>แผนก</th>
+            <th>ผู้แจ้ง</th>
+            <th>รายการ</th>
+            <th>สถานะ</th>
+            <th>ช่าง</th>
+          </tr>
+        </thead>
+        <tbody id="history-tbody">
+          <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-3)">กำลังโหลด...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="history-pagination" style="padding:14px 16px;font-size:12px;color:var(--text-3);border-top:1px solid var(--border)"></div>
+  </div>
+</div>
+
+<!-- ==================== PAGE 4: Dashboard ==================== -->
+<div class="page" id="page-dashboard">
+  <div class="page-header">
+    <h1>📊 Dashboard</h1>
+    <p>สรุปภาพรวมการให้บริการระบบแก๊สทางการแพทย์</p>
+  </div>
+
+  <div class="stat-grid" id="dash-stats">
+    <div class="stat-card yellow"><div class="label">รอดำเนินการ</div><div class="value" id="d-pending">—</div><div class="sub">รายการ</div></div>
+    <div class="stat-card blue"><div class="label">กำลังดำเนินการ</div><div class="value" id="d-inprog">—</div><div class="sub">รายการ</div></div>
+    <div class="stat-card green"><div class="label">เสร็จสิ้นแล้ว</div><div class="value" id="d-done">—</div><div class="sub">รายการ</div></div>
+    <div class="stat-card red"><div class="label">ทั้งหมด (เดือนนี้)</div><div class="value" id="d-total">—</div><div class="sub">รายการ</div></div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>📦 ปริมาณแลกท่อ O₂ (เดือนนี้)</h3>
+      <div class="bar-list" id="dash-o2-bars">
+        <div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>🏥 แผนกที่ขอรับบริการมากที่สุด</h3>
+      <div class="bar-list" id="dash-dept-bars">
+        <div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>🔧 ประเภทบริการ (เดือนนี้)</h3>
+      <div class="bar-list" id="dash-type-bars">
+        <div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>⚡ แจ้งซ่อม Pipeline</h3>
+      <div class="bar-list" id="dash-repair-bars">
+        <div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- end app-wrapper -->
+
+<!-- ===== PIN MODAL ===== -->
+<div class="modal-overlay hidden" id="pin-modal">
+  <div class="modal-box">
+    <div style="font-size:36px;margin-bottom:8px">🔐</div>
+    <h2>ยืนยันตัวตน</h2>
+    <p>กรุณาใส่ PIN เพื่อเข้าสู่หน้าบันทึกให้บริการ</p>
+    <input type="password" class="pin-input" id="pin-input" maxlength="4" placeholder="••••"
+      onkeydown="if(event.key==='Enter')checkPin()">
+    <div class="pin-error" id="pin-error"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="checkPin()">ยืนยัน</button>
+  </div>
+</div>
+
+<!-- ===== DETAIL PANEL ===== -->
+<div class="detail-overlay hidden" id="detail-overlay" onclick="closeDetail(event)">
+  <div class="detail-panel" id="detail-panel">
+    <button class="detail-close" onclick="closeDetailPanel()">✕</button>
+    <h2 id="dp-title">รายละเอียด</h2>
+    <div id="dp-badge" style="margin:8px 0"></div>
+    <div id="dp-content"></div>
+  </div>
+</div>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div id="toast-container"></div>
+
+<!-- ===== SCRIPT ===== -->
+<script>
+// ===== CONFIG =====
+const SUPA_URL  = 'https://kmteuxpvpcqchacpefmy.supabase.co';
+const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttdGV1eHB2cGNxY2hhY3BlZm15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNTgwMDUsImV4cCI6MjA5NjkzNDAwNX0.HpVuvxq9Nx1flqWYzOuQ5_iB6I7DeBN_YxgfzIERvDc';
+const TABLE     = 'exchang-repair-loan-gas-system';
+const PIN_CODE  = '9999';
+
+// ===== SUPABASE HELPER =====
+async function supaFetch(method, params = '', body = null) {
+  const url = `${SUPA_URL}/rest/v1/${encodeURIComponent(TABLE)}${params}`;
+  const headers = {
+    'apikey': SUPA_KEY,
+    'Authorization': `Bearer ${SUPA_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': method === 'POST' ? 'return=representation' : 'return=representation'
+  };
+  if (method === 'GET') headers['Accept'] = 'application/json';
+  const opts = { method, headers };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `HTTP ${res.status}`);
+  }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+// ===== AUTH STATE =====
+let pinUnlocked = false;
+let targetPageAfterPin = 'service';
+let currentServiceId = null;
+let currentServiceData = null;
+
+// ===== NAVIGATION =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+  if (id === 'service')   loadPendingList();
+  if (id === 'history')   loadHistory();
+  if (id === 'dashboard') loadDashboard();
+}
+
+function requirePin(target) {
+  if (pinUnlocked) { showPage(target); return; }
+  targetPageAfterPin = target;
+  document.getElementById('pin-modal').classList.remove('hidden');
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-error').textContent = '';
+  setTimeout(() => document.getElementById('pin-input').focus(), 100);
+}
+
+function checkPin() {
+  const val = document.getElementById('pin-input').value.trim();
+  if (val === PIN_CODE) {
+    pinUnlocked = true;
+    document.getElementById('pin-modal').classList.add('hidden');
+    showPage(targetPageAfterPin);
+  } else {
+    document.getElementById('pin-error').textContent = 'PIN ไม่ถูกต้อง กรุณาลองใหม่';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus();
+  }
+}
+
+// ===== TOAST =====
+function toast(msg, type = 'info', duration = 3500) {
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), duration);
+}
+
+// ===== DEPT OTHER TOGGLE =====
+function toggleOtherDept(sel) {
+  const row = document.getElementById('dept-other-row');
+  const inp = document.getElementById('req-dept-other');
+  if (sel.value === 'other') {
+    row.style.display = '';
+    inp.required = true;
+  } else {
+    row.style.display = 'none';
+    inp.required = false;
+  }
+}
+
+// ===== RESET REQUEST FORM =====
+function resetRequestForm() {
+  document.getElementById('form-request').reset();
+  document.getElementById('dept-other-row').style.display = 'none';
+  document.querySelectorAll('.qty-input').forEach(i => i.value = 0);
+  setTodayDate();
+}
+
+function setTodayDate() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  const el = document.getElementById('req-date');
+  if (el) el.value = `${y}-${m}-${dd}`;
+}
+
+// ===== HELPER: ชื่อรายการ =====
+const ITEM_LABELS = {
+  o2_05q:'O₂ 0.5Q', o2_07q:'O₂ 0.7Q', o2_15q:'O₂ 1.5Q',
+  o2_6q:'O₂ 6Q', o2_7q:'O₂ 7Q', o2_other:'O₂ ขนาดอื่น',
+  co2_6kg:'CO₂ 6Kg', co2_25kg:'CO₂ 25Kg',
+  n2o_25kg:'N₂O 25Kg', n2_7q:'N₂ 7Q',
+  loan_flowmeter:'ยืม Flowmeter', loan_flowmeter_pto:'ยืม Flowmeter+PTO',
+  repair_medical_air:'ซ่อม Medical Air', repair_oxygen:'ซ่อม Oxygen',
+  repair_vacuum:'ซ่อม Vacuum'
+};
+
+// ===== SUBMIT REQUEST FORM =====
+document.getElementById('form-request').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btn-submit-request');
+  const dept = document.getElementById('req-dept').value;
+  const deptOther = document.getElementById('req-dept-other').value.trim();
+
+  // ตรวจสอบ checkbox อย่างน้อย 1 อัน
+  const checked = document.querySelectorAll('.svc-check:checked');
+  if (checked.length === 0) { toast('กรุณาเลือกรายการบริการอย่างน้อย 1 รายการ', 'error'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="loading-spinner" style="width:14px;height:14px"></div> กำลังส่ง...';
+
+  try {
+    const row = {
+      request_date:    document.getElementById('req-date').value,
+      requester_name:  document.getElementById('req-name').value.trim(),
+      department:      dept === 'other' ? 'อื่นๆ' : dept,
+      department_other: dept === 'other' ? deptOther : null,
+      note_request:    document.getElementById('req-note').value.trim() || null,
+      status:          'pending',
+
+      o2_05q:          +document.getElementById('qty-o2_05q').value || 0,
+      o2_07q:          +document.getElementById('qty-o2_07q').value || 0,
+      o2_15q:          +document.getElementById('qty-o2_15q').value || 0,
+      o2_6q:           +document.getElementById('qty-o2_6q').value  || 0,
+      o2_7q:           +document.getElementById('qty-o2_7q').value  || 0,
+      o2_other_size:   document.getElementById('txt-o2_other_size').value.trim() || null,
+      o2_other_qty:    +document.getElementById('qty-o2_other_qty').value || 0,
+
+      co2_6kg:         +document.getElementById('qty-co2_6kg').value   || 0,
+      co2_25kg:        +document.getElementById('qty-co2_25kg').value  || 0,
+      n2o_25kg:        +document.getElementById('qty-n2o_25kg').value  || 0,
+      n2_7q:           +document.getElementById('qty-n2_7q').value     || 0,
+
+      loan_flowmeter:     +document.getElementById('qty-loan_flowmeter').value     || 0,
+      loan_flowmeter_pto: +document.getElementById('qty-loan_flowmeter_pto').value || 0,
+
+      repair_medical_air:    document.querySelector('[data-id="repair_medical_air"]').checked,
+      repair_air_problem:    document.getElementById('txt-repair_air_problem').value.trim() || null,
+      repair_oxygen:         document.querySelector('[data-id="repair_oxygen"]').checked,
+      repair_oxygen_problem: document.getElementById('txt-repair_oxygen_problem').value.trim() || null,
+      repair_vacuum:         document.querySelector('[data-id="repair_vacuum"]').checked,
+      repair_vacuum_problem: document.getElementById('txt-repair_vacuum_problem').value.trim() || null,
+    };
+
+    await supaFetch('POST', '', row);
+    toast('ส่งคำร้องขอรับบริการเรียบร้อยแล้ว ✅', 'success');
+    resetRequestForm();
+  } catch(err) {
+    toast('เกิดข้อผิดพลาด: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> ส่งคำร้องขอรับบริการ';
+  }
+});
+
+// ===== LOAD PENDING LIST =====
+async function loadPendingList() {
+  const wrap = document.getElementById('pending-list-wrap');
+  wrap.innerHTML = '<div class="empty-state"><div class="loading-spinner"></div><p style="margin-top:12px">กำลังโหลด...</p></div>';
+  try {
+    const data = await supaFetch('GET', '?status=in.(pending,in_progress)&order=created_at.desc&select=id,request_date,requester_name,department,status,created_at,repair_medical_air,repair_oxygen,repair_vacuum,o2_05q,o2_07q,o2_15q,o2_6q,o2_7q,co2_6kg,co2_25kg,n2o_25kg,n2_7q,loan_flowmeter,loan_flowmeter_pto,o2_other_qty');
+    if (!data || data.length === 0) {
+      wrap.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><p>ไม่มีรายการรอดำเนินการ</p></div>';
+      return;
+    }
+    let html = '<div class="data-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>วันที่</th><th>แผนก</th><th>ผู้แจ้ง</th><th>รายการ</th><th>สถานะ</th><th></th></tr></thead><tbody>';
+    data.forEach(r => {
+      const items = getSummaryItems(r);
+      html += `<tr>
+        <td style="color:var(--text-3)">#${r.id}</td>
+        <td>${formatDate(r.request_date)}</td>
+        <td>${r.department}</td>
+        <td>${r.requester_name}</td>
+        <td style="max-width:200px;white-space:normal;font-size:12px;color:var(--text-2)">${items}</td>
+        <td>${badgeHtml(r.status)}</td>
+        <td><button class="btn btn-primary btn-sm" onclick="openServiceForm(${r.id})">บันทึก</button></td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
+  } catch(err) {
+    wrap.innerHTML = `<div class="empty-state"><p style="color:var(--red)">โหลดข้อมูลไม่สำเร็จ: ${err.message}</p></div>`;
+  }
+}
+
+// ===== OPEN SERVICE FORM =====
+async function openServiceForm(id) {
+  currentServiceId = id;
+  try {
+    const data = await supaFetch('GET', `?id=eq.${id}&limit=1`);
+    if (!data || data.length === 0) { toast('ไม่พบรายการ', 'error'); return; }
+    currentServiceData = data[0];
+
+    document.getElementById('svc-req-id').textContent = id;
+    document.getElementById('service-form-card').style.display = '';
+    document.getElementById('svc-tech').value = '';
+    document.getElementById('svc-status').value = 'in_progress';
+    document.getElementById('svc-note').value = '';
+    document.getElementById('svc-start').value = localDatetimeValue(new Date());
+    document.getElementById('svc-end').value = '';
+
+    // สรุปคำร้อง
+    const r = currentServiceData;
+    const items = getSummaryItemsFull(r);
+    let summary = `<strong style="color:var(--text-1)">คำร้อง #${r.id}</strong> | วันที่ ${formatDate(r.request_date)} | แผนก: ${r.department} | ผู้แจ้ง: ${r.requester_name}<br>`;
+    summary += `<span>รายการ: ${items}</span>`;
+    if (r.note_request) summary += `<br><span>หมายเหตุผู้แจ้ง: ${r.note_request}</span>`;
+    document.getElementById('svc-request-summary').innerHTML = summary;
+
+    // ช่องจำนวนจริง
+    buildActualQtySection(r);
+
+    // ซ่อม
+    const hasRepair = r.repair_medical_air || r.repair_oxygen || r.repair_vacuum;
+    document.getElementById('repair-result-section').style.display = hasRepair ? '' : 'none';
+    document.getElementById('svc-repair-result').value = '';
+
+    document.getElementById('service-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch(err) {
+    toast('โหลดข้อมูลไม่สำเร็จ: ' + err.message, 'error');
+  }
+}
+
+function buildActualQtySection(r) {
+  const fields = [
+    { key:'o2_05q', label:'O₂ 0.5Q', req: r.o2_05q },
+    { key:'o2_07q', label:'O₂ 0.7Q', req: r.o2_07q },
+    { key:'o2_15q', label:'O₂ 1.5Q', req: r.o2_15q },
+    { key:'o2_6q',  label:'O₂ 6Q',   req: r.o2_6q  },
+    { key:'o2_7q',  label:'O₂ 7Q',   req: r.o2_7q  },
+    { key:'o2_other_qty', label:`O₂ ${r.o2_other_size||'ขนาดอื่น'}`, req: r.o2_other_qty },
+    { key:'co2_6kg',  label:'CO₂ 6Kg',  req: r.co2_6kg  },
+    { key:'co2_25kg', label:'CO₂ 25Kg', req: r.co2_25kg },
+    { key:'n2o_25kg', label:'N₂O 25Kg', req: r.n2o_25kg },
+    { key:'n2_7q',    label:'N₂ 7Q',    req: r.n2_7q    },
+    { key:'loan_flowmeter',     label:'ยืม Flowmeter',     req: r.loan_flowmeter     },
+    { key:'loan_flowmeter_pto', label:'ยืม Flowmeter+PTO', req: r.loan_flowmeter_pto },
+  ];
+  const active = fields.filter(f => f.req && f.req > 0);
+  if (active.length === 0) { document.getElementById('actual-qty-section').innerHTML = ''; return; }
+
+  let html = '<div style="background:var(--bg-card2);border-radius:var(--radius);padding:14px;margin-bottom:14px"><div style="font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;margin-bottom:10px;letter-spacing:.05em">จำนวนที่จ่ายจริง</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">';
+  active.forEach(f => {
+    html += `<div class="form-group">
+      <label class="form-label">${f.label} <span style="color:var(--text-3)">(ขอ ${f.req})</span></label>
+      <input type="number" class="form-input" id="actual-${f.key}" min="0" value="${f.req}">
+    </div>`;
+  });
+  html += '</div></div>';
+  document.getElementById('actual-qty-section').innerHTML = html;
+}
+
+// ===== SUBMIT SERVICE RECORD =====
+async function submitServiceRecord() {
+  if (!currentServiceId) return;
+  const tech = document.getElementById('svc-tech').value.trim();
+  if (!tech) { toast('กรุณาระบุชื่อผู้ให้บริการ', 'error'); return; }
+
+  const btn = document.getElementById('btn-save-service');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="loading-spinner" style="width:14px;height:14px"></div> กำลังบันทึก...';
+
+  try {
+    const r = currentServiceData;
+    const update = {
+      technician_name:  tech,
+      status:           document.getElementById('svc-status').value,
+      service_start_at: document.getElementById('svc-start').value || null,
+      service_end_at:   document.getElementById('svc-end').value   || null,
+      note_service:     document.getElementById('svc-note').value.trim() || null,
+      repair_result:    document.getElementById('svc-repair-result')?.value.trim() || null,
+    };
+
+    // จำนวนจ่ายจริง
+    const fields = ['o2_05q','o2_07q','o2_15q','o2_6q','o2_7q','o2_other_qty','co2_6kg','co2_25kg','n2o_25kg','n2_7q','loan_flowmeter','loan_flowmeter_pto'];
+    fields.forEach(k => {
+      const el = document.getElementById('actual-' + k);
+      if (el) update['actual_' + k] = +el.value || 0;
+    });
+
+    await supaFetch('PATCH', `?id=eq.${currentServiceId}`, update);
+    toast('บันทึกผลการให้บริการเรียบร้อย ✅', 'success');
+    cancelServiceForm();
+    loadPendingList();
+  } catch(err) {
+    toast('เกิดข้อผิดพลาด: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> บันทึกผลการให้บริการ';
+  }
+}
+
+function cancelServiceForm() {
+  document.getElementById('service-form-card').style.display = 'none';
+  currentServiceId = null;
+  currentServiceData = null;
+}
+
+// ===== LOAD HISTORY =====
+let histPage = 0;
+const PAGE_SIZE = 20;
+
+async function loadHistory(page = 0) {
+  histPage = page;
+  const tbody = document.getElementById('history-tbody');
+  const pgEl  = document.getElementById('history-pagination');
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px"><div class="loading-spinner"></div></td></tr>';
+
+  const from = document.getElementById('hist-date-from').value;
+  const to   = document.getElementById('hist-date-to').value;
+  const st   = document.getElementById('hist-status').value;
+  const dept = document.getElementById('hist-dept').value.trim();
+
+  let params = `?order=created_at.desc&limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}`;
+  if (from) params += `&request_date=gte.${from}`;
+  if (to)   params += `&request_date=lte.${to}`;
+  if (st)   params += `&status=eq.${st}`;
+  if (dept) params += `&department=ilike.*${encodeURIComponent(dept)}*`;
+
+  try {
+    const data = await supaFetch('GET', params + '&select=id,request_date,requester_name,department,status,technician_name,created_at,o2_05q,o2_07q,o2_15q,o2_6q,o2_7q,co2_6kg,co2_25kg,n2o_25kg,n2_7q,loan_flowmeter,loan_flowmeter_pto,o2_other_qty,repair_medical_air,repair_oxygen,repair_vacuum');
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-3)">ไม่พบข้อมูล</td></tr>';
+      pgEl.textContent = '';
+      return;
+    }
+    tbody.innerHTML = data.map(r => `
+      <tr onclick="openDetail(${r.id})">
+        <td style="color:var(--text-3)">#${r.id}</td>
+        <td>${formatDate(r.request_date)}</td>
+        <td>${r.department}</td>
+        <td>${r.requester_name}</td>
+        <td style="font-size:12px;color:var(--text-2);max-width:200px">${getSummaryItems(r)}</td>
+        <td>${badgeHtml(r.status)}</td>
+        <td style="color:var(--text-2)">${r.technician_name||'—'}</td>
+      </tr>`).join('');
+    pgEl.innerHTML = `หน้า ${page+1} | แสดง ${data.length} รายการ
+      ${page > 0 ? `<button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="loadHistory(${page-1})">← ก่อนหน้า</button>` : ''}
+      ${data.length === PAGE_SIZE ? `<button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="loadHistory(${page+1})">ถัดไป →</button>` : ''}`;
+  } catch(err) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--red)">${err.message}</td></tr>`;
+  }
+}
+
+// ===== OPEN DETAIL =====
+async function openDetail(id) {
+  document.getElementById('detail-overlay').classList.remove('hidden');
+  document.getElementById('dp-content').innerHTML = '<div class="loading-spinner"></div>';
+  try {
+    const data = await supaFetch('GET', `?id=eq.${id}&limit=1`);
+    const r = data[0];
+    document.getElementById('dp-title').textContent = `คำร้อง #${r.id}`;
+    document.getElementById('dp-badge').innerHTML = badgeHtml(r.status);
+
+    let html = '';
+    // ข้อมูลพื้นฐาน
+    html += detailSection('📋 ข้อมูลผู้แจ้ง', [
+      ['วันที่แจ้ง', formatDate(r.request_date)],
+      ['ผู้แจ้ง', r.requester_name],
+      ['แผนก', r.department + (r.department_other ? ` (${r.department_other})` : '')],
+      ['หมายเหตุผู้แจ้ง', r.note_request || '—'],
+    ]);
+
+    // รายการที่ขอ
+    const reqItems = getSummaryItemsFull(r);
+    html += detailSection('📦 รายการที่ขอ', [['รายการ', reqItems]]);
+
+    // ซ่อม
+    if (r.repair_medical_air || r.repair_oxygen || r.repair_vacuum) {
+      const repairs = [];
+      if (r.repair_medical_air) repairs.push(['Medical Air', r.repair_air_problem||'ไม่ระบุ']);
+      if (r.repair_oxygen)      repairs.push(['Medical Oxygen', r.repair_oxygen_problem||'ไม่ระบุ']);
+      if (r.repair_vacuum)      repairs.push(['Medical Vacuum', r.repair_vacuum_problem||'ไม่ระบุ']);
+      html += detailSection('🔧 ปัญหาแจ้งซ่อม', repairs);
+    }
+
+    // การให้บริการ
+    if (r.technician_name) {
+      html += detailSection('⚙️ ผลการให้บริการ', [
+        ['ช่าง', r.technician_name],
+        ['เริ่มบริการ', r.service_start_at ? formatDatetime(r.service_start_at) : '—'],
+        ['สิ้นสุด', r.service_end_at ? formatDatetime(r.service_end_at) : '—'],
+        ['ผลการซ่อม', r.repair_result || '—'],
+        ['หมายเหตุช่าง', r.note_service || '—'],
+      ]);
+
+      // จำนวนจ่ายจริง
+      const actualFields = [
+        ['O₂ 0.5Q', r.actual_o2_05q], ['O₂ 0.7Q', r.actual_o2_07q],
+        ['O₂ 1.5Q', r.actual_o2_15q], ['O₂ 6Q', r.actual_o2_6q],
+        ['O₂ 7Q', r.actual_o2_7q],   ['O₂ อื่น', r.actual_o2_other_qty],
+        ['CO₂ 6Kg', r.actual_co2_6kg], ['CO₂ 25Kg', r.actual_co2_25kg],
+        ['N₂O 25Kg', r.actual_n2o_25kg], ['N₂ 7Q', r.actual_n2_7q],
+        ['Flowmeter', r.actual_loan_flowmeter], ['Flowmeter+PTO', r.actual_loan_flowmeter_pto],
+      ].filter(f => f[1] != null && f[1] > 0);
+      if (actualFields.length > 0) html += detailSection('📊 จำนวนที่จ่ายจริง', actualFields.map(f => [f[0], `${f[1]} ชิ้น/ถัง`]));
+    }
+
+    document.getElementById('dp-content').innerHTML = html;
+  } catch(err) {
+    document.getElementById('dp-content').innerHTML = `<p style="color:var(--red)">${err.message}</p>`;
+  }
+}
+
+function detailSection(title, rows) {
+  let html = `<div class="detail-section"><h3>${title}</h3>`;
+  rows.forEach(([k, v]) => {
+    html += `<div class="detail-row"><span class="dk">${k}</span><span class="dv">${v}</span></div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function closeDetailPanel() { document.getElementById('detail-overlay').classList.add('hidden'); }
+function closeDetail(e) { if (e.target === document.getElementById('detail-overlay')) closeDetailPanel(); }
+
+// ===== DASHBOARD =====
+async function loadDashboard() {
+  document.getElementById('d-pending').textContent = '…';
+  document.getElementById('d-inprog').textContent  = '…';
+  document.getElementById('d-done').textContent    = '…';
+  document.getElementById('d-total').textContent   = '…';
+
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth()+1).padStart(2,'0');
+  const monthStart = `${y}-${m}-01`;
+
+  try {
+    const all = await supaFetch('GET', `?request_date=gte.${monthStart}&select=status,department,o2_05q,o2_07q,o2_15q,o2_6q,o2_7q,o2_other_qty,co2_6kg,co2_25kg,n2o_25kg,n2_7q,loan_flowmeter,loan_flowmeter_pto,repair_medical_air,repair_oxygen,repair_vacuum`);
+
+    const pending  = all.filter(r => r.status === 'pending').length;
+    const inprog   = all.filter(r => r.status === 'in_progress').length;
+    const done     = all.filter(r => r.status === 'done').length;
+
+    document.getElementById('d-pending').textContent = pending;
+    document.getElementById('d-inprog').textContent  = inprog;
+    document.getElementById('d-done').textContent    = done;
+    document.getElementById('d-total').textContent   = all.length;
+
+    // O2 bars
+    const o2Data = [
+      { label: 'O₂ 0.5Q', val: all.reduce((s,r)=>s+(r.o2_05q||0),0) },
+      { label: 'O₂ 0.7Q', val: all.reduce((s,r)=>s+(r.o2_07q||0),0) },
+      { label: 'O₂ 1.5Q', val: all.reduce((s,r)=>s+(r.o2_15q||0),0) },
+      { label: 'O₂ 6Q',   val: all.reduce((s,r)=>s+(r.o2_6q||0),0)  },
+      { label: 'O₂ 7Q',   val: all.reduce((s,r)=>s+(r.o2_7q||0),0)  },
+      { label: 'อื่นๆ',    val: all.reduce((s,r)=>s+(r.o2_other_qty||0),0) },
+    ].filter(d => d.val > 0);
+    renderBarList('dash-o2-bars', o2Data, 'blue');
+
+    // Dept bars
+    const deptMap = {};
+    all.forEach(r => { deptMap[r.department] = (deptMap[r.department]||0)+1; });
+    const deptData = Object.entries(deptMap).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([k,v])=>({label:k,val:v}));
+    renderBarList('dash-dept-bars', deptData, 'green');
+
+    // Type bars
+    const typeData = [
+      { label: 'แลกท่อ O₂',     val: all.filter(r => (r.o2_05q||0)+(r.o2_07q||0)+(r.o2_15q||0)+(r.o2_6q||0)+(r.o2_7q||0)+(r.o2_other_qty||0) > 0).length },
+      { label: 'แลกท่อชนิดอื่น', val: all.filter(r => (r.co2_6kg||0)+(r.co2_25kg||0)+(r.n2o_25kg||0)+(r.n2_7q||0) > 0).length },
+      { label: 'ยืมอุปกรณ์',     val: all.filter(r => (r.loan_flowmeter||0)+(r.loan_flowmeter_pto||0) > 0).length },
+      { label: 'แจ้งซ่อม',       val: all.filter(r => r.repair_medical_air||r.repair_oxygen||r.repair_vacuum).length },
+    ].filter(d => d.val > 0);
+    renderBarList('dash-type-bars', typeData, 'yellow');
+
+    // Repair bars
+    const repairData = [
+      { label: 'Medical Air',    val: all.filter(r=>r.repair_medical_air).length },
+      { label: 'Medical Oxygen', val: all.filter(r=>r.repair_oxygen).length      },
+      { label: 'Medical Vacuum', val: all.filter(r=>r.repair_vacuum).length      },
+    ].filter(d => d.val > 0);
+    renderBarList('dash-repair-bars', repairData, 'red');
+
+  } catch(err) {
+    ['d-pending','d-inprog','d-done','d-total'].forEach(id => document.getElementById(id).textContent = 'Err');
+  }
+}
+
+function renderBarList(containerId, data, colorClass = '') {
+  const el = document.getElementById(containerId);
+  if (!data.length) { el.innerHTML = '<div style="color:var(--text-3);font-size:12px">ไม่มีข้อมูล</div>'; return; }
+  const max = Math.max(...data.map(d=>d.val));
+  el.innerHTML = data.map(d => `
+    <div class="bar-item">
+      <div class="bar-item-label"><span>${d.label}</span><span>${d.val}</span></div>
+      <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${Math.round(d.val/max*100)}%"></div></div>
+    </div>`).join('');
+}
+
+// ===== UTIL =====
+function getSummaryItems(r) {
+  const parts = [];
+  if ((r.o2_05q||0)+(r.o2_07q||0)+(r.o2_15q||0)+(r.o2_6q||0)+(r.o2_7q||0)+(r.o2_other_qty||0) > 0) parts.push('แลกท่อ O₂');
+  if ((r.co2_6kg||0)+(r.co2_25kg||0)+(r.n2o_25kg||0)+(r.n2_7q||0) > 0) parts.push('แลกท่อชนิดอื่น');
+  if ((r.loan_flowmeter||0)+(r.loan_flowmeter_pto||0) > 0) parts.push('ยืมอุปกรณ์');
+  if (r.repair_medical_air||r.repair_oxygen||r.repair_vacuum) parts.push('แจ้งซ่อม');
+  return parts.join(', ') || '—';
+}
+
+function getSummaryItemsFull(r) {
+  const parts = [];
+  if (r.o2_05q > 0) parts.push(`O₂ 0.5Q × ${r.o2_05q}`);
+  if (r.o2_07q > 0) parts.push(`O₂ 0.7Q × ${r.o2_07q}`);
+  if (r.o2_15q > 0) parts.push(`O₂ 1.5Q × ${r.o2_15q}`);
+  if (r.o2_6q  > 0) parts.push(`O₂ 6Q × ${r.o2_6q}`);
+  if (r.o2_7q  > 0) parts.push(`O₂ 7Q × ${r.o2_7q}`);
+  if (r.o2_other_qty > 0) parts.push(`O₂ ${r.o2_other_size||'อื่น'} × ${r.o2_other_qty}`);
+  if (r.co2_6kg  > 0) parts.push(`CO₂ 6Kg × ${r.co2_6kg}`);
+  if (r.co2_25kg > 0) parts.push(`CO₂ 25Kg × ${r.co2_25kg}`);
+  if (r.n2o_25kg > 0) parts.push(`N₂O 25Kg × ${r.n2o_25kg}`);
+  if (r.n2_7q    > 0) parts.push(`N₂ 7Q × ${r.n2_7q}`);
+  if (r.loan_flowmeter     > 0) parts.push(`Flowmeter × ${r.loan_flowmeter}`);
+  if (r.loan_flowmeter_pto > 0) parts.push(`Flowmeter+PTO × ${r.loan_flowmeter_pto}`);
+  if (r.repair_medical_air) parts.push('ซ่อม Air');
+  if (r.repair_oxygen)      parts.push('ซ่อม O₂');
+  if (r.repair_vacuum)      parts.push('ซ่อม Vacuum');
+  return parts.join(' | ') || '—';
+}
+
+function badgeHtml(status) {
+  const map = { pending: ['badge-pending','รอดำเนินการ'], in_progress: ['badge-progress','กำลังดำเนินการ'], done: ['badge-done','เสร็จสิ้น'] };
+  const [cls, label] = map[status] || ['','—'];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('th-TH', { year:'numeric', month:'short', day:'numeric' });
+}
+
+function formatDatetime(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleString('th-TH', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+function localDatetimeValue(d) {
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  setTodayDate();
+});
+</script>
+</body>
+</html>

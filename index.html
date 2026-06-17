@@ -5,947 +5,749 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>งานบริการระบบแก๊สทางการแพทย์</title>
 <style>
-/* ===== RESET & BASE ===== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --bg-base:     #0d1117;
-  --bg-card:     #161b22;
-  --bg-card2:    #1c2230;
-  --bg-input:    #0d1117;
-  --border:      #30363d;
-  --border-focus:#4493f8;
-  --accent:      #1f6feb;
-  --accent-h:    #388bfd;
-  --green:       #3fb950;
-  --green-bg:    #0d2d1a;
-  --yellow:      #d29922;
-  --yellow-bg:   #2d1f00;
-  --red:         #f85149;
-  --red-bg:      #2d0e0e;
-  --text-1:      #e6edf3;
-  --text-2:      #8b949e;
-  --text-3:      #6e7681;
-  --cyan:        #58a6ff;
-  --purple:      #bc8cff;
-  --teal:        #39d353;
-  --font:        'Segoe UI', 'Sarabun', sans-serif;
-  --radius:      8px;
-  --radius-lg:   12px;
-  --shadow:      0 4px 24px rgba(0,0,0,0.5);
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg-base:#0d1117;--bg-card:#161b22;--bg-card2:#1c2230;--bg-input:#0d1117;
+  --border:#30363d;--border-focus:#4493f8;--accent:#1f6feb;--accent-h:#388bfd;
+  --green:#3fb950;--green-bg:#0d2d1a;--yellow:#d29922;--yellow-bg:#2d1f00;
+  --red:#f85149;--red-bg:#2d0e0e;--text-1:#e6edf3;--text-2:#8b949e;--text-3:#6e7681;
+  --cyan:#58a6ff;--purple:#bc8cff;--orange:#ff9a3c;
+  --font:'Segoe UI','Sarabun',sans-serif;--radius:8px;--radius-lg:12px;--shadow:0 4px 24px rgba(0,0,0,.5);
 }
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-height:100vh;font-size:15px;line-height:1.6}
 
-html { scroll-behavior: smooth; }
-body {
-  font-family: var(--font);
-  background: var(--bg-base);
-  color: var(--text-1);
-  min-height: 100vh;
-  font-size: 15px;
-  line-height: 1.6;
-}
+/* ===== AUTH ===== */
+#auth-screen{position:fixed;inset:0;background:var(--bg-base);z-index:9000;display:flex;align-items:center;justify-content:center}
+#auth-screen.hidden{display:none}
+.auth-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:40px 36px;width:360px;text-align:center;box-shadow:var(--shadow)}
+.auth-logo{font-size:48px;margin-bottom:12px}
+.auth-box h1{font-size:18px;color:var(--text-1);margin-bottom:4px;line-height:1.4}
+.auth-box .sub{font-size:12px;color:var(--text-2);margin-bottom:28px}
+.auth-field{text-align:left;margin-bottom:12px}
+.auth-field label{font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:6px}
+.auth-input{width:100%;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-1);font-family:var(--font);font-size:14px;padding:10px 12px;transition:border-color .15s}
+.auth-input:focus{outline:none;border-color:var(--border-focus);box-shadow:0 0 0 3px rgba(68,147,248,.15)}
+.auth-pw-wrap{position:relative}
+.auth-pw-wrap .auth-input{padding-right:40px}
+.auth-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-3);cursor:pointer;font-size:15px;padding:4px}
+.auth-error{color:var(--red);font-size:12px;min-height:18px;margin-bottom:10px;text-align:left}
+.auth-shake{animation:shake .3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* ===== ADMIN PIN ===== */
+#admin-pin-screen{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:8000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+#admin-pin-screen.hidden{display:none}
+.admin-pin-box{background:var(--bg-card);border:2px solid var(--orange);border-radius:var(--radius-lg);padding:36px 32px;width:340px;text-align:center;box-shadow:0 0 40px rgba(255,154,60,.2)}
+.admin-pin-box h2{font-size:18px;color:var(--orange);margin-bottom:6px}
+.admin-pin-box p{font-size:13px;color:var(--text-2);margin-bottom:20px}
+.admin-pin-input{width:100%;background:var(--bg-input);border:2px solid var(--border);border-radius:var(--radius);color:var(--text-1);font-size:24px;letter-spacing:8px;padding:12px;text-align:center;font-family:monospace;margin-bottom:8px;transition:border-color .15s}
+.admin-pin-input:focus{outline:none;border-color:var(--orange)}
+.admin-pin-error{color:var(--red);font-size:12px;min-height:18px;margin-bottom:12px}
 
 /* ===== LAYOUT ===== */
-.app-wrapper { display: flex; flex-direction: column; min-height: 100vh; }
+.app-wrapper{display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--bg-card);border-bottom:1px solid var(--border);padding:0 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:10px;min-height:56px;flex-wrap:wrap}
+.topbar-brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.topbar-brand svg{width:26px;height:26px;flex-shrink:0}
+.topbar-title{display:flex;flex-direction:column;line-height:1.2}
+.topbar-title span:first-child{font-size:13px;font-weight:700;color:var(--cyan)}
+.topbar-title span:last-child{font-size:10px;color:var(--text-2)}
+.topbar-nav{display:flex;gap:3px;flex-wrap:wrap;margin-left:auto}
+.nav-btn{background:none;border:1px solid transparent;color:var(--text-2);padding:6px 10px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-family:var(--font);transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.nav-btn:hover{color:var(--text-1);background:var(--bg-card2)}
+.nav-btn.active{color:var(--cyan);border-color:var(--border-focus);background:rgba(68,147,248,.1)}
+.nav-btn.admin-btn{color:var(--orange)}
+.nav-btn.admin-btn.active{color:var(--orange);border-color:var(--orange);background:rgba(255,154,60,.1)}
+.topbar-logout{background:none;border:1px solid var(--border);color:var(--text-3);padding:5px 10px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-family:var(--font);transition:all .15s;display:flex;align-items:center;gap:5px;flex-shrink:0}
+.topbar-logout:hover{border-color:var(--red);color:var(--red)}
+.topbar-user{font-size:11px;color:var(--text-3);white-space:nowrap}
 
-/* ===== TOPBAR ===== */
-.topbar {
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border);
-  padding: 0 20px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  height: 56px;
-}
-.topbar-logo {
-  display: flex; align-items: center; gap: 10px; text-decoration: none;
-}
-.topbar-logo svg { width: 28px; height: 28px; flex-shrink: 0; }
-.topbar-title {
-  display: flex; flex-direction: column; line-height: 1.2;
-}
-.topbar-title span:first-child { font-size: 13px; font-weight: 700; color: var(--cyan); }
-.topbar-title span:last-child  { font-size: 10px; color: var(--text-2); }
-.topbar-nav {
-  display: flex; gap: 4px; margin-left: auto; flex-wrap: wrap;
-}
-.nav-btn {
-  background: none;
-  border: 1px solid transparent;
-  color: var(--text-2);
-  padding: 6px 12px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-size: 13px;
-  font-family: var(--font);
-  transition: all .15s;
-  white-space: nowrap;
-  display: flex; align-items: center; gap: 6px;
-}
-.nav-btn:hover { color: var(--text-1); background: var(--bg-card2); }
-.nav-btn.active { color: var(--cyan); border-color: var(--border-focus); background: rgba(68,147,248,.1); }
-
-/* ===== PAGE SYSTEM ===== */
-.page { display: none; padding: 24px 20px; max-width: 960px; margin: 0 auto; width: 100%; }
-.page.active { display: block; }
-
-/* ===== PAGE HEADER ===== */
-.page-header { margin-bottom: 24px; }
-.page-header h1 { font-size: 20px; font-weight: 700; color: var(--text-1); }
-.page-header p  { font-size: 13px; color: var(--text-2); margin-top: 4px; }
+/* ===== PAGE ===== */
+.page{display:none;padding:20px 16px;max-width:1040px;margin:0 auto;width:100%}
+.page.active{display:block}
+.page-header{margin-bottom:20px}
+.page-header h1{font-size:20px;font-weight:700}
+.page-header p{font-size:13px;color:var(--text-2);margin-top:4px}
 
 /* ===== CARD ===== */
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 20px;
-  margin-bottom: 16px;
-}
-.card-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--cyan);
-  margin-bottom: 16px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 8px;
-}
-.card-title svg { width: 16px; height: 16px; flex-shrink: 0; }
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;margin-bottom:14px}
+.card.admin-card{border-color:rgba(255,154,60,.4);background:linear-gradient(135deg,var(--bg-card) 0%,rgba(255,154,60,.03) 100%)}
+.card-title{font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title-l{display:flex;align-items:center;gap:7px}
+.card-title svg{width:15px;height:15px;flex-shrink:0}
 
-/* ===== FORM ELEMENTS ===== */
-.form-row { display: grid; gap: 14px; margin-bottom: 14px; }
-.form-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
-.form-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
-.form-row.cols-1 { grid-template-columns: 1fr; }
+/* ===== FORM ===== */
+.form-row{display:grid;gap:12px;margin-bottom:12px}
+.form-row.c3{grid-template-columns:repeat(3,1fr)}
+.form-row.c2{grid-template-columns:repeat(2,1fr)}
+.form-row.c1{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em}
+.req{color:var(--red);margin-left:2px}
+.form-input,.form-select,.form-textarea{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-1);font-family:var(--font);font-size:14px;padding:8px 11px;width:100%;transition:border-color .15s;-webkit-appearance:none}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--border-focus);box-shadow:0 0 0 3px rgba(68,147,248,.12)}
+.form-textarea{resize:vertical;min-height:68px}
+.form-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%238b949e'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.form-select option,.form-select optgroup{background:var(--bg-card2)}
 
-.form-group { display: flex; flex-direction: column; gap: 6px; }
-.form-label { font-size: 12px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .04em; }
-.form-label .req { color: var(--red); margin-left: 2px; }
-
-.form-input, .form-select, .form-textarea {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text-1);
-  font-family: var(--font);
-  font-size: 14px;
-  padding: 9px 12px;
-  width: 100%;
-  transition: border-color .15s, box-shadow .15s;
-  -webkit-appearance: none;
-}
-.form-input:focus, .form-select:focus, .form-textarea:focus {
-  outline: none;
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 3px rgba(68,147,248,.15);
-}
-.form-textarea { resize: vertical; min-height: 72px; }
-.form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%238b949e'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px; }
-.form-select option { background: var(--bg-card2); }
+/* ===== DATE PRESETS ===== */
+.date-preset-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.preset-btn{background:var(--bg-card2);border:1px solid var(--border);color:var(--text-2);padding:4px 10px;border-radius:20px;cursor:pointer;font-size:11px;font-family:var(--font);transition:all .12s;white-space:nowrap}
+.preset-btn:hover{border-color:var(--border-focus);color:var(--cyan)}
+.preset-btn.active{border-color:var(--border-focus);color:var(--cyan);background:rgba(68,147,248,.1)}
 
 /* ===== SERVICE TABLE ===== */
-.service-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.service-table thead tr { background: var(--bg-card2); }
-.service-table th {
-  padding: 10px 12px;
-  text-align: left;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-2);
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  border-bottom: 1px solid var(--border);
-}
-.service-table td {
-  padding: 8px 12px;
-  border-bottom: 1px solid rgba(48,54,61,.5);
-  vertical-align: middle;
-}
-.service-table tbody tr:hover { background: rgba(255,255,255,.02); }
-.service-table .group-header td {
-  background: rgba(88,166,255,.06);
-  color: var(--cyan);
-  font-weight: 700;
-  font-size: 12px;
-  padding: 8px 12px;
-  border-top: 1px solid var(--border);
-}
-.service-table .sub-row td:first-child { padding-left: 28px; color: var(--text-2); }
-
-.qty-input {
-  width: 72px;
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text-1);
-  font-family: var(--font);
-  font-size: 13px;
-  padding: 6px 8px;
-  text-align: center;
-  transition: border-color .15s;
-}
-.qty-input:focus { outline: none; border-color: var(--border-focus); }
-.qty-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-.checkbox-cell { text-align: center; }
-.custom-check {
-  width: 18px; height: 18px;
-  accent-color: var(--accent);
-  cursor: pointer;
-}
-
-.problem-input {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text-1);
-  font-family: var(--font);
-  font-size: 12px;
-  padding: 5px 8px;
-  width: 100%;
-  min-width: 140px;
-}
-.problem-input:focus { outline: none; border-color: var(--border-focus); }
+.svc-table{width:100%;border-collapse:collapse;font-size:13px}
+.svc-table thead tr{background:var(--bg-card2)}
+.svc-table th{padding:9px 11px;text-align:left;font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+.svc-table td{padding:7px 11px;border-bottom:1px solid rgba(48,54,61,.5);vertical-align:middle}
+.svc-table .grp td{background:rgba(88,166,255,.06);color:var(--cyan);font-weight:700;font-size:12px;border-top:1px solid var(--border)}
+.qty-input{width:66px;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-1);font-size:13px;padding:5px 7px;text-align:center}
+.qty-input:focus{outline:none;border-color:var(--border-focus)}
+.qty-input::-webkit-inner-spin-button{-webkit-appearance:none}
+.custom-check{width:17px;height:17px;accent-color:var(--accent);cursor:pointer}
+.prob-input{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-1);font-size:12px;padding:5px 8px;width:100%;min-width:120px}
+.prob-input:focus{outline:none;border-color:var(--border-focus)}
 
 /* ===== BUTTONS ===== */
-.btn {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 10px 20px;
-  border-radius: var(--radius);
-  font-family: var(--font);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: all .15s;
-  white-space: nowrap;
-}
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-primary:hover { background: var(--accent-h); }
-.btn-success { background: var(--green); color: #0d1117; }
-.btn-success:hover { filter: brightness(1.1); }
-.btn-outline {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-2);
-}
-.btn-outline:hover { border-color: var(--text-2); color: var(--text-1); }
-.btn-danger { background: var(--red); color: #fff; }
-.btn-danger:hover { filter: brightness(1.1); }
-.btn-sm { padding: 6px 12px; font-size: 12px; }
-.btn:disabled { opacity: .45; cursor: not-allowed; }
-
-.form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; flex-wrap: wrap; }
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:var(--radius);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent-h)}
+.btn-success{background:var(--green);color:#0d1117}.btn-success:hover{filter:brightness(1.1)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-2)}.btn-outline:hover{border-color:var(--text-2);color:var(--text-1)}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{filter:brightness(1.1)}
+.btn-warning{background:var(--yellow);color:#0d1117}.btn-warning:hover{filter:brightness(1.1)}
+.btn-orange{background:var(--orange);color:#0d1117}.btn-orange:hover{filter:brightness(1.1)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
 
 /* ===== BADGE ===== */
-.badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-}
-.badge-pending  { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(210,153,34,.3); }
-.badge-progress { background: rgba(68,147,248,.15); color: var(--cyan); border: 1px solid rgba(68,147,248,.3); }
-.badge-done     { background: var(--green-bg); color: var(--green); border: 1px solid rgba(63,185,80,.3); }
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-pending{background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(210,153,34,.3)}
+.badge-progress{background:rgba(68,147,248,.15);color:var(--cyan);border:1px solid rgba(68,147,248,.3)}
+.badge-done{background:var(--green-bg);color:var(--green);border:1px solid rgba(63,185,80,.3)}
 
 /* ===== TOAST ===== */
-#toast-container {
-  position: fixed; bottom: 24px; right: 24px;
-  z-index: 9999; display: flex; flex-direction: column; gap: 8px;
-}
-.toast {
-  background: var(--bg-card2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px 18px;
-  font-size: 13px;
-  color: var(--text-1);
-  box-shadow: var(--shadow);
-  display: flex; align-items: center; gap: 10px;
-  animation: slideIn .2s ease;
-  min-width: 260px; max-width: 360px;
-}
-.toast.success { border-left: 3px solid var(--green); }
-.toast.error   { border-left: 3px solid var(--red); }
-.toast.info    { border-left: 3px solid var(--cyan); }
-@keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+#toast-container{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:7px}
+.toast{background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--radius);padding:11px 16px;font-size:13px;color:var(--text-1);box-shadow:var(--shadow);display:flex;align-items:center;gap:9px;animation:slideIn .2s ease;min-width:240px;max-width:340px}
+.toast.success{border-left:3px solid var(--green)}
+.toast.error{border-left:3px solid var(--red)}
+.toast.info{border-left:3px solid var(--cyan)}
+@keyframes slideIn{from{transform:translateX(16px);opacity:0}to{transform:translateX(0);opacity:1}}
 
-/* ===== PIN MODAL ===== */
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.7);
-  z-index: 200;
-  display: flex; align-items: center; justify-content: center;
-  backdrop-filter: blur(4px);
-}
-.modal-overlay.hidden { display: none; }
-.modal-box {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 32px 28px;
-  width: 320px;
-  text-align: center;
-  box-shadow: var(--shadow);
-}
-.modal-box h2 { font-size: 18px; color: var(--text-1); margin-bottom: 6px; }
-.modal-box p  { font-size: 13px; color: var(--text-2); margin-bottom: 20px; }
-.pin-input {
-  width: 100%;
-  background: var(--bg-input);
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text-1);
-  font-size: 24px;
-  letter-spacing: 8px;
-  padding: 12px;
-  text-align: center;
-  font-family: monospace;
-  margin-bottom: 16px;
-}
-.pin-input:focus { outline: none; border-color: var(--border-focus); }
-.pin-error { color: var(--red); font-size: 12px; margin-bottom: 12px; min-height: 18px; }
+/* ===== CONFIRM ===== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:5000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.hidden{display:none}
+.confirm-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;width:320px;text-align:center;box-shadow:var(--shadow)}
+.confirm-box h3{font-size:16px;margin-bottom:8px}
+.confirm-box p{font-size:13px;color:var(--text-2);margin-bottom:20px}
+.confirm-actions{display:flex;gap:10px;justify-content:center}
 
-/* ===== HISTORY TABLE ===== */
-.history-filters {
-  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: flex-end;
-}
-.history-filters .form-group { min-width: 160px; flex: 1; }
+/* ===== DATA TABLE ===== */
+.data-table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;min-width:650px}
+.data-table th{background:var(--bg-card2);padding:9px 13px;text-align:left;font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);white-space:nowrap}
+.data-table td{padding:9px 13px;border-bottom:1px solid rgba(48,54,61,.5);vertical-align:middle}
+.data-table tbody tr:hover{background:rgba(255,255,255,.025)}
+.data-table tbody tr:last-child td{border-bottom:none}
 
-.data-table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
-.data-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 700px; }
-.data-table th {
-  background: var(--bg-card2);
-  padding: 10px 14px;
-  text-align: left;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-2);
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-.data-table td {
-  padding: 10px 14px;
-  border-bottom: 1px solid rgba(48,54,61,.5);
-  color: var(--text-1);
-  vertical-align: middle;
-}
-.data-table tbody tr:hover { background: rgba(255,255,255,.025); cursor: pointer; }
-.data-table tbody tr:last-child td { border-bottom: none; }
+/* ===== FILTER ===== */
+.filter-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));align-items:flex-end;margin-bottom:4px}
 
-/* ===== DASHBOARD ===== */
-.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
-.stat-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 18px 20px;
-}
-.stat-card .label { font-size: 11px; color: var(--text-2); font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
-.stat-card .value { font-size: 28px; font-weight: 700; line-height: 1; }
-.stat-card.yellow .value { color: var(--yellow); }
-.stat-card.blue   .value { color: var(--cyan); }
-.stat-card.green  .value { color: var(--green); }
-.stat-card.red    .value { color: var(--red); }
-.stat-card .sub   { font-size: 11px; color: var(--text-3); margin-top: 4px; }
-
-.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.chart-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 18px 20px;
-}
-.chart-card h3 { font-size: 13px; font-weight: 700; color: var(--text-2); margin-bottom: 14px; text-transform: uppercase; letter-spacing: .04em; }
-
-/* ===== BAR CHART (CSS) ===== */
-.bar-list { display: flex; flex-direction: column; gap: 10px; }
-.bar-item { display: flex; flex-direction: column; gap: 4px; }
-.bar-item-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-2); }
-.bar-track { background: var(--bg-base); border-radius: 4px; height: 8px; overflow: hidden; }
-.bar-fill  { height: 100%; border-radius: 4px; background: var(--accent); transition: width .4s ease; }
-.bar-fill.green  { background: var(--green); }
-.bar-fill.yellow { background: var(--yellow); }
-.bar-fill.red    { background: var(--red); }
+/* ===== STATS ===== */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px}
+.stat-card .lbl{font-size:10px;color:var(--text-2);font-weight:700;text-transform:uppercase;margin-bottom:6px}
+.stat-card .val{font-size:26px;font-weight:700;line-height:1}
+.stat-card.yellow .val{color:var(--yellow)}.stat-card.blue .val{color:var(--cyan)}
+.stat-card.green .val{color:var(--green)}.stat-card.red .val{color:var(--red)}
+.stat-card .sub{font-size:11px;color:var(--text-3);margin-top:3px}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.chart-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px}
+.chart-card h3{font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.04em}
+.bar-list{display:flex;flex-direction:column;gap:9px}
+.bar-item{display:flex;flex-direction:column;gap:3px}
+.bar-lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--text-2)}
+.bar-lbl span:last-child{font-weight:700;color:var(--text-1)}
+.bar-track{background:var(--bg-base);border-radius:4px;height:7px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;background:var(--accent);transition:width .4s}
+.bar-fill.g{background:var(--green)}.bar-fill.y{background:var(--yellow)}
+.bar-fill.r{background:var(--red)}.bar-fill.p{background:var(--purple)}
+.bar-fill.o{background:var(--orange)}
 
 /* ===== DETAIL PANEL ===== */
-.detail-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.7);
-  z-index: 200;
-  display: flex; align-items: flex-start; justify-content: flex-end;
-  backdrop-filter: blur(2px);
-}
-.detail-overlay.hidden { display: none; }
-.detail-panel {
-  background: var(--bg-card);
-  border-left: 1px solid var(--border);
-  width: 480px;
-  max-width: 100vw;
-  height: 100vh;
-  overflow-y: auto;
-  padding: 24px;
-  animation: slideLeft .2s ease;
-}
-@keyframes slideLeft { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-.detail-panel h2 { font-size: 16px; margin-bottom: 4px; }
-.detail-close {
-  position: absolute; top: 16px; right: 20px;
-  background: none; border: none; color: var(--text-2); cursor: pointer; font-size: 20px;
-}
-.detail-section { margin-top: 16px; }
-.detail-section h3 { font-size: 11px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
-.detail-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px solid rgba(48,54,61,.3); }
-.detail-row:last-child { border-bottom: none; }
-.detail-row .dk { color: var(--text-2); }
-.detail-row .dv { color: var(--text-1); font-weight: 500; text-align: right; max-width: 60%; }
+.detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;display:flex;align-items:flex-start;justify-content:flex-end;backdrop-filter:blur(2px)}
+.detail-overlay.hidden{display:none}
+.detail-panel{background:var(--bg-card);border-left:1px solid var(--border);width:500px;max-width:100vw;height:100vh;overflow-y:auto;padding:22px;animation:slideLeft .2s ease;position:relative}
+@keyframes slideLeft{from{transform:translateX(28px);opacity:0}to{transform:translateX(0);opacity:1}}
+.dp-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text-2);cursor:pointer;font-size:20px}
+.dp-section{margin-top:14px}
+.dp-section h3{font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.dp-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-bottom:1px solid rgba(48,54,61,.3)}
+.dp-row:last-child{border-bottom:none}
+.dp-k{color:var(--text-2);flex-shrink:0}
+.dp-v{color:var(--text-1);font-weight:500;text-align:right;max-width:65%}
 
-/* ===== LOADING ===== */
-.loading-spinner {
-  display: inline-block; width: 20px; height: 20px;
-  border: 2px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.empty-state {
-  text-align: center; padding: 48px 20px; color: var(--text-3);
-}
-.empty-state svg { width: 40px; height: 40px; margin-bottom: 12px; opacity: .4; }
-.empty-state p { font-size: 14px; }
+/* ===== ADMIN BADGE ===== */
+.admin-tag{display:inline-flex;align-items:center;gap:4px;background:rgba(255,154,60,.15);border:1px solid rgba(255,154,60,.4);color:var(--orange);border-radius:20px;font-size:10px;font-weight:700;padding:2px 8px}
+
+/* ===== SPINNER ===== */
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-3)}
+.empty-state p{font-size:14px;margin-top:8px}
 
 /* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .topbar { height: auto; padding: 10px 14px; flex-wrap: wrap; }
-  .topbar-nav { margin-left: 0; width: 100%; justify-content: center; }
-  .nav-btn { font-size: 12px; padding: 5px 8px; }
-  .page { padding: 16px 12px; }
-  .form-row.cols-3 { grid-template-columns: 1fr; }
-  .form-row.cols-2 { grid-template-columns: 1fr; }
-  .stat-grid { grid-template-columns: repeat(2, 1fr); }
-  .chart-grid { grid-template-columns: 1fr; }
-  .detail-panel { width: 100vw; }
-  .service-table { font-size: 12px; }
-  .service-table th, .service-table td { padding: 6px 8px; }
-  .qty-input { width: 56px; }
+@media(max-width:768px){
+  .topbar{padding:8px 12px}
+  .topbar-nav{margin-left:0;width:100%;order:3}
+  .topbar-logout{order:2}
+  .page{padding:14px 10px}
+  .form-row.c3,.form-row.c2{grid-template-columns:1fr}
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .chart-grid{grid-template-columns:1fr}
+  .detail-panel{width:100vw}
+  .filter-grid{grid-template-columns:1fr 1fr}
+  .auth-box{width:92%;padding:28px 20px}
 }
-@media (max-width: 480px) {
-  .stat-grid { grid-template-columns: repeat(2, 1fr); }
-  .form-actions { flex-direction: column; }
-  .btn { width: 100%; justify-content: center; }
+@media(max-width:480px){
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .form-actions{flex-direction:column}
+  .btn{justify-content:center}
+  .filter-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
 <body>
 
-<!-- ===== TOPBAR ===== -->
-<div class="app-wrapper">
+<!-- ===== AUTH SCREEN ===== -->
+<div id="auth-screen">
+  <div class="auth-box" id="auth-box">
+    <div class="auth-logo">🏥</div>
+    <h1>งานบริการระบบแก๊สทางการแพทย์</h1>
+    <p class="sub">แผนกระบบแก๊สทางการแพทย์</p>
+    <div class="auth-field">
+      <label>อีเมล</label>
+      <input type="email" class="auth-input" id="auth-email" placeholder="email@hospital.th" autocomplete="email"
+        onkeydown="if(event.key==='Enter')document.getElementById('auth-pw').focus()">
+    </div>
+    <div class="auth-field">
+      <label>รหัสผ่าน</label>
+      <div class="auth-pw-wrap">
+        <input type="password" class="auth-input" id="auth-pw" placeholder="••••••••" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="auth-eye" type="button" onclick="togglePwEye()" tabindex="-1">👁</button>
+      </div>
+    </div>
+    <div class="auth-error" id="auth-error"></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-bottom:0" id="auth-btn" onclick="doLogin()">
+      เข้าสู่ระบบ
+    </button>
+  </div>
+</div>
+
+<!-- ===== ADMIN PIN SCREEN ===== -->
+<div id="admin-pin-screen" class="hidden">
+  <div class="admin-pin-box" id="admin-pin-box">
+    <div style="font-size:36px;margin-bottom:8px">🛡️</div>
+    <h2>Admin Access</h2>
+    <p>กรุณาใส่ Admin PIN เพื่อเข้าหน้าจัดการ</p>
+    <input type="password" class="admin-pin-input" id="admin-pin-input" maxlength="4" placeholder="••••"
+      onkeydown="if(event.key==='Enter')checkAdminPin()" onkeyup="if(this.value.length===4)checkAdminPin()">
+    <div class="admin-pin-error" id="admin-pin-error"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="closeAdminPin()">ยกเลิก</button>
+      <button class="btn btn-orange" style="flex:1;justify-content:center" onclick="checkAdminPin()">เข้าถึง Admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div class="app-wrapper" id="app" style="display:none">
+
 <nav class="topbar">
-  <div class="topbar-logo">
-    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="28" height="28" rx="6" fill="#1f6feb"/>
-      <path d="M8 14h4m4 0h4M14 8v4m0 4v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
-      <circle cx="14" cy="14" r="3" stroke="#58a6ff" stroke-width="1.5"/>
-    </svg>
+  <div class="topbar-brand">
+    <svg viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="5" fill="#1f6feb"/><path d="M7 13h4m4 0h4M13 7v4m0 4v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="13" cy="13" r="3" stroke="#58a6ff" stroke-width="1.5"/></svg>
     <div class="topbar-title">
       <span>งานบริการระบบแก๊สทางการแพทย์</span>
       <span>แผนกระบบแก๊สทางการแพทย์</span>
     </div>
   </div>
   <div class="topbar-nav">
-    <button class="nav-btn active" onclick="showPage('request')" id="nav-request">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-      แจ้งขอรับบริการ
-    </button>
-    <button class="nav-btn" onclick="requirePin('service')" id="nav-service">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-      บันทึกให้บริการ
-    </button>
-    <button class="nav-btn" onclick="showPage('history')" id="nav-history">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      ประวัติ
-    </button>
-    <button class="nav-btn" onclick="showPage('dashboard')" id="nav-dashboard">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      Dashboard
-    </button>
+    <button class="nav-btn active" onclick="showPage('request')" id="nav-request">📋 แจ้งขอรับบริการ</button>
+    <button class="nav-btn" onclick="showPage('service')" id="nav-service">✏️ บันทึกให้บริการ</button>
+    <button class="nav-btn" onclick="showPage('history')" id="nav-history">🕐 ประวัติ</button>
+    <button class="nav-btn" onclick="showPage('dashboard')" id="nav-dashboard">📊 Dashboard</button>
+    <button class="nav-btn admin-btn" onclick="requireAdminPin()" id="nav-admin">🛡️ Admin</button>
   </div>
+  <span class="topbar-user" id="topbar-user"></span>
+  <button class="topbar-logout" onclick="doLogout()">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    ออกจากระบบ
+  </button>
 </nav>
 
-<!-- ==================== PAGE 1: แจ้งขอรับบริการ ==================== -->
+<!-- ======== PAGE 1: แจ้งขอรับบริการ ======== -->
 <div class="page active" id="page-request">
-  <div class="page-header">
-    <h1>📋 แจ้งขอรับบริการ</h1>
-    <p>กรอกข้อมูลการขอรับบริการระบบแก๊สทางการแพทย์</p>
-  </div>
-
+  <div class="page-header"><h1>📋 แจ้งขอรับบริการ</h1><p>กรอกข้อมูลการขอรับบริการระบบแก๊สทางการแพทย์</p></div>
   <form id="form-request" autocomplete="off">
-    <!-- ข้อมูลผู้แจ้ง -->
     <div class="card">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        ข้อมูลผู้แจ้ง
-      </div>
-      <div class="form-row cols-3">
-        <div class="form-group">
-          <label class="form-label">วันที่แจ้ง <span class="req">*</span></label>
-          <input type="date" class="form-input" id="req-date" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">ผู้แจ้ง <span class="req">*</span></label>
-          <input type="text" class="form-input" id="req-name" placeholder="ชื่อ-นามสกุล" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">แผนก <span class="req">*</span></label>
+      <div class="card-title"><div class="card-title-l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>ข้อมูลผู้แจ้ง</div></div>
+      <div class="form-row c3">
+        <div class="form-group"><label class="form-label">วันที่แจ้ง<span class="req">*</span></label><input type="date" class="form-input" id="req-date" required></div>
+        <div class="form-group"><label class="form-label">ผู้แจ้ง<span class="req">*</span></label><input type="text" class="form-input" id="req-name" placeholder="ชื่อ-นามสกุล" required></div>
+        <div class="form-group"><label class="form-label">แผนก<span class="req">*</span></label>
           <select class="form-select" id="req-dept" required onchange="toggleOtherDept(this)">
             <option value="">-- เลือกแผนก --</option>
-            <optgroup label="Ward 100">
-              <option>100/9</option><option>100/8</option><option>100/7</option><option>100/6</option>
-            </optgroup>
-            <optgroup label="Ward 80">
-              <option>80/10</option><option>80/9</option><option>80/8</option>
-              <option>80/5</option><option>80/2</option><option>80/1</option>
-            </optgroup>
-            <optgroup label="ICU/Special">
-              <option>PICU</option><option>CICU</option><option>SICU</option><option>MICU</option>
-            </optgroup>
-            <optgroup label="Ward 14">
-              <option>14/9.</option><option>14/8.</option><option>14/7.</option>
-            </optgroup>
-            <optgroup label="ห้องผ่าตัด">
-              <option>ORสูติ</option><option>ORตา</option><option>OR ศัลย์</option><option>OR ENT</option>
-            </optgroup>
-            <optgroup label="OPD">
-              <option>OPD อายุรกรรม</option><option>OPD โรคเลือด</option><option>OPD ENT</option>
-              <option>OPD ทันตกรรม</option><option>OPD ทางเดินอาหาร</option>
-              <option>OPD ทางเดินหายใจ</option><option>OPD กระดูก</option><option>OPD ศัยกรรม</option>
-              <option>OPD จักษุ</option><option>OPD นรีเวชกรรม</option><option>OPD กุมาร</option>
-            </optgroup>
-            <optgroup label="แผนกอื่น">
-              <option>ศช</option><option>ศญ</option><option>อญ</option><option>อช</option>
-              <option>ER</option><option>เวรแปล</option><option>รังสี</option><option>HBO</option>
-              <option>ห้องตรวจ พิเศษศัลย์ ฯ</option><option>แผนกไตเทียม</option>
-              <option>Cath lab</option><option>ห้องเคมีบำบัด</option><option>ศูนย์สมอง</option>
-              <option value="other">อื่นๆ (ระบุ)</option>
-            </optgroup>
+            <optgroup label="🏢 อาคาร 100 ปี"><option>100/9</option><option>100/8</option><option>100/7</option><option>100/6</option></optgroup>
+            <optgroup label="🏢 อาคาร 80 พรรษา"><option>80/10</option><option>80/9</option><option>80/8</option><option>ศช</option><option>ศญ</option><option>80/5</option><option>OR สูติ</option><option>OR ตา</option><option>PICU</option><option>80/2</option><option>80/1</option></optgroup>
+            <optgroup label="🏢 อาคาร 14 ชั้น (ทศมบพิตร)"><option>14/9</option><option>14/8</option><option>14/7</option><option>อญ</option><option>อช</option><option>ห้องเคมีบำบัด</option></optgroup>
+            <optgroup label="🏢 อาคารเชิดบุญเมือง"><option>MICU</option></optgroup>
+            <optgroup label="🏢 อาคารผู้ป่วยนอก"><option>ER</option><option>OPD โรคเลือด</option><option>OPD ทันตกรรม</option><option>OPD ทางเดินอาหาร</option><option>OPD ทางเดินหายใจ</option><option>เวรแปล</option><option>OPD อายุรกรรม</option></optgroup>
+            <optgroup label="🏢 อาคารพิเคราะห์และบำบัดโรค"><option>CICU</option><option>SICU</option><option>OPD ENT</option><option>OPD ตา</option><option>OPD กระดูก</option><option>OPD ศัยกรรม</option><option>รังสี</option><option>HBO</option><option>OPD จักษุ</option><option>OPD นรีเวชกรรม</option><option>OPD กุมาร</option><option>ห้องตรวจ พิเศษศัลย์ ฯ</option><option>OR ศัลย์</option><option>OR ENT</option><option>แผนกไตเทียม</option><option>Cath lab</option><option>ศูนย์สมอง</option></optgroup>
+            <option value="other">อื่นๆ (ระบุ)</option>
           </select>
         </div>
       </div>
-      <div class="form-row cols-1" id="dept-other-row" style="display:none">
-        <div class="form-group">
-          <label class="form-label">ระบุแผนก <span class="req">*</span></label>
-          <input type="text" class="form-input" id="req-dept-other" placeholder="ระบุชื่อแผนก...">
-        </div>
+      <div class="form-row c1" id="dept-other-row" style="display:none">
+        <div class="form-group"><label class="form-label">ระบุแผนก<span class="req">*</span></label><input type="text" class="form-input" id="req-dept-other" placeholder="ระบุชื่อแผนก..."></div>
       </div>
     </div>
-
-    <!-- รายการบริการ -->
     <div class="card">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        รายการขอรับบริการ <span style="font-size:11px;color:var(--text-3);font-weight:400">(เลือกได้มากกว่า 1 รายการ)</span>
-      </div>
+      <div class="card-title"><div class="card-title-l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>รายการขอรับบริการ</div><span style="font-size:11px;color:var(--text-3);font-weight:400">เลือกได้มากกว่า 1 รายการ</span></div>
       <div style="overflow-x:auto">
-      <table class="service-table">
-        <thead>
-          <tr>
-            <th style="width:32px">✓</th>
-            <th>รายการ</th>
-            <th style="width:90px;text-align:center">จำนวนขอ</th>
-            <th style="width:120px">หมายเหตุ/ขนาด</th>
-          </tr>
-        </thead>
+      <table class="svc-table">
+        <thead><tr><th style="width:32px">✓</th><th>รายการ</th><th style="width:80px;text-align:center">จำนวน</th><th style="width:160px">หมายเหตุ/ขนาด</th></tr></thead>
         <tbody>
-          <!-- 1.1 Oxygen -->
-          <tr class="group-header"><td colspan="4">1.1  แลกท่อแก๊ส Oxygen</td></tr>
-          <tr class="sub-row">
-            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="o2_05q"></td>
-            <td>ขนาด 0.5 Q</td>
-            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-o2_05q" min="0" value="0"></td>
-            <td>—</td>
-          </tr>
-          <tr class="sub-row">
-            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="o2_07q"></td>
-            <td>ขนาด 0.7 Q</td>
-            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-o2_07q" min="0" value="0"></td>
-            <td>—</td>
-          </tr>
-          <tr class="sub-row">
-            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="o2_15q"></td>
-            <td>ขนาด 1.5 Q</td>
-            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-o2_15q" min="0" value="0"></td>
-            <td>—</td>
-          </tr>
-          <tr class="sub-row">
-            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="o2_6q"></td>
-            <td>ขนาด 6 Q</td>
-            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-o2_6q" min="0" value="0"></td>
-            <td>—</td>
-          </tr>
-          <tr class="sub-row">
-            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="o2_7q"></td>
-            <td>ขนาด 7 Q</td>
-            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-o2_7q" min="0" value="0"></td>
-            <td>—</td>
-          </tr>
-          <tr class="sub-row" id="row-o2-other">
-            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="o2_other"></td>
-            <td>ขนาดอื่นๆ</td>
-            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-o2_other_qty" min="0" value="0"></td>
-            <td><input type="text" class="problem-input" id="txt-o2_other_size" placeholder="ระบุขนาด..."></td>
-          </tr>
-
-          <!-- 1.2 ชนิดอื่นๆ -->
-          <tr class="group-header"><td colspan="4">1.2  แลกท่อแก๊สชนิดอื่นๆ</td></tr>
-          <tr class="sub-row">
-            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="co2_6kg"></td>
-            <td>แลกท่อ CO₂ ขนาด 6 Kg</td>
-            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-co2_6kg" min="0" value="0"></td>
-            <td>—</td>
-          </tr>
-          <tr class="sub-row">
-            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="co2_25kg"></td>
-            <td>แลกท่อ CO₂ ขนาด 25 Kg</td>
-            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-co2_25kg" min="0" value="0"></td>
-            <td>—</td>
-          </tr>
-          <tr class="sub-row">
-            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="n2o_25kg"></td>
-            <td>แลกท่อ N₂O ขนาด 25 Kg</td>
-            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-n2o_25kg" min="0" value="0"></td>
-            <td>—</td>
-          </tr>
-          <tr class="sub-row">
-            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="n2_7q"></td>
-            <td>แลกท่อ N₂ ขนาด 7 Q</td>
-            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-n2_7q" min="0" value="0"></td>
-            <td>—</td>
-          </tr>
-
-          <!-- 1.3-1.4 ยืมอุปกรณ์ -->
-          <tr class="group-header"><td colspan="4">1.3 – 1.4  ยืมอุปกรณ์</td></tr>
-          <tr class="sub-row">
-            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="loan_flowmeter"></td>
-            <td>ยืม Oxygen flow meter regulator</td>
-            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-loan_flowmeter" min="0" value="0"></td>
-            <td>—</td>
-          </tr>
-          <tr class="sub-row">
-            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="loan_flowmeter_pto"></td>
-            <td>ยืม Oxygen flow meter regulator with power take off</td>
-            <td class="checkbox-cell"><input type="number" class="qty-input" id="qty-loan_flowmeter_pto" min="0" value="0"></td>
-            <td>—</td>
-          </tr>
-
-          <!-- 1.5 แจ้งซ่อม -->
-          <tr class="group-header"><td colspan="4">1.5  แจ้งซ่อมระบบ Pipeline</td></tr>
-          <tr class="sub-row">
-            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="repair_medical_air"></td>
-            <td>Medical Air</td>
-            <td class="checkbox-cell">—</td>
-            <td><input type="text" class="problem-input" id="txt-repair_air_problem" placeholder="ปัญหาที่พบ..."></td>
-          </tr>
-          <tr class="sub-row">
-            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="repair_oxygen"></td>
-            <td>Medical Oxygen</td>
-            <td class="checkbox-cell">—</td>
-            <td><input type="text" class="problem-input" id="txt-repair_oxygen_problem" placeholder="ปัญหาที่พบ..."></td>
-          </tr>
-          <tr class="sub-row">
-            <td class="checkbox-cell"><input type="checkbox" class="custom-check svc-check" data-id="repair_vacuum"></td>
-            <td>Medical Vacuum</td>
-            <td class="checkbox-cell">—</td>
-            <td><input type="text" class="problem-input" id="txt-repair_vacuum_problem" placeholder="ปัญหาที่พบ..."></td>
-          </tr>
+          <tr class="grp"><td colspan="4">แลกท่อแก๊ส Oxygen</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="o2_05q"></td><td>ขนาด 0.5 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-o2_05q" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="o2_07q"></td><td>ขนาด 0.7 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-o2_07q" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="o2_15q"></td><td>ขนาด 1.5 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-o2_15q" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="o2_6q"></td><td>ขนาด 6 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-o2_6q" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="o2_7q"></td><td>ขนาด 7 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-o2_7q" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="o2_other"></td><td>ขนาดอื่นๆ</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-o2_other_qty" min="0" value="0"></td><td><input type="text" class="prob-input" id="txt-o2_other_size" placeholder="ระบุขนาด..."></td></tr>
+          <tr class="grp"><td colspan="4">แลกท่อแก๊สชนิดอื่นๆ</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="co2_6kg"></td><td>แลกท่อ CO₂ ขนาด 6 Kg</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-co2_6kg" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="co2_25kg"></td><td>แลกท่อ CO₂ ขนาด 25 Kg</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-co2_25kg" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="n2o_25kg"></td><td>แลกท่อ N₂O ขนาด 25 Kg</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-n2o_25kg" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="n2_7q"></td><td>แลกท่อ N₂ ขนาด 7 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-n2_7q" min="0" value="0"></td><td>—</td></tr>
+          <tr class="grp"><td colspan="4">ยืมอุปกรณ์</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="loan_flowmeter"></td><td>ยืม Oxygen flow meter regulator</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-loan_flowmeter" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="loan_flowmeter_pto"></td><td>ยืม Oxygen flow meter regulator with power take off</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-loan_flowmeter_pto" min="0" value="0"></td><td>—</td></tr>
+          <tr class="grp"><td colspan="4">แจ้งซ่อมระบบ Pipeline</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="repair_medical_air"></td><td>Medical Air</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="txt-repair_air_problem" placeholder="ปัญหาที่พบ..."></td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="repair_oxygen"></td><td>Medical Oxygen</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="txt-repair_oxygen_problem" placeholder="ปัญหาที่พบ..."></td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="repair_vacuum"></td><td>Medical Vacuum</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="txt-repair_vacuum_problem" placeholder="ปัญหาที่พบ..."></td></tr>
         </tbody>
-      </table>
-      </div>
+      </table></div>
     </div>
-
-    <!-- หมายเหตุ -->
     <div class="card">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        หมายเหตุเพิ่มเติม
-      </div>
-      <div class="form-group">
-        <textarea class="form-textarea" id="req-note" placeholder="ข้อมูลเพิ่มเติม หรือรายละเอียดที่ต้องการแจ้ง..." rows="3"></textarea>
-      </div>
+      <div class="card-title"><div class="card-title-l">💬 หมายเหตุ</div></div>
+      <textarea class="form-textarea" id="req-note" placeholder="ข้อมูลเพิ่มเติม..." rows="3"></textarea>
     </div>
-
     <div class="form-actions">
-      <button type="button" class="btn btn-outline" onclick="resetRequestForm()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-        ล้างข้อมูล
-      </button>
+      <button type="button" class="btn btn-outline" onclick="resetRequestForm()">ล้างข้อมูล</button>
       <button type="submit" class="btn btn-primary" id="btn-submit-request">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         ส่งคำร้องขอรับบริการ
       </button>
     </div>
   </form>
 </div>
 
-<!-- ==================== PAGE 2: บันทึกให้บริการ ==================== -->
+<!-- ======== PAGE 2: บันทึกให้บริการ ======== -->
 <div class="page" id="page-service">
-  <div class="page-header">
-    <h1>✏️ บันทึกให้บริการ</h1>
-    <p>รายการรอดำเนินการ — เลือกรายการเพื่อบันทึกผลการให้บริการ</p>
-  </div>
-
-  <!-- รายการ pending -->
+  <div class="page-header"><h1>✏️ บันทึกให้บริการ</h1><p>เลือกรายการเพื่อบันทึกผล — รายการ pending และกำลังดำเนินการ</p></div>
   <div class="card">
-    <div class="card-title" style="justify-content:space-between">
-      <span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        รายการรอดำเนินการ
-      </span>
-      <button class="btn btn-outline btn-sm" onclick="loadPendingList()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-        รีเฟรช
-      </button>
+    <div class="card-title">
+      <div class="card-title-l">รายการรอดำเนินการ</div>
+      <button class="btn btn-outline btn-sm" onclick="loadPendingList()">🔄 รีเฟรช</button>
     </div>
-    <div id="pending-list-wrap">
-      <div class="empty-state">
-        <div class="loading-spinner"></div>
-        <p style="margin-top:12px">กำลังโหลด...</p>
-      </div>
-    </div>
+    <div id="pending-list-wrap"><div class="empty-state"><div class="spinner"></div><p>กำลังโหลด...</p></div></div>
   </div>
 
-  <!-- ฟอร์มบันทึก (ซ่อนไว้ก่อน) -->
-  <div class="card" id="service-form-card" style="display:none">
+  <!-- FULL EDIT FORM (ใบแจ้ง + ใบบันทึก รวม) -->
+  <div class="card" id="svc-form-card" style="display:none">
     <div class="card-title">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-      บันทึกผลการให้บริการ — คำร้องที่ <span id="svc-req-id" style="color:var(--cyan)">—</span>
+      <div class="card-title-l">
+        <span id="svc-form-mode-label">📝 บันทึกผลการให้บริการ</span>
+        — คำร้อง #<span id="svc-req-id" style="color:var(--cyan)">—</span>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="cancelSvcForm()">✕ ปิด</button>
     </div>
 
-    <div id="svc-request-summary" style="background:var(--bg-card2);border-radius:var(--radius);padding:14px;margin-bottom:16px;font-size:13px;color:var(--text-2);line-height:1.8"></div>
-
-    <div class="form-row cols-2">
-      <div class="form-group">
-        <label class="form-label">ผู้ให้บริการ (ช่าง) <span class="req">*</span></label>
-        <input type="text" class="form-input" id="svc-tech" placeholder="ชื่อช่างผู้ให้บริการ" required>
+    <!-- ส่วนที่ 1: ใบแจ้ง -->
+    <div style="background:rgba(88,166,255,.05);border:1px solid rgba(88,166,255,.2);border-radius:var(--radius);padding:14px;margin-bottom:16px">
+      <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:12px;text-transform:uppercase;letter-spacing:.04em">📋 ข้อมูลใบแจ้ง</div>
+      <div class="form-row c3">
+        <div class="form-group"><label class="form-label">วันที่แจ้ง</label><input type="date" class="form-input" id="edit-req-date"></div>
+        <div class="form-group"><label class="form-label">ผู้แจ้ง</label><input type="text" class="form-input" id="edit-req-name" placeholder="ชื่อ-นามสกุล"></div>
+        <div class="form-group"><label class="form-label">แผนก</label>
+          <select class="form-select" id="edit-req-dept" onchange="toggleEditOtherDept(this)">
+            <option value="">-- เลือกแผนก --</option>
+            <optgroup label="🏢 อาคาร 100 ปี"><option>100/9</option><option>100/8</option><option>100/7</option><option>100/6</option></optgroup>
+            <optgroup label="🏢 อาคาร 80 พรรษา"><option>80/10</option><option>80/9</option><option>80/8</option><option>ศช</option><option>ศญ</option><option>80/5</option><option>OR สูติ</option><option>OR ตา</option><option>PICU</option><option>80/2</option><option>80/1</option></optgroup>
+            <optgroup label="🏢 อาคาร 14 ชั้น (ทศมบพิตร)"><option>14/9</option><option>14/8</option><option>14/7</option><option>อญ</option><option>อช</option><option>ห้องเคมีบำบัด</option></optgroup>
+            <optgroup label="🏢 อาคารเชิดบุญเมือง"><option>MICU</option></optgroup>
+            <optgroup label="🏢 อาคารผู้ป่วยนอก"><option>ER</option><option>OPD โรคเลือด</option><option>OPD ทันตกรรม</option><option>OPD ทางเดินอาหาร</option><option>OPD ทางเดินหายใจ</option><option>เวรแปล</option><option>OPD อายุรกรรม</option></optgroup>
+            <optgroup label="🏢 อาคารพิเคราะห์และบำบัดโรค"><option>CICU</option><option>SICU</option><option>OPD ENT</option><option>OPD ตา</option><option>OPD กระดูก</option><option>OPD ศัยกรรม</option><option>รังสี</option><option>HBO</option><option>OPD จักษุ</option><option>OPD นรีเวชกรรม</option><option>OPD กุมาร</option><option>ห้องตรวจ พิเศษศัลย์ ฯ</option><option>OR ศัลย์</option><option>OR ENT</option><option>แผนกไตเทียม</option><option>Cath lab</option><option>ศูนย์สมอง</option></optgroup>
+            <option value="other">อื่นๆ (ระบุ)</option>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">สถานะ <span class="req">*</span></label>
-        <select class="form-select" id="svc-status">
-          <option value="in_progress">🔵 กำลังดำเนินการ</option>
-          <option value="done">🟢 เสร็จสิ้น</option>
-        </select>
+      <div class="form-row c1" id="edit-dept-other-row" style="display:none">
+        <div class="form-group"><label class="form-label">ระบุแผนก</label><input type="text" class="form-input" id="edit-req-dept-other" placeholder="ระบุชื่อแผนก..."></div>
+      </div>
+      <!-- รายการบริการ (checkbox+qty) -->
+      <div style="overflow-x:auto;margin-top:10px">
+      <table class="svc-table">
+        <thead><tr><th style="width:32px">✓</th><th>รายการ</th><th style="width:80px;text-align:center">จำนวนขอ</th><th style="width:160px">หมายเหตุ/ขนาด</th></tr></thead>
+        <tbody>
+          <tr class="grp"><td colspan="4">แลกท่อแก๊ส Oxygen</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="o2_05q"></td><td>ขนาด 0.5 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-o2_05q" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="o2_07q"></td><td>ขนาด 0.7 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-o2_07q" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="o2_15q"></td><td>ขนาด 1.5 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-o2_15q" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="o2_6q"></td><td>ขนาด 6 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-o2_6q" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="o2_7q"></td><td>ขนาด 7 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-o2_7q" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="o2_other"></td><td>ขนาดอื่นๆ</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-o2_other_qty" min="0" value="0"></td><td><input type="text" class="prob-input" id="edit-txt-o2_other_size" placeholder="ระบุขนาด..."></td></tr>
+          <tr class="grp"><td colspan="4">แลกท่อแก๊สชนิดอื่นๆ</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="co2_6kg"></td><td>CO₂ 6 Kg</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-co2_6kg" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="co2_25kg"></td><td>CO₂ 25 Kg</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-co2_25kg" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="n2o_25kg"></td><td>N₂O 25 Kg</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-n2o_25kg" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="n2_7q"></td><td>N₂ 7 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-n2_7q" min="0" value="0"></td><td>—</td></tr>
+          <tr class="grp"><td colspan="4">ยืมอุปกรณ์</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="loan_flowmeter"></td><td>ยืม Flowmeter regulator</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-loan_flowmeter" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="loan_flowmeter_pto"></td><td>ยืม Flowmeter + PTO</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-loan_flowmeter_pto" min="0" value="0"></td><td>—</td></tr>
+          <tr class="grp"><td colspan="4">แจ้งซ่อม Pipeline</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="repair_medical_air"></td><td>Medical Air</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="edit-txt-repair_air_problem" placeholder="ปัญหาที่พบ..."></td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="repair_oxygen"></td><td>Medical Oxygen</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="edit-txt-repair_oxygen_problem" placeholder="ปัญหาที่พบ..."></td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="repair_vacuum"></td><td>Medical Vacuum</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="edit-txt-repair_vacuum_problem" placeholder="ปัญหาที่พบ..."></td></tr>
+        </tbody>
+      </table></div>
+      <div class="form-row c1" style="margin-top:10px">
+        <div class="form-group"><label class="form-label">หมายเหตุผู้แจ้ง</label><textarea class="form-textarea" id="edit-req-note" rows="2" placeholder="หมายเหตุ..."></textarea></div>
       </div>
     </div>
-    <div class="form-row cols-2">
-      <div class="form-group">
-        <label class="form-label">เวลาเริ่มให้บริการ</label>
-        <input type="datetime-local" class="form-input" id="svc-start">
-      </div>
-      <div class="form-group">
-        <label class="form-label">เวลาเสร็จสิ้น</label>
-        <input type="datetime-local" class="form-input" id="svc-end">
-      </div>
-    </div>
 
-    <!-- จำนวนจ่ายจริง (dynamic) -->
-    <div id="actual-qty-section"></div>
-
-    <!-- ผลการซ่อม (ถ้ามีซ่อม) -->
-    <div id="repair-result-section" style="display:none">
-      <div class="form-group" style="margin-bottom:14px">
-        <label class="form-label">ผลการซ่อม / วิธีการแก้ไข</label>
-        <textarea class="form-textarea" id="svc-repair-result" rows="3" placeholder="บันทึกผลการซ่อม..."></textarea>
+    <!-- ส่วนที่ 2: ใบบันทึก -->
+    <div style="background:rgba(63,185,80,.05);border:1px solid rgba(63,185,80,.2);border-radius:var(--radius);padding:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:12px;text-transform:uppercase;letter-spacing:.04em">⚙️ ข้อมูลใบบันทึกให้บริการ</div>
+      <div class="form-row c2">
+        <div class="form-group"><label class="form-label">ผู้ให้บริการ (ช่าง)<span class="req">*</span></label><input type="text" class="form-input" id="svc-tech" placeholder="ชื่อช่างผู้ให้บริการ"></div>
+        <div class="form-group"><label class="form-label">สถานะ<span class="req">*</span></label>
+          <select class="form-select" id="svc-status">
+            <option value="pending">🟡 รอดำเนินการ</option>
+            <option value="in_progress">🔵 กำลังดำเนินการ</option>
+            <option value="done">🟢 เสร็จสิ้น</option>
+          </select>
+        </div>
       </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">หมายเหตุ</label>
-      <textarea class="form-textarea" id="svc-note" rows="2" placeholder="หมายเหตุเพิ่มเติม..."></textarea>
+      <div class="form-row c2">
+        <div class="form-group"><label class="form-label">เวลาเริ่มให้บริการ</label><input type="datetime-local" class="form-input" id="svc-start"></div>
+        <div class="form-group"><label class="form-label">เวลาเสร็จสิ้น</label><input type="datetime-local" class="form-input" id="svc-end"></div>
+      </div>
+      <div id="actual-qty-section"></div>
+      <div id="repair-result-section" style="display:none">
+        <div class="form-group" style="margin-bottom:12px"><label class="form-label">ผลการซ่อม / วิธีแก้ไข</label><textarea class="form-textarea" id="svc-repair-result" rows="2" placeholder="บันทึกผลการซ่อม..."></textarea></div>
+      </div>
+      <div class="form-group"><label class="form-label">หมายเหตุช่าง</label><textarea class="form-textarea" id="svc-note" rows="2" placeholder="หมายเหตุ..."></textarea></div>
     </div>
 
     <div class="form-actions">
-      <button class="btn btn-outline" onclick="cancelServiceForm()">ยกเลิก</button>
-      <button class="btn btn-success" onclick="submitServiceRecord()" id="btn-save-service">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-        บันทึกผลการให้บริการ
+      <button class="btn btn-outline" onclick="cancelSvcForm()">ยกเลิก</button>
+      <button class="btn btn-success" onclick="submitFullEdit()" id="btn-save-svc">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        บันทึก
       </button>
     </div>
   </div>
 </div>
 
-<!-- ==================== PAGE 3: ประวัติ ==================== -->
+<!-- ======== PAGE 3: ประวัติ ======== -->
 <div class="page" id="page-history">
-  <div class="page-header">
-    <h1>🕐 ประวัติการให้บริการ</h1>
-    <p>รายการทั้งหมด — ค้นหาและกรองตามเงื่อนไข</p>
-  </div>
-
-  <div class="card" style="padding-bottom:14px">
-    <div class="history-filters">
-      <div class="form-group">
-        <label class="form-label">วันที่เริ่มต้น</label>
-        <input type="date" class="form-input" id="hist-date-from">
+  <div class="page-header"><h1>🕐 ประวัติการให้บริการ</h1><p>คลิกแถวเพื่อดูรายละเอียด</p></div>
+  <div class="card">
+    <div class="date-preset-row" id="hist-presets">
+      <span style="font-size:11px;color:var(--text-3);align-self:center">ช่วงเวลา:</span>
+      <button class="preset-btn" onclick="setDatePreset('today','hist')">วันนี้</button>
+      <button class="preset-btn" onclick="setDatePreset('7','hist')">7 วัน</button>
+      <button class="preset-btn" onclick="setDatePreset('30','hist')">30 วัน</button>
+      <button class="preset-btn" onclick="setDatePreset('month','hist')">เดือนนี้</button>
+      <button class="preset-btn" onclick="setDatePreset('all','hist')">ทั้งหมด</button>
+    </div>
+    <div class="filter-grid">
+      <div class="form-group"><label class="form-label">วันที่เริ่มต้น</label><input type="date" class="form-input" id="hist-date-from"></div>
+      <div class="form-group"><label class="form-label">วันที่สิ้นสุด</label><input type="date" class="form-input" id="hist-date-to"></div>
+      <div class="form-group"><label class="form-label">สถานะ</label>
+        <select class="form-select" id="hist-status"><option value="">ทั้งหมด</option><option value="pending">รอดำเนินการ</option><option value="in_progress">กำลังดำเนินการ</option><option value="done">เสร็จสิ้น</option></select>
       </div>
-      <div class="form-group">
-        <label class="form-label">วันที่สิ้นสุด</label>
-        <input type="date" class="form-input" id="hist-date-to">
-      </div>
-      <div class="form-group">
-        <label class="form-label">สถานะ</label>
-        <select class="form-select" id="hist-status">
-          <option value="">ทั้งหมด</option>
-          <option value="pending">รอดำเนินการ</option>
-          <option value="in_progress">กำลังดำเนินการ</option>
-          <option value="done">เสร็จสิ้น</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">แผนก</label>
-        <input type="text" class="form-input" id="hist-dept" placeholder="ค้นหาแผนก...">
-      </div>
-      <div class="form-group" style="align-self:flex-end;min-width:auto">
-        <button class="btn btn-primary" onclick="loadHistory()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          ค้นหา
-        </button>
-      </div>
+      <div class="form-group"><label class="form-label">แผนก</label><input type="text" class="form-input" id="hist-dept" placeholder="ค้นหาแผนก..."></div>
+      <div class="form-group"><label class="form-label">ผู้แจ้ง</label><input type="text" class="form-input" id="hist-name" placeholder="ชื่อผู้แจ้ง..."></div>
+      <div class="form-group" style="align-self:flex-end"><button class="btn btn-primary" style="width:100%;justify-content:center" onclick="loadHistory()">🔍 ค้นหา</button></div>
     </div>
   </div>
-
   <div class="card" style="padding:0;overflow:hidden">
     <div class="data-table-wrap">
       <table class="data-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>วันที่แจ้ง</th>
-            <th>แผนก</th>
-            <th>ผู้แจ้ง</th>
-            <th>รายการ</th>
-            <th>สถานะ</th>
-            <th>ช่าง</th>
-          </tr>
-        </thead>
-        <tbody id="history-tbody">
-          <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-3)">กำลังโหลด...</td></tr>
-        </tbody>
+        <thead><tr><th>#</th><th>วันที่แจ้ง</th><th>แผนก</th><th>ผู้แจ้ง</th><th>รายการ</th><th>สถานะ</th><th>ช่าง</th></tr></thead>
+        <tbody id="history-tbody"><tr><td colspan="7" style="text-align:center;padding:28px;color:var(--text-3)">กำลังโหลด...</td></tr></tbody>
       </table>
     </div>
-    <div id="history-pagination" style="padding:14px 16px;font-size:12px;color:var(--text-3);border-top:1px solid var(--border)"></div>
+    <div id="history-pagination" style="padding:12px 14px;font-size:12px;color:var(--text-3);border-top:1px solid var(--border)"></div>
   </div>
 </div>
 
-<!-- ==================== PAGE 4: Dashboard ==================== -->
+<!-- ======== PAGE 4: Dashboard ======== -->
 <div class="page" id="page-dashboard">
-  <div class="page-header">
-    <h1>📊 Dashboard</h1>
-    <p>สรุปภาพรวมการให้บริการระบบแก๊สทางการแพทย์</p>
+  <div class="page-header"><h1>📊 Dashboard</h1><p>สรุปภาพรวมการให้บริการ</p></div>
+  <div class="card">
+    <div class="date-preset-row">
+      <span style="font-size:11px;color:var(--text-3);align-self:center">ช่วงเวลา:</span>
+      <button class="preset-btn" onclick="setDatePreset('today','dash')">วันนี้</button>
+      <button class="preset-btn" onclick="setDatePreset('7','dash')">7 วัน</button>
+      <button class="preset-btn" onclick="setDatePreset('30','dash')">30 วัน</button>
+      <button class="preset-btn active" onclick="setDatePreset('month','dash')">เดือนนี้</button>
+      <button class="preset-btn" onclick="setDatePreset('all','dash')">ทั้งหมด</button>
+    </div>
+    <div class="filter-grid">
+      <div class="form-group"><label class="form-label">วันที่เริ่มต้น</label><input type="date" class="form-input" id="dash-date-from"></div>
+      <div class="form-group"><label class="form-label">วันที่สิ้นสุด</label><input type="date" class="form-input" id="dash-date-to"></div>
+      <div class="form-group"><label class="form-label">สถานะ</label>
+        <select class="form-select" id="dash-status"><option value="">ทั้งหมด</option><option value="pending">รอดำเนินการ</option><option value="in_progress">กำลังดำเนินการ</option><option value="done">เสร็จสิ้น</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">อาคาร</label>
+        <select class="form-select" id="dash-building"><option value="">ทุกอาคาร</option><option value="100">อาคาร 100 ปี</option><option value="80">อาคาร 80 พรรษา</option><option value="14">อาคาร 14 ชั้น</option><option value="เชิด">อาคารเชิดบุญเมือง</option><option value="ผู้ป่วยนอก">อาคารผู้ป่วยนอก</option><option value="พิเคราะห์">อาคารพิเคราะห์และบำบัดโรค</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">ประเภทบริการ</label>
+        <select class="form-select" id="dash-svctype"><option value="">ทุกประเภท</option><option value="o2">แลกท่อ O₂</option><option value="other_gas">แลกท่อชนิดอื่น</option><option value="loan">ยืมอุปกรณ์</option><option value="repair">แจ้งซ่อม</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">แผนก</label><input type="text" class="form-input" id="dash-dept" placeholder="ค้นหาแผนก..."></div>
+      <div class="form-group" style="align-self:flex-end"><button class="btn btn-primary" style="width:100%;justify-content:center" onclick="loadDashboard()">📊 แสดงผล</button></div>
+    </div>
   </div>
-
-  <div class="stat-grid" id="dash-stats">
-    <div class="stat-card yellow"><div class="label">รอดำเนินการ</div><div class="value" id="d-pending">—</div><div class="sub">รายการ</div></div>
-    <div class="stat-card blue"><div class="label">กำลังดำเนินการ</div><div class="value" id="d-inprog">—</div><div class="sub">รายการ</div></div>
-    <div class="stat-card green"><div class="label">เสร็จสิ้นแล้ว</div><div class="value" id="d-done">—</div><div class="sub">รายการ</div></div>
-    <div class="stat-card red"><div class="label">ทั้งหมด (เดือนนี้)</div><div class="value" id="d-total">—</div><div class="sub">รายการ</div></div>
+  <div class="stat-grid">
+    <div class="stat-card yellow"><div class="lbl">รอดำเนินการ</div><div class="val" id="d-pending">—</div><div class="sub">รายการ</div></div>
+    <div class="stat-card blue"><div class="lbl">กำลังดำเนินการ</div><div class="val" id="d-inprog">—</div><div class="sub">รายการ</div></div>
+    <div class="stat-card green"><div class="lbl">เสร็จสิ้น</div><div class="val" id="d-done">—</div><div class="sub">รายการ</div></div>
+    <div class="stat-card red"><div class="lbl">รวมทั้งหมด</div><div class="val" id="d-total">—</div><div class="sub">รายการ</div></div>
   </div>
-
   <div class="chart-grid">
-    <div class="chart-card">
-      <h3>📦 ปริมาณแลกท่อ O₂ (เดือนนี้)</h3>
-      <div class="bar-list" id="dash-o2-bars">
-        <div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div>
-      </div>
-    </div>
-    <div class="chart-card">
-      <h3>🏥 แผนกที่ขอรับบริการมากที่สุด</h3>
-      <div class="bar-list" id="dash-dept-bars">
-        <div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div>
-      </div>
-    </div>
-    <div class="chart-card">
-      <h3>🔧 ประเภทบริการ (เดือนนี้)</h3>
-      <div class="bar-list" id="dash-type-bars">
-        <div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div>
-      </div>
-    </div>
-    <div class="chart-card">
-      <h3>⚡ แจ้งซ่อม Pipeline</h3>
-      <div class="bar-list" id="dash-repair-bars">
-        <div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div>
-      </div>
-    </div>
+    <div class="chart-card"><h3>📦 แลกท่อ O₂</h3><div class="bar-list" id="dash-o2-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
+    <div class="chart-card"><h3>🧪 แลกท่อชนิดอื่น</h3><div class="bar-list" id="dash-gas-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
+    <div class="chart-card"><h3>🏥 แผนกที่ขอบริการสูงสุด</h3><div class="bar-list" id="dash-dept-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
+    <div class="chart-card"><h3>🔧 แจ้งซ่อม Pipeline</h3><div class="bar-list" id="dash-repair-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
+    <div class="chart-card"><h3>🛠️ ยืมอุปกรณ์</h3><div class="bar-list" id="dash-loan-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
+    <div class="chart-card"><h3>📊 สรุปประเภทบริการ</h3><div class="bar-list" id="dash-type-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
   </div>
 </div>
+
+<!-- ======== PAGE 5: ADMIN ======== -->
+<div class="page" id="page-admin">
+  <div class="page-header">
+    <h1>🛡️ Admin Panel <span class="admin-tag">ADMIN</span></h1>
+    <p>จัดการรายการทั้งหมดในระบบ — สามารถแก้ไข/ลบทุกรายการได้</p>
+  </div>
+  <div class="card admin-card">
+    <div class="date-preset-row">
+      <span style="font-size:11px;color:var(--text-3);align-self:center">ช่วงเวลา:</span>
+      <button class="preset-btn" onclick="setDatePreset('today','admin')">วันนี้</button>
+      <button class="preset-btn" onclick="setDatePreset('7','admin')">7 วัน</button>
+      <button class="preset-btn" onclick="setDatePreset('30','admin')">30 วัน</button>
+      <button class="preset-btn" onclick="setDatePreset('month','admin')">เดือนนี้</button>
+      <button class="preset-btn active" onclick="setDatePreset('all','admin')">ทั้งหมด</button>
+    </div>
+    <div class="filter-grid">
+      <div class="form-group"><label class="form-label">วันที่เริ่มต้น</label><input type="date" class="form-input" id="admin-date-from"></div>
+      <div class="form-group"><label class="form-label">วันที่สิ้นสุด</label><input type="date" class="form-input" id="admin-date-to"></div>
+      <div class="form-group"><label class="form-label">สถานะ</label>
+        <select class="form-select" id="admin-status"><option value="">ทั้งหมด</option><option value="pending">รอดำเนินการ</option><option value="in_progress">กำลังดำเนินการ</option><option value="done">เสร็จสิ้น</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">แผนก</label><input type="text" class="form-input" id="admin-dept" placeholder="ค้นหาแผนก..."></div>
+      <div class="form-group"><label class="form-label">ผู้แจ้ง</label><input type="text" class="form-input" id="admin-name" placeholder="ชื่อผู้แจ้ง..."></div>
+      <div class="form-group" style="align-self:flex-end"><button class="btn btn-orange" style="width:100%;justify-content:center" onclick="loadAdminList()">🔍 ค้นหา</button></div>
+    </div>
+  </div>
+
+  <div class="card admin-card" style="padding:0;overflow:hidden">
+    <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <span id="admin-count" style="font-size:13px;color:var(--text-2)">— รายการ</span>
+      <button class="btn btn-outline btn-sm" onclick="loadAdminList()">🔄 รีเฟรช</button>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>วันที่แจ้ง</th><th>แผนก</th><th>ผู้แจ้ง</th><th>รายการ</th><th>สถานะ</th><th>ช่าง</th><th style="width:140px">จัดการ</th></tr></thead>
+        <tbody id="admin-tbody"><tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text-3)">กดค้นหาเพื่อโหลดข้อมูล</td></tr></tbody>
+      </table>
+    </div>
+    <div id="admin-pagination" style="padding:12px 14px;font-size:12px;color:var(--text-3);border-top:1px solid var(--border)"></div>
+  </div>
+</div>
+
 </div><!-- end app-wrapper -->
 
-<!-- ===== PIN MODAL ===== -->
-<div class="modal-overlay hidden" id="pin-modal">
-  <div class="modal-box">
-    <div style="font-size:36px;margin-bottom:8px">🔐</div>
-    <h2>ยืนยันตัวตน</h2>
-    <p>กรุณาใส่ PIN เพื่อเข้าสู่หน้าบันทึกให้บริการ</p>
-    <input type="password" class="pin-input" id="pin-input" maxlength="4" placeholder="••••"
-      onkeydown="if(event.key==='Enter')checkPin()">
-    <div class="pin-error" id="pin-error"></div>
-    <button class="btn btn-primary" style="width:100%" onclick="checkPin()">ยืนยัน</button>
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay hidden" id="confirm-modal">
+  <div class="confirm-box">
+    <div style="font-size:32px;margin-bottom:8px">⚠️</div>
+    <h3 id="confirm-title">ยืนยัน</h3>
+    <p id="confirm-msg"></p>
+    <div class="confirm-actions">
+      <button class="btn btn-outline" onclick="closeConfirm()">ยกเลิก</button>
+      <button class="btn btn-danger" id="confirm-ok">ยืนยัน</button>
+    </div>
   </div>
 </div>
 
-<!-- ===== DETAIL PANEL ===== -->
-<div class="detail-overlay hidden" id="detail-overlay" onclick="closeDetail(event)">
-  <div class="detail-panel" id="detail-panel">
-    <button class="detail-close" onclick="closeDetailPanel()">✕</button>
+<!-- DETAIL PANEL -->
+<div class="detail-overlay hidden" id="detail-overlay" onclick="closeDetailOutside(event)">
+  <div class="detail-panel">
+    <button class="dp-close" onclick="closeDetail()">✕</button>
     <h2 id="dp-title">รายละเอียด</h2>
-    <div id="dp-badge" style="margin:8px 0"></div>
+    <div id="dp-badge" style="margin:6px 0 4px"></div>
     <div id="dp-content"></div>
   </div>
 </div>
 
-<!-- ===== TOAST CONTAINER ===== -->
 <div id="toast-container"></div>
 
-<!-- ===== SCRIPT ===== -->
 <script>
 // ===== CONFIG =====
 const SUPA_URL  = 'https://kmteuxpvpcqchacpefmy.supabase.co';
-const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttdGV1eHB2cGNxY2hhY3BlZm15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNTgwMDUsImV4cCI6MjA5NjkzNDAwNX0.HpVuvxq9Nx1flqWYzOuQ5_iB6I7DeBN_YxgfzIERvDc';
+const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttdGV1eHB2cGNxY2hhY3BlZm15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNTgwMDUsImV4cCI6MjA5NjkzNDAwNX0.HpVuvxq9Nx1flqWYzOuQ5_iB6I7DeBN_YxgfzIERvDc';
 const TABLE     = 'exchang-repair-loan-gas-system';
-const PIN_CODE  = '9999';
+const ADMIN_PIN = '9999';
 
-// ===== SUPABASE HELPER =====
-async function supaFetch(method, params = '', body = null) {
+const BUILDING_DEPTS = {
+  '100':['100/9','100/8','100/7','100/6'],
+  '80':['80/10','80/9','80/8','ศช','ศญ','80/5','OR สูติ','OR ตา','PICU','80/2','80/1'],
+  '14':['14/9','14/8','14/7','อญ','อช','ห้องเคมีบำบัด'],
+  'เชิด':['MICU'],
+  'ผู้ป่วยนอก':['ER','OPD โรคเลือด','OPD ทันตกรรม','OPD ทางเดินอาหาร','OPD ทางเดินหายใจ','เวรแปล','OPD อายุรกรรม'],
+  'พิเคราะห์':['CICU','SICU','OPD ENT','OPD ตา','OPD กระดูก','OPD ศัยกรรม','รังสี','HBO','OPD จักษุ','OPD นรีเวชกรรม','OPD กุมาร','ห้องตรวจ พิเศษศัลย์ ฯ','OR ศัลย์','OR ENT','แผนกไตเทียม','Cath lab','ศูนย์สมอง'],
+};
+
+// ===== SESSION STATE =====
+let currentSession = null;
+let currentToken   = null;
+let currentSvcId   = null;
+let adminUnlocked  = false;
+let histPage = 0, adminPage = 0;
+const PAGE_SIZE = 20;
+
+// ===== SUPABASE AUTH =====
+async function supaAuth(email, password) {
+  const res = await fetch(`${SUPA_URL}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: { 'apikey': SUPA_ANON, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error_description || data.msg || 'Login ไม่สำเร็จ');
+  return data;
+}
+
+async function supaSignOut() {
+  if (!currentToken) return;
+  await fetch(`${SUPA_URL}/auth/v1/logout`, {
+    method: 'POST',
+    headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${currentToken}` }
+  }).catch(()=>{});
+}
+
+// ===== SUPABASE DATA =====
+async function supaFetch(method, params='', body=null) {
   const url = `${SUPA_URL}/rest/v1/${encodeURIComponent(TABLE)}${params}`;
   const headers = {
-    'apikey': SUPA_KEY,
-    'Authorization': `Bearer ${SUPA_KEY}`,
+    'apikey': SUPA_ANON,
+    'Authorization': `Bearer ${currentToken || SUPA_ANON}`,
     'Content-Type': 'application/json',
-    'Prefer': method === 'POST' ? 'return=representation' : 'return=representation'
+    'Prefer': 'return=representation'
   };
-  if (method === 'GET') headers['Accept'] = 'application/json';
   const opts = { method, headers };
   if (body) opts.body = JSON.stringify(body);
   const res = await fetch(url, opts);
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `HTTP ${res.status}`);
-  }
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.message || `HTTP ${res.status}`); }
   if (res.status === 204) return null;
   return res.json();
 }
 
-// ===== AUTH STATE =====
-let pinUnlocked = false;
-let targetPageAfterPin = 'service';
-let currentServiceId = null;
-let currentServiceData = null;
+// ===== AUTH LOGIN =====
+async function doLogin() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pw    = document.getElementById('auth-pw').value;
+  const errEl = document.getElementById('auth-error');
+  const btn   = document.getElementById('auth-btn');
+  if (!email || !pw) { errEl.textContent = 'กรุณากรอกอีเมลและรหัสผ่าน'; return; }
+  errEl.textContent = '';
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:14px;height:14px"></div> กำลังเข้าสู่ระบบ...';
+  try {
+    const data = await supaAuth(email, pw);
+    currentToken   = data.access_token;
+    currentSession = data;
+    const user = data.user || {};
+    const displayEmail = user.email || email;
+    document.getElementById('topbar-user').textContent = displayEmail;
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('app').style.cssText = 'display:flex;flex-direction:column';
+    setTodayDate();
+    toast('เข้าสู่ระบบสำเร็จ ✅', 'success');
+  } catch(err) {
+    errEl.textContent = err.message;
+    document.getElementById('auth-box').classList.add('auth-shake');
+    setTimeout(() => document.getElementById('auth-box').classList.remove('auth-shake'), 400);
+    document.getElementById('auth-pw').value = '';
+    document.getElementById('auth-pw').focus();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'เข้าสู่ระบบ';
+  }
+}
+
+async function doLogout() {
+  await supaSignOut();
+  currentToken = null; currentSession = null; adminUnlocked = false;
+  document.getElementById('auth-screen').classList.remove('hidden');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-email').value = '';
+  document.getElementById('auth-pw').value = '';
+  document.getElementById('auth-error').textContent = '';
+  document.getElementById('topbar-user').textContent = '';
+  showPage('request');
+  cancelSvcForm();
+}
+
+function togglePwEye() {
+  const inp = document.getElementById('auth-pw');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// ===== ADMIN PIN =====
+function requireAdminPin() {
+  if (adminUnlocked) { showPage('admin'); loadAdminList(); return; }
+  document.getElementById('admin-pin-input').value = '';
+  document.getElementById('admin-pin-error').textContent = '';
+  document.getElementById('admin-pin-screen').classList.remove('hidden');
+  setTimeout(() => document.getElementById('admin-pin-input').focus(), 100);
+}
+
+function checkAdminPin() {
+  const val = document.getElementById('admin-pin-input').value;
+  if (val === ADMIN_PIN) {
+    adminUnlocked = true;
+    document.getElementById('admin-pin-screen').classList.add('hidden');
+    showPage('admin');
+    loadAdminList();
+  } else {
+    document.getElementById('admin-pin-error').textContent = 'PIN ไม่ถูกต้อง';
+    document.getElementById('admin-pin-input').value = '';
+    document.getElementById('admin-pin-box').classList.add('auth-shake');
+    setTimeout(() => document.getElementById('admin-pin-box').classList.remove('auth-shake'), 400);
+  }
+}
+
+function closeAdminPin() { document.getElementById('admin-pin-screen').classList.add('hidden'); }
 
 // ===== NAVIGATION =====
 function showPage(id) {
@@ -954,531 +756,496 @@ function showPage(id) {
   document.getElementById('page-' + id).classList.add('active');
   document.getElementById('nav-' + id).classList.add('active');
   if (id === 'service')   loadPendingList();
-  if (id === 'history')   loadHistory();
-  if (id === 'dashboard') loadDashboard();
-}
-
-function requirePin(target) {
-  if (pinUnlocked) { showPage(target); return; }
-  targetPageAfterPin = target;
-  document.getElementById('pin-modal').classList.remove('hidden');
-  document.getElementById('pin-input').value = '';
-  document.getElementById('pin-error').textContent = '';
-  setTimeout(() => document.getElementById('pin-input').focus(), 100);
-}
-
-function checkPin() {
-  const val = document.getElementById('pin-input').value.trim();
-  if (val === PIN_CODE) {
-    pinUnlocked = true;
-    document.getElementById('pin-modal').classList.add('hidden');
-    showPage(targetPageAfterPin);
-  } else {
-    document.getElementById('pin-error').textContent = 'PIN ไม่ถูกต้อง กรุณาลองใหม่';
-    document.getElementById('pin-input').value = '';
-    document.getElementById('pin-input').focus();
-  }
+  if (id === 'history')   { setDatePreset('month','hist'); loadHistory(); }
+  if (id === 'dashboard') { setDatePreset('month','dash'); loadDashboard(); }
 }
 
 // ===== TOAST =====
-function toast(msg, type = 'info', duration = 3500) {
-  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+function toast(msg, type='info', dur=3500) {
+  const icons = { success:'✅', error:'❌', info:'ℹ️' };
   const el = document.createElement('div');
   el.className = `toast ${type}`;
   el.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
   document.getElementById('toast-container').appendChild(el);
-  setTimeout(() => el.remove(), duration);
+  setTimeout(() => el.remove(), dur);
 }
 
-// ===== DEPT OTHER TOGGLE =====
+// ===== DATE PRESET =====
+function setDatePreset(preset, scope) {
+  const now = new Date();
+  const fmt = d => { const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${dd}`; };
+  let from = '', to = '';
+  if (preset === 'today')      { from = to = fmt(now); }
+  else if (preset === '7')     { const d=new Date(now); d.setDate(d.getDate()-6); from=fmt(d); to=fmt(now); }
+  else if (preset === '30')    { const d=new Date(now); d.setDate(d.getDate()-29); from=fmt(d); to=fmt(now); }
+  else if (preset === 'month') { const d=new Date(now.getFullYear(),now.getMonth(),1); from=fmt(d); to=fmt(now); }
+  else if (preset === 'all')   { from=''; to=''; }
+  const fromEl = document.getElementById(`${scope}-date-from`);
+  const toEl   = document.getElementById(`${scope}-date-to`);
+  if (fromEl) fromEl.value = from;
+  if (toEl)   toEl.value   = to;
+  // highlight active preset
+  const presetBtns = document.querySelectorAll(`#${scope === 'hist' ? 'hist-presets' : (scope === 'admin' ? 'page-admin' : 'page-dashboard')} .preset-btn`);
+  presetBtns.forEach((b,i) => {
+    const presets = ['today','7','30','month','all'];
+    b.classList.toggle('active', presets[i] === preset);
+  });
+}
+
+// ===== DEPT TOGGLE =====
 function toggleOtherDept(sel) {
   const row = document.getElementById('dept-other-row');
   const inp = document.getElementById('req-dept-other');
-  if (sel.value === 'other') {
-    row.style.display = '';
-    inp.required = true;
-  } else {
-    row.style.display = 'none';
-    inp.required = false;
-  }
+  const show = sel.value === 'other';
+  row.style.display = show ? '' : 'none';
+  inp.required = show;
+}
+function toggleEditOtherDept(sel) {
+  const row = document.getElementById('edit-dept-other-row');
+  row.style.display = sel.value === 'other' ? '' : 'none';
 }
 
-// ===== RESET REQUEST FORM =====
-function resetRequestForm() {
-  document.getElementById('form-request').reset();
-  document.getElementById('dept-other-row').style.display = 'none';
-  document.querySelectorAll('.qty-input').forEach(i => i.value = 0);
-  setTodayDate();
-}
-
+// ===== SET DATE =====
 function setTodayDate() {
   const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth()+1).padStart(2,'0');
-  const dd = String(d.getDate()).padStart(2,'0');
+  const y = d.getFullYear(), m = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
   const el = document.getElementById('req-date');
   if (el) el.value = `${y}-${m}-${dd}`;
 }
+function localDT(d) {
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
 
-// ===== HELPER: ชื่อรายการ =====
-const ITEM_LABELS = {
-  o2_05q:'O₂ 0.5Q', o2_07q:'O₂ 0.7Q', o2_15q:'O₂ 1.5Q',
-  o2_6q:'O₂ 6Q', o2_7q:'O₂ 7Q', o2_other:'O₂ ขนาดอื่น',
-  co2_6kg:'CO₂ 6Kg', co2_25kg:'CO₂ 25Kg',
-  n2o_25kg:'N₂O 25Kg', n2_7q:'N₂ 7Q',
-  loan_flowmeter:'ยืม Flowmeter', loan_flowmeter_pto:'ยืม Flowmeter+PTO',
-  repair_medical_air:'ซ่อม Medical Air', repair_oxygen:'ซ่อม Oxygen',
-  repair_vacuum:'ซ่อม Vacuum'
-};
+// ===== RESET FORM =====
+function resetRequestForm() {
+  document.getElementById('form-request').reset();
+  document.getElementById('dept-other-row').style.display = 'none';
+  document.querySelectorAll('#form-request .qty-input').forEach(i => i.value = 0);
+  setTodayDate();
+}
 
-// ===== SUBMIT REQUEST FORM =====
+// ===== SUBMIT REQUEST =====
 document.getElementById('form-request').addEventListener('submit', async function(e) {
   e.preventDefault();
-  const btn = document.getElementById('btn-submit-request');
-  const dept = document.getElementById('req-dept').value;
-  const deptOther = document.getElementById('req-dept-other').value.trim();
-
-  // ตรวจสอบ checkbox อย่างน้อย 1 อัน
   const checked = document.querySelectorAll('.svc-check:checked');
-  if (checked.length === 0) { toast('กรุณาเลือกรายการบริการอย่างน้อย 1 รายการ', 'error'); return; }
-
-  btn.disabled = true;
-  btn.innerHTML = '<div class="loading-spinner" style="width:14px;height:14px"></div> กำลังส่ง...';
-
+  if (!checked.length) { toast('กรุณาเลือกรายการบริการอย่างน้อย 1 รายการ', 'error'); return; }
+  const btn = document.getElementById('btn-submit-request');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner" style="width:13px;height:13px"></div> กำลังส่ง...';
+  const dept = document.getElementById('req-dept').value;
   try {
     const row = {
-      request_date:    document.getElementById('req-date').value,
-      requester_name:  document.getElementById('req-name').value.trim(),
-      department:      dept === 'other' ? 'อื่นๆ' : dept,
-      department_other: dept === 'other' ? deptOther : null,
-      note_request:    document.getElementById('req-note').value.trim() || null,
-      status:          'pending',
-
-      o2_05q:          +document.getElementById('qty-o2_05q').value || 0,
-      o2_07q:          +document.getElementById('qty-o2_07q').value || 0,
-      o2_15q:          +document.getElementById('qty-o2_15q').value || 0,
-      o2_6q:           +document.getElementById('qty-o2_6q').value  || 0,
-      o2_7q:           +document.getElementById('qty-o2_7q').value  || 0,
-      o2_other_size:   document.getElementById('txt-o2_other_size').value.trim() || null,
-      o2_other_qty:    +document.getElementById('qty-o2_other_qty').value || 0,
-
-      co2_6kg:         +document.getElementById('qty-co2_6kg').value   || 0,
-      co2_25kg:        +document.getElementById('qty-co2_25kg').value  || 0,
-      n2o_25kg:        +document.getElementById('qty-n2o_25kg').value  || 0,
-      n2_7q:           +document.getElementById('qty-n2_7q').value     || 0,
-
-      loan_flowmeter:     +document.getElementById('qty-loan_flowmeter').value     || 0,
-      loan_flowmeter_pto: +document.getElementById('qty-loan_flowmeter_pto').value || 0,
-
+      request_date: document.getElementById('req-date').value,
+      requester_name: document.getElementById('req-name').value.trim(),
+      department: dept === 'other' ? 'อื่นๆ' : dept,
+      department_other: dept === 'other' ? document.getElementById('req-dept-other').value.trim() : null,
+      note_request: document.getElementById('req-note').value.trim() || null,
+      status: 'pending',
+      o2_05q: +document.getElementById('qty-o2_05q').value||0,
+      o2_07q: +document.getElementById('qty-o2_07q').value||0,
+      o2_15q: +document.getElementById('qty-o2_15q').value||0,
+      o2_6q:  +document.getElementById('qty-o2_6q').value||0,
+      o2_7q:  +document.getElementById('qty-o2_7q').value||0,
+      o2_other_size: document.getElementById('txt-o2_other_size').value.trim()||null,
+      o2_other_qty: +document.getElementById('qty-o2_other_qty').value||0,
+      co2_6kg:  +document.getElementById('qty-co2_6kg').value||0,
+      co2_25kg: +document.getElementById('qty-co2_25kg').value||0,
+      n2o_25kg: +document.getElementById('qty-n2o_25kg').value||0,
+      n2_7q:    +document.getElementById('qty-n2_7q').value||0,
+      loan_flowmeter:     +document.getElementById('qty-loan_flowmeter').value||0,
+      loan_flowmeter_pto: +document.getElementById('qty-loan_flowmeter_pto').value||0,
       repair_medical_air:    document.querySelector('[data-id="repair_medical_air"]').checked,
-      repair_air_problem:    document.getElementById('txt-repair_air_problem').value.trim() || null,
+      repair_air_problem:    document.getElementById('txt-repair_air_problem').value.trim()||null,
       repair_oxygen:         document.querySelector('[data-id="repair_oxygen"]').checked,
-      repair_oxygen_problem: document.getElementById('txt-repair_oxygen_problem').value.trim() || null,
+      repair_oxygen_problem: document.getElementById('txt-repair_oxygen_problem').value.trim()||null,
       repair_vacuum:         document.querySelector('[data-id="repair_vacuum"]').checked,
-      repair_vacuum_problem: document.getElementById('txt-repair_vacuum_problem').value.trim() || null,
+      repair_vacuum_problem: document.getElementById('txt-repair_vacuum_problem').value.trim()||null,
     };
-
     await supaFetch('POST', '', row);
-    toast('ส่งคำร้องขอรับบริการเรียบร้อยแล้ว ✅', 'success');
+    toast('ส่งคำร้องเรียบร้อยแล้ว ✅', 'success');
     resetRequestForm();
-  } catch(err) {
-    toast('เกิดข้อผิดพลาด: ' + err.message, 'error');
-  } finally {
+  } catch(err) { toast('เกิดข้อผิดพลาด: ' + err.message, 'error'); }
+  finally {
     btn.disabled = false;
-    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> ส่งคำร้องขอรับบริการ';
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> ส่งคำร้องขอรับบริการ';
   }
 });
 
-// ===== LOAD PENDING LIST =====
+// ===== LOAD PENDING =====
 async function loadPendingList() {
   const wrap = document.getElementById('pending-list-wrap');
-  wrap.innerHTML = '<div class="empty-state"><div class="loading-spinner"></div><p style="margin-top:12px">กำลังโหลด...</p></div>';
+  wrap.innerHTML = '<div class="empty-state"><div class="spinner"></div><p>กำลังโหลด...</p></div>';
   try {
-    const data = await supaFetch('GET', '?status=in.(pending,in_progress)&order=created_at.desc&select=id,request_date,requester_name,department,status,created_at,repair_medical_air,repair_oxygen,repair_vacuum,o2_05q,o2_07q,o2_15q,o2_6q,o2_7q,co2_6kg,co2_25kg,n2o_25kg,n2_7q,loan_flowmeter,loan_flowmeter_pto,o2_other_qty');
-    if (!data || data.length === 0) {
-      wrap.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><p>ไม่มีรายการรอดำเนินการ</p></div>';
-      return;
-    }
-    let html = '<div class="data-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>วันที่</th><th>แผนก</th><th>ผู้แจ้ง</th><th>รายการ</th><th>สถานะ</th><th></th></tr></thead><tbody>';
+    const data = await supaFetch('GET', '?status=in.(pending,in_progress)&order=created_at.desc');
+    if (!data || !data.length) { wrap.innerHTML = '<div class="empty-state"><p>ไม่มีรายการรอดำเนินการ</p></div>'; return; }
+    let html = '<div class="data-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>วันที่</th><th>แผนก</th><th>ผู้แจ้ง</th><th>รายการ</th><th>สถานะ</th><th style="width:160px">จัดการ</th></tr></thead><tbody>';
     data.forEach(r => {
-      const items = getSummaryItems(r);
       html += `<tr>
         <td style="color:var(--text-3)">#${r.id}</td>
         <td>${formatDate(r.request_date)}</td>
         <td>${r.department}</td>
         <td>${r.requester_name}</td>
-        <td style="max-width:200px;white-space:normal;font-size:12px;color:var(--text-2)">${items}</td>
+        <td style="font-size:12px;color:var(--text-2);max-width:160px">${getSummaryItems(r)}</td>
         <td>${badgeHtml(r.status)}</td>
-        <td><button class="btn btn-primary btn-sm" onclick="openServiceForm(${r.id})">บันทึก</button></td>
+        <td><div style="display:flex;gap:5px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="openSvcForm(${r.id})">📝 บันทึก</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteRecord(${r.id},'pending')">🗑️</button>
+        </div></td>
       </tr>`;
     });
     html += '</tbody></table></div>';
     wrap.innerHTML = html;
-  } catch(err) {
-    wrap.innerHTML = `<div class="empty-state"><p style="color:var(--red)">โหลดข้อมูลไม่สำเร็จ: ${err.message}</p></div>`;
-  }
+  } catch(err) { wrap.innerHTML = `<div class="empty-state"><p style="color:var(--red)">โหลดไม่สำเร็จ: ${err.message}</p></div>`; }
 }
 
-// ===== OPEN SERVICE FORM =====
-async function openServiceForm(id) {
-  currentServiceId = id;
+// ===== FULL EDIT FORM =====
+async function openSvcForm(id) {
+  currentSvcId = id;
   try {
     const data = await supaFetch('GET', `?id=eq.${id}&limit=1`);
-    if (!data || data.length === 0) { toast('ไม่พบรายการ', 'error'); return; }
-    currentServiceData = data[0];
+    if (!data||!data.length) { toast('ไม่พบรายการ','error'); return; }
+    const r = data[0];
 
     document.getElementById('svc-req-id').textContent = id;
-    document.getElementById('service-form-card').style.display = '';
-    document.getElementById('svc-tech').value = '';
-    document.getElementById('svc-status').value = 'in_progress';
-    document.getElementById('svc-note').value = '';
-    document.getElementById('svc-start').value = localDatetimeValue(new Date());
-    document.getElementById('svc-end').value = '';
+    document.getElementById('svc-form-mode-label').textContent = '📝 บันทึกและแก้ไขรายการ';
+    document.getElementById('svc-form-card').style.display = '';
 
-    // สรุปคำร้อง
-    const r = currentServiceData;
-    const items = getSummaryItemsFull(r);
-    let summary = `<strong style="color:var(--text-1)">คำร้อง #${r.id}</strong> | วันที่ ${formatDate(r.request_date)} | แผนก: ${r.department} | ผู้แจ้ง: ${r.requester_name}<br>`;
-    summary += `<span>รายการ: ${items}</span>`;
-    if (r.note_request) summary += `<br><span>หมายเหตุผู้แจ้ง: ${r.note_request}</span>`;
-    document.getElementById('svc-request-summary').innerHTML = summary;
+    // --- ใบแจ้ง ---
+    document.getElementById('edit-req-date').value = r.request_date || '';
+    document.getElementById('edit-req-name').value = r.requester_name || '';
+    // dept
+    const deptSel = document.getElementById('edit-req-dept');
+    const deptVal = r.department;
+    const optExists = [...deptSel.options].some(o => o.value === deptVal);
+    if (optExists) { deptSel.value = deptVal; document.getElementById('edit-dept-other-row').style.display='none'; }
+    else { deptSel.value='other'; document.getElementById('edit-dept-other-row').style.display=''; document.getElementById('edit-req-dept-other').value=r.department_other||deptVal; }
+    document.getElementById('edit-req-note').value = r.note_request || '';
+    // checkboxes + qty
+    const qtyFields = ['o2_05q','o2_07q','o2_15q','o2_6q','o2_7q','co2_6kg','co2_25kg','n2o_25kg','n2_7q','loan_flowmeter','loan_flowmeter_pto'];
+    qtyFields.forEach(k => {
+      const v = r[k] || 0;
+      const chk = document.querySelector(`.edit-svc-check[data-id="${k}"]`);
+      const qty = document.getElementById(`edit-qty-${k}`);
+      if (chk) chk.checked = v > 0;
+      if (qty) qty.value = v;
+    });
+    // o2_other
+    const o2otherChk = document.querySelector('.edit-svc-check[data-id="o2_other"]');
+    if (o2otherChk) o2otherChk.checked = (r.o2_other_qty||0) > 0;
+    document.getElementById('edit-qty-o2_other_qty').value = r.o2_other_qty || 0;
+    document.getElementById('edit-txt-o2_other_size').value = r.o2_other_size || '';
+    // repair
+    const repairFields = ['repair_medical_air','repair_oxygen','repair_vacuum'];
+    const repairProbs  = ['repair_air_problem','repair_oxygen_problem','repair_vacuum_problem'];
+    repairFields.forEach((k,i) => {
+      const chk = document.querySelector(`.edit-svc-check[data-id="${k}"]`);
+      if (chk) chk.checked = !!r[k];
+      const txt = document.getElementById(`edit-txt-${repairProbs[i]}`);
+      if (txt) txt.value = r[repairProbs[i]] || '';
+    });
 
-    // ช่องจำนวนจริง
+    // --- ใบบันทึก ---
+    document.getElementById('svc-tech').value   = r.technician_name || '';
+    document.getElementById('svc-status').value = r.status || 'pending';
+    document.getElementById('svc-start').value  = r.service_start_at ? localDT(new Date(r.service_start_at)) : '';
+    document.getElementById('svc-end').value    = r.service_end_at   ? localDT(new Date(r.service_end_at))   : '';
+    document.getElementById('svc-note').value   = r.note_service || '';
     buildActualQtySection(r);
-
-    // ซ่อม
     const hasRepair = r.repair_medical_air || r.repair_oxygen || r.repair_vacuum;
     document.getElementById('repair-result-section').style.display = hasRepair ? '' : 'none';
-    document.getElementById('svc-repair-result').value = '';
+    const repairRes = document.getElementById('svc-repair-result');
+    if (repairRes) repairRes.value = r.repair_result || '';
 
-    document.getElementById('service-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  } catch(err) {
-    toast('โหลดข้อมูลไม่สำเร็จ: ' + err.message, 'error');
-  }
+    document.getElementById('svc-form-card').scrollIntoView({ behavior:'smooth', block:'start' });
+  } catch(err) { toast('โหลดข้อมูลไม่สำเร็จ: '+err.message, 'error'); }
 }
 
 function buildActualQtySection(r) {
   const fields = [
-    { key:'o2_05q', label:'O₂ 0.5Q', req: r.o2_05q },
-    { key:'o2_07q', label:'O₂ 0.7Q', req: r.o2_07q },
-    { key:'o2_15q', label:'O₂ 1.5Q', req: r.o2_15q },
-    { key:'o2_6q',  label:'O₂ 6Q',   req: r.o2_6q  },
-    { key:'o2_7q',  label:'O₂ 7Q',   req: r.o2_7q  },
-    { key:'o2_other_qty', label:`O₂ ${r.o2_other_size||'ขนาดอื่น'}`, req: r.o2_other_qty },
-    { key:'co2_6kg',  label:'CO₂ 6Kg',  req: r.co2_6kg  },
-    { key:'co2_25kg', label:'CO₂ 25Kg', req: r.co2_25kg },
-    { key:'n2o_25kg', label:'N₂O 25Kg', req: r.n2o_25kg },
-    { key:'n2_7q',    label:'N₂ 7Q',    req: r.n2_7q    },
-    { key:'loan_flowmeter',     label:'ยืม Flowmeter',     req: r.loan_flowmeter     },
-    { key:'loan_flowmeter_pto', label:'ยืม Flowmeter+PTO', req: r.loan_flowmeter_pto },
+    {key:'o2_05q',label:'O₂ 0.5Q'},{key:'o2_07q',label:'O₂ 0.7Q'},{key:'o2_15q',label:'O₂ 1.5Q'},
+    {key:'o2_6q',label:'O₂ 6Q'},{key:'o2_7q',label:'O₂ 7Q'},{key:'o2_other_qty',label:`O₂ ${r.o2_other_size||'อื่น'}`},
+    {key:'co2_6kg',label:'CO₂ 6Kg'},{key:'co2_25kg',label:'CO₂ 25Kg'},{key:'n2o_25kg',label:'N₂O 25Kg'},
+    {key:'n2_7q',label:'N₂ 7Q'},{key:'loan_flowmeter',label:'Flowmeter'},{key:'loan_flowmeter_pto',label:'Flowmeter+PTO'},
   ];
-  const active = fields.filter(f => f.req && f.req > 0);
-  if (active.length === 0) { document.getElementById('actual-qty-section').innerHTML = ''; return; }
-
-  let html = '<div style="background:var(--bg-card2);border-radius:var(--radius);padding:14px;margin-bottom:14px"><div style="font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;margin-bottom:10px;letter-spacing:.05em">จำนวนที่จ่ายจริง</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px">';
+  const active = fields.filter(f => (r[f.key]||0) > 0);
+  if (!active.length) { document.getElementById('actual-qty-section').innerHTML=''; return; }
+  let html = '<div style="background:var(--bg-base);border-radius:var(--radius);padding:12px;margin-bottom:12px"><div style="font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;margin-bottom:9px">จำนวนที่จ่ายจริง</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px">';
   active.forEach(f => {
-    html += `<div class="form-group">
-      <label class="form-label">${f.label} <span style="color:var(--text-3)">(ขอ ${f.req})</span></label>
-      <input type="number" class="form-input" id="actual-${f.key}" min="0" value="${f.req}">
-    </div>`;
+    const actual = r['actual_'+f.key] != null ? r['actual_'+f.key] : r[f.key];
+    html += `<div class="form-group"><label class="form-label">${f.label} <span style="color:var(--text-3)">(ขอ ${r[f.key]})</span></label><input type="number" class="form-input" id="actual-${f.key}" min="0" value="${actual}"></div>`;
   });
   html += '</div></div>';
   document.getElementById('actual-qty-section').innerHTML = html;
 }
 
-// ===== SUBMIT SERVICE RECORD =====
-async function submitServiceRecord() {
-  if (!currentServiceId) return;
-  const tech = document.getElementById('svc-tech').value.trim();
-  if (!tech) { toast('กรุณาระบุชื่อผู้ให้บริการ', 'error'); return; }
-
-  const btn = document.getElementById('btn-save-service');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="loading-spinner" style="width:14px;height:14px"></div> กำลังบันทึก...';
-
+async function submitFullEdit() {
+  if (!currentSvcId) return;
+  const btn = document.getElementById('btn-save-svc');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner" style="width:13px;height:13px"></div> กำลังบันทึก...';
+  const dept = document.getElementById('edit-req-dept').value;
   try {
-    const r = currentServiceData;
     const update = {
-      technician_name:  tech,
-      status:           document.getElementById('svc-status').value,
-      service_start_at: document.getElementById('svc-start').value || null,
-      service_end_at:   document.getElementById('svc-end').value   || null,
-      note_service:     document.getElementById('svc-note').value.trim() || null,
-      repair_result:    document.getElementById('svc-repair-result')?.value.trim() || null,
+      // ใบแจ้ง
+      request_date:   document.getElementById('edit-req-date').value,
+      requester_name: document.getElementById('edit-req-name').value.trim(),
+      department:     dept === 'other' ? 'อื่นๆ' : dept,
+      department_other: dept === 'other' ? document.getElementById('edit-req-dept-other').value.trim() : null,
+      note_request:   document.getElementById('edit-req-note').value.trim()||null,
+      o2_05q: +document.getElementById('edit-qty-o2_05q').value||0,
+      o2_07q: +document.getElementById('edit-qty-o2_07q').value||0,
+      o2_15q: +document.getElementById('edit-qty-o2_15q').value||0,
+      o2_6q:  +document.getElementById('edit-qty-o2_6q').value||0,
+      o2_7q:  +document.getElementById('edit-qty-o2_7q').value||0,
+      o2_other_size: document.getElementById('edit-txt-o2_other_size').value.trim()||null,
+      o2_other_qty: +document.getElementById('edit-qty-o2_other_qty').value||0,
+      co2_6kg:  +document.getElementById('edit-qty-co2_6kg').value||0,
+      co2_25kg: +document.getElementById('edit-qty-co2_25kg').value||0,
+      n2o_25kg: +document.getElementById('edit-qty-n2o_25kg').value||0,
+      n2_7q:    +document.getElementById('edit-qty-n2_7q').value||0,
+      loan_flowmeter:     +document.getElementById('edit-qty-loan_flowmeter').value||0,
+      loan_flowmeter_pto: +document.getElementById('edit-qty-loan_flowmeter_pto').value||0,
+      repair_medical_air:    document.querySelector('.edit-svc-check[data-id="repair_medical_air"]').checked,
+      repair_air_problem:    document.getElementById('edit-txt-repair_air_problem').value.trim()||null,
+      repair_oxygen:         document.querySelector('.edit-svc-check[data-id="repair_oxygen"]').checked,
+      repair_oxygen_problem: document.getElementById('edit-txt-repair_oxygen_problem').value.trim()||null,
+      repair_vacuum:         document.querySelector('.edit-svc-check[data-id="repair_vacuum"]').checked,
+      repair_vacuum_problem: document.getElementById('edit-txt-repair_vacuum_problem').value.trim()||null,
+      // ใบบันทึก
+      technician_name: document.getElementById('svc-tech').value.trim()||null,
+      status:          document.getElementById('svc-status').value,
+      service_start_at:document.getElementById('svc-start').value||null,
+      service_end_at:  document.getElementById('svc-end').value||null,
+      note_service:    document.getElementById('svc-note').value.trim()||null,
+      repair_result:   document.getElementById('svc-repair-result')?.value.trim()||null,
     };
-
-    // จำนวนจ่ายจริง
-    const fields = ['o2_05q','o2_07q','o2_15q','o2_6q','o2_7q','o2_other_qty','co2_6kg','co2_25kg','n2o_25kg','n2_7q','loan_flowmeter','loan_flowmeter_pto'];
-    fields.forEach(k => {
-      const el = document.getElementById('actual-' + k);
-      if (el) update['actual_' + k] = +el.value || 0;
+    // actual qty
+    ['o2_05q','o2_07q','o2_15q','o2_6q','o2_7q','o2_other_qty','co2_6kg','co2_25kg','n2o_25kg','n2_7q','loan_flowmeter','loan_flowmeter_pto'].forEach(k => {
+      const el = document.getElementById('actual-'+k);
+      if (el) update['actual_'+k] = +el.value||0;
     });
-
-    await supaFetch('PATCH', `?id=eq.${currentServiceId}`, update);
-    toast('บันทึกผลการให้บริการเรียบร้อย ✅', 'success');
-    cancelServiceForm();
+    await supaFetch('PATCH', `?id=eq.${currentSvcId}`, update);
+    toast('บันทึกเรียบร้อย ✅', 'success');
+    cancelSvcForm();
     loadPendingList();
-  } catch(err) {
-    toast('เกิดข้อผิดพลาด: ' + err.message, 'error');
-  } finally {
+  } catch(err) { toast('เกิดข้อผิดพลาด: '+err.message, 'error'); }
+  finally {
     btn.disabled = false;
-    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> บันทึกผลการให้บริการ';
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> บันทึก';
   }
 }
 
-function cancelServiceForm() {
-  document.getElementById('service-form-card').style.display = 'none';
-  currentServiceId = null;
-  currentServiceData = null;
+function cancelSvcForm() { document.getElementById('svc-form-card').style.display='none'; currentSvcId=null; }
+
+// ===== DELETE =====
+function deleteRecord(id, context='') {
+  showConfirm('ยืนยันการลบ', `ลบรายการ #${id} ใช่หรือไม่? ไม่สามารถย้อนกลับได้`, async () => {
+    try {
+      await supaFetch('DELETE', `?id=eq.${id}`);
+      toast(`ลบรายการ #${id} เรียบร้อย`, 'success');
+      if (context === 'admin') loadAdminList();
+      else { loadPendingList(); cancelSvcForm(); }
+    } catch(err) { toast('ลบไม่สำเร็จ: '+err.message, 'error'); }
+  });
 }
 
-// ===== LOAD HISTORY =====
-let histPage = 0;
-const PAGE_SIZE = 20;
+// ===== CONFIRM DIALOG =====
+function showConfirm(title, msg, cb) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent   = msg;
+  document.getElementById('confirm-modal').classList.remove('hidden');
+  document.getElementById('confirm-ok').onclick = () => { closeConfirm(); cb(); };
+}
+function closeConfirm() { document.getElementById('confirm-modal').classList.add('hidden'); }
 
-async function loadHistory(page = 0) {
+// ===== HISTORY =====
+async function loadHistory(page=0) {
   histPage = page;
   const tbody = document.getElementById('history-tbody');
   const pgEl  = document.getElementById('history-pagination');
-  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px"><div class="loading-spinner"></div></td></tr>';
-
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:28px"><div class="spinner"></div></td></tr>';
   const from = document.getElementById('hist-date-from').value;
   const to   = document.getElementById('hist-date-to').value;
   const st   = document.getElementById('hist-status').value;
   const dept = document.getElementById('hist-dept').value.trim();
-
-  let params = `?order=created_at.desc&limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}`;
+  const name = document.getElementById('hist-name').value.trim();
+  let params = `?order=created_at.desc&limit=${PAGE_SIZE}&offset=${page*PAGE_SIZE}`;
   if (from) params += `&request_date=gte.${from}`;
   if (to)   params += `&request_date=lte.${to}`;
   if (st)   params += `&status=eq.${st}`;
   if (dept) params += `&department=ilike.*${encodeURIComponent(dept)}*`;
-
+  if (name) params += `&requester_name=ilike.*${encodeURIComponent(name)}*`;
   try {
-    const data = await supaFetch('GET', params + '&select=id,request_date,requester_name,department,status,technician_name,created_at,o2_05q,o2_07q,o2_15q,o2_6q,o2_7q,co2_6kg,co2_25kg,n2o_25kg,n2_7q,loan_flowmeter,loan_flowmeter_pto,o2_other_qty,repair_medical_air,repair_oxygen,repair_vacuum');
-    if (!data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-3)">ไม่พบข้อมูล</td></tr>';
-      pgEl.textContent = '';
-      return;
-    }
-    tbody.innerHTML = data.map(r => `
-      <tr onclick="openDetail(${r.id})">
-        <td style="color:var(--text-3)">#${r.id}</td>
-        <td>${formatDate(r.request_date)}</td>
-        <td>${r.department}</td>
-        <td>${r.requester_name}</td>
-        <td style="font-size:12px;color:var(--text-2);max-width:200px">${getSummaryItems(r)}</td>
-        <td>${badgeHtml(r.status)}</td>
-        <td style="color:var(--text-2)">${r.technician_name||'—'}</td>
-      </tr>`).join('');
-    pgEl.innerHTML = `หน้า ${page+1} | แสดง ${data.length} รายการ
-      ${page > 0 ? `<button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="loadHistory(${page-1})">← ก่อนหน้า</button>` : ''}
-      ${data.length === PAGE_SIZE ? `<button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="loadHistory(${page+1})">ถัดไป →</button>` : ''}`;
-  } catch(err) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--red)">${err.message}</td></tr>`;
-  }
+    const data = await supaFetch('GET', params);
+    if (!data||!data.length) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--text-3)">ไม่พบข้อมูล</td></tr>'; pgEl.textContent=''; return; }
+    tbody.innerHTML = data.map(r => `<tr onclick="openDetail(${r.id})" style="cursor:pointer">
+      <td style="color:var(--text-3)">#${r.id}</td><td>${formatDate(r.request_date)}</td>
+      <td>${r.department}</td><td>${r.requester_name}</td>
+      <td style="font-size:12px;color:var(--text-2);max-width:180px">${getSummaryItems(r)}</td>
+      <td>${badgeHtml(r.status)}</td><td style="color:var(--text-2)">${r.technician_name||'—'}</td>
+    </tr>`).join('');
+    pgEl.innerHTML = `หน้า ${page+1} | ${data.length} รายการ
+      ${page>0?`<button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="loadHistory(${page-1})">← ก่อนหน้า</button>`:''}
+      ${data.length===PAGE_SIZE?`<button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="loadHistory(${page+1})">ถัดไป →</button>`:''}`;
+  } catch(err) { tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--red)">${err.message}</td></tr>`; }
 }
 
-// ===== OPEN DETAIL =====
+// ===== DETAIL PANEL =====
 async function openDetail(id) {
   document.getElementById('detail-overlay').classList.remove('hidden');
-  document.getElementById('dp-content').innerHTML = '<div class="loading-spinner"></div>';
+  document.getElementById('dp-content').innerHTML='<div class="spinner"></div>';
   try {
     const data = await supaFetch('GET', `?id=eq.${id}&limit=1`);
     const r = data[0];
     document.getElementById('dp-title').textContent = `คำร้อง #${r.id}`;
     document.getElementById('dp-badge').innerHTML = badgeHtml(r.status);
-
     let html = '';
-    // ข้อมูลพื้นฐาน
-    html += detailSection('📋 ข้อมูลผู้แจ้ง', [
-      ['วันที่แจ้ง', formatDate(r.request_date)],
-      ['ผู้แจ้ง', r.requester_name],
-      ['แผนก', r.department + (r.department_other ? ` (${r.department_other})` : '')],
-      ['หมายเหตุผู้แจ้ง', r.note_request || '—'],
-    ]);
-
-    // รายการที่ขอ
-    const reqItems = getSummaryItemsFull(r);
-    html += detailSection('📦 รายการที่ขอ', [['รายการ', reqItems]]);
-
-    // ซ่อม
-    if (r.repair_medical_air || r.repair_oxygen || r.repair_vacuum) {
-      const repairs = [];
-      if (r.repair_medical_air) repairs.push(['Medical Air', r.repair_air_problem||'ไม่ระบุ']);
-      if (r.repair_oxygen)      repairs.push(['Medical Oxygen', r.repair_oxygen_problem||'ไม่ระบุ']);
-      if (r.repair_vacuum)      repairs.push(['Medical Vacuum', r.repair_vacuum_problem||'ไม่ระบุ']);
-      html += detailSection('🔧 ปัญหาแจ้งซ่อม', repairs);
+    html += dpSection('📋 ข้อมูลผู้แจ้ง',[['วันที่แจ้ง',formatDate(r.request_date)],['ผู้แจ้ง',r.requester_name],['แผนก',r.department+(r.department_other?` (${r.department_other})`:'')],['หมายเหตุผู้แจ้ง',r.note_request||'—']]);
+    html += dpSection('📦 รายการที่ขอ',[['รายการ',getSummaryItemsFull(r)]]);
+    if (r.repair_medical_air||r.repair_oxygen||r.repair_vacuum) {
+      const repairs=[];
+      if(r.repair_medical_air) repairs.push(['Medical Air',r.repair_air_problem||'ไม่ระบุ']);
+      if(r.repair_oxygen)      repairs.push(['Medical Oxygen',r.repair_oxygen_problem||'ไม่ระบุ']);
+      if(r.repair_vacuum)      repairs.push(['Medical Vacuum',r.repair_vacuum_problem||'ไม่ระบุ']);
+      html += dpSection('🔧 ปัญหาแจ้งซ่อม',repairs);
     }
-
-    // การให้บริการ
     if (r.technician_name) {
-      html += detailSection('⚙️ ผลการให้บริการ', [
-        ['ช่าง', r.technician_name],
-        ['เริ่มบริการ', r.service_start_at ? formatDatetime(r.service_start_at) : '—'],
-        ['สิ้นสุด', r.service_end_at ? formatDatetime(r.service_end_at) : '—'],
-        ['ผลการซ่อม', r.repair_result || '—'],
-        ['หมายเหตุช่าง', r.note_service || '—'],
-      ]);
-
-      // จำนวนจ่ายจริง
-      const actualFields = [
-        ['O₂ 0.5Q', r.actual_o2_05q], ['O₂ 0.7Q', r.actual_o2_07q],
-        ['O₂ 1.5Q', r.actual_o2_15q], ['O₂ 6Q', r.actual_o2_6q],
-        ['O₂ 7Q', r.actual_o2_7q],   ['O₂ อื่น', r.actual_o2_other_qty],
-        ['CO₂ 6Kg', r.actual_co2_6kg], ['CO₂ 25Kg', r.actual_co2_25kg],
-        ['N₂O 25Kg', r.actual_n2o_25kg], ['N₂ 7Q', r.actual_n2_7q],
-        ['Flowmeter', r.actual_loan_flowmeter], ['Flowmeter+PTO', r.actual_loan_flowmeter_pto],
-      ].filter(f => f[1] != null && f[1] > 0);
-      if (actualFields.length > 0) html += detailSection('📊 จำนวนที่จ่ายจริง', actualFields.map(f => [f[0], `${f[1]} ชิ้น/ถัง`]));
+      html += dpSection('⚙️ ผลการให้บริการ',[['ช่าง',r.technician_name],['เริ่มบริการ',r.service_start_at?formatDatetime(r.service_start_at):'—'],['สิ้นสุด',r.service_end_at?formatDatetime(r.service_end_at):'—'],['ผลซ่อม',r.repair_result||'—'],['หมายเหตุช่าง',r.note_service||'—']]);
+      const af=[['O₂ 0.5Q',r.actual_o2_05q],['O₂ 0.7Q',r.actual_o2_07q],['O₂ 1.5Q',r.actual_o2_15q],['O₂ 6Q',r.actual_o2_6q],['O₂ 7Q',r.actual_o2_7q],['O₂ อื่น',r.actual_o2_other_qty],['CO₂ 6Kg',r.actual_co2_6kg],['CO₂ 25Kg',r.actual_co2_25kg],['N₂O 25Kg',r.actual_n2o_25kg],['N₂ 7Q',r.actual_n2_7q],['Flowmeter',r.actual_loan_flowmeter],['Flowmeter+PTO',r.actual_loan_flowmeter_pto]].filter(f=>f[1]>0);
+      if(af.length) html += dpSection('📊 จำนวนจ่ายจริง',af.map(f=>[f[0],`${f[1]} ชิ้น/ถัง`]));
     }
+    document.getElementById('dp-content').innerHTML=html;
+  } catch(err) { document.getElementById('dp-content').innerHTML=`<p style="color:var(--red)">${err.message}</p>`; }
+}
+function dpSection(title,rows) {
+  return `<div class="dp-section"><h3>${title}</h3>${rows.map(([k,v])=>`<div class="dp-row"><span class="dp-k">${k}</span><span class="dp-v">${v}</span></div>`).join('')}</div>`;
+}
+function closeDetail() { document.getElementById('detail-overlay').classList.add('hidden'); }
+function closeDetailOutside(e) { if(e.target===document.getElementById('detail-overlay')) closeDetail(); }
 
-    document.getElementById('dp-content').innerHTML = html;
-  } catch(err) {
-    document.getElementById('dp-content').innerHTML = `<p style="color:var(--red)">${err.message}</p>`;
-  }
+// ===== ADMIN LIST =====
+async function loadAdminList(page=0) {
+  adminPage = page;
+  const tbody = document.getElementById('admin-tbody');
+  const pgEl  = document.getElementById('admin-pagination');
+  tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:28px"><div class="spinner"></div></td></tr>';
+  const from = document.getElementById('admin-date-from').value;
+  const to   = document.getElementById('admin-date-to').value;
+  const st   = document.getElementById('admin-status').value;
+  const dept = document.getElementById('admin-dept').value.trim();
+  const name = document.getElementById('admin-name').value.trim();
+  let params = `?order=created_at.desc&limit=${PAGE_SIZE}&offset=${page*PAGE_SIZE}`;
+  if (from) params += `&request_date=gte.${from}`;
+  if (to)   params += `&request_date=lte.${to}`;
+  if (st)   params += `&status=eq.${st}`;
+  if (dept) params += `&department=ilike.*${encodeURIComponent(dept)}*`;
+  if (name) params += `&requester_name=ilike.*${encodeURIComponent(name)}*`;
+  try {
+    const data = await supaFetch('GET', params);
+    document.getElementById('admin-count').textContent = `${data?.length||0} รายการ`;
+    if (!data||!data.length) { tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text-3)">ไม่พบข้อมูล</td></tr>'; pgEl.textContent=''; return; }
+    tbody.innerHTML = data.map(r => `<tr>
+      <td style="color:var(--text-3)">#${r.id}</td>
+      <td>${formatDate(r.request_date)}</td>
+      <td>${r.department}</td>
+      <td>${r.requester_name}</td>
+      <td style="font-size:12px;color:var(--text-2);max-width:140px">${getSummaryItems(r)}</td>
+      <td>${badgeHtml(r.status)}</td>
+      <td style="color:var(--text-2)">${r.technician_name||'—'}</td>
+      <td><div style="display:flex;gap:5px">
+        <button class="btn btn-warning btn-sm" onclick="adminEdit(${r.id})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteRecord(${r.id},'admin')">🗑️</button>
+      </div></td>
+    </tr>`).join('');
+    pgEl.innerHTML = `หน้า ${page+1} | ${data.length} รายการ
+      ${page>0?`<button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="loadAdminList(${page-1})">← ก่อนหน้า</button>`:''}
+      ${data.length===PAGE_SIZE?`<button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="loadAdminList(${page+1})">ถัดไป →</button>`:''}`;
+  } catch(err) { tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--red)">${err.message}</td></tr>`; }
 }
 
-function detailSection(title, rows) {
-  let html = `<div class="detail-section"><h3>${title}</h3>`;
-  rows.forEach(([k, v]) => {
-    html += `<div class="detail-row"><span class="dk">${k}</span><span class="dv">${v}</span></div>`;
-  });
-  html += '</div>';
-  return html;
+function adminEdit(id) {
+  // ไป page service แล้วเปิด form แก้ไข
+  showPage('service');
+  openSvcForm(id);
 }
-
-function closeDetailPanel() { document.getElementById('detail-overlay').classList.add('hidden'); }
-function closeDetail(e) { if (e.target === document.getElementById('detail-overlay')) closeDetailPanel(); }
 
 // ===== DASHBOARD =====
 async function loadDashboard() {
-  document.getElementById('d-pending').textContent = '…';
-  document.getElementById('d-inprog').textContent  = '…';
-  document.getElementById('d-done').textContent    = '…';
-  document.getElementById('d-total').textContent   = '…';
-
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth()+1).padStart(2,'0');
-  const monthStart = `${y}-${m}-01`;
-
+  ['d-pending','d-inprog','d-done','d-total'].forEach(id => document.getElementById(id).textContent='…');
+  ['dash-o2-bars','dash-gas-bars','dash-dept-bars','dash-repair-bars','dash-loan-bars','dash-type-bars'].forEach(id => document.getElementById(id).innerHTML='<div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div>');
+  const from    = document.getElementById('dash-date-from').value;
+  const to      = document.getElementById('dash-date-to').value;
+  const statusV = document.getElementById('dash-status').value;
+  const bldg    = document.getElementById('dash-building').value;
+  const deptV   = document.getElementById('dash-dept').value.trim();
+  const svcType = document.getElementById('dash-svctype').value;
+  let params = '?select=status,department,o2_05q,o2_07q,o2_15q,o2_6q,o2_7q,o2_other_qty,co2_6kg,co2_25kg,n2o_25kg,n2_7q,loan_flowmeter,loan_flowmeter_pto,repair_medical_air,repair_oxygen,repair_vacuum,request_date';
+  if (from)    params += `&request_date=gte.${from}`;
+  if (to)      params += `&request_date=lte.${to}`;
+  if (statusV) params += `&status=eq.${statusV}`;
+  if (deptV)   params += `&department=ilike.*${encodeURIComponent(deptV)}*`;
   try {
-    const all = await supaFetch('GET', `?request_date=gte.${monthStart}&select=status,department,o2_05q,o2_07q,o2_15q,o2_6q,o2_7q,o2_other_qty,co2_6kg,co2_25kg,n2o_25kg,n2_7q,loan_flowmeter,loan_flowmeter_pto,repair_medical_air,repair_oxygen,repair_vacuum`);
-
-    const pending  = all.filter(r => r.status === 'pending').length;
-    const inprog   = all.filter(r => r.status === 'in_progress').length;
-    const done     = all.filter(r => r.status === 'done').length;
-
-    document.getElementById('d-pending').textContent = pending;
-    document.getElementById('d-inprog').textContent  = inprog;
-    document.getElementById('d-done').textContent    = done;
+    let all = await supaFetch('GET', params);
+    if (bldg && BUILDING_DEPTS[bldg]) all = all.filter(r => BUILDING_DEPTS[bldg].includes(r.department));
+    if (svcType==='o2')        all = all.filter(r=>(r.o2_05q||0)+(r.o2_07q||0)+(r.o2_15q||0)+(r.o2_6q||0)+(r.o2_7q||0)+(r.o2_other_qty||0)>0);
+    if (svcType==='other_gas') all = all.filter(r=>(r.co2_6kg||0)+(r.co2_25kg||0)+(r.n2o_25kg||0)+(r.n2_7q||0)>0);
+    if (svcType==='loan')      all = all.filter(r=>(r.loan_flowmeter||0)+(r.loan_flowmeter_pto||0)>0);
+    if (svcType==='repair')    all = all.filter(r=>r.repair_medical_air||r.repair_oxygen||r.repair_vacuum);
+    document.getElementById('d-pending').textContent = all.filter(r=>r.status==='pending').length;
+    document.getElementById('d-inprog').textContent  = all.filter(r=>r.status==='in_progress').length;
+    document.getElementById('d-done').textContent    = all.filter(r=>r.status==='done').length;
     document.getElementById('d-total').textContent   = all.length;
-
-    // O2 bars
-    const o2Data = [
-      { label: 'O₂ 0.5Q', val: all.reduce((s,r)=>s+(r.o2_05q||0),0) },
-      { label: 'O₂ 0.7Q', val: all.reduce((s,r)=>s+(r.o2_07q||0),0) },
-      { label: 'O₂ 1.5Q', val: all.reduce((s,r)=>s+(r.o2_15q||0),0) },
-      { label: 'O₂ 6Q',   val: all.reduce((s,r)=>s+(r.o2_6q||0),0)  },
-      { label: 'O₂ 7Q',   val: all.reduce((s,r)=>s+(r.o2_7q||0),0)  },
-      { label: 'อื่นๆ',    val: all.reduce((s,r)=>s+(r.o2_other_qty||0),0) },
-    ].filter(d => d.val > 0);
-    renderBarList('dash-o2-bars', o2Data, 'blue');
-
-    // Dept bars
-    const deptMap = {};
-    all.forEach(r => { deptMap[r.department] = (deptMap[r.department]||0)+1; });
-    const deptData = Object.entries(deptMap).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([k,v])=>({label:k,val:v}));
-    renderBarList('dash-dept-bars', deptData, 'green');
-
-    // Type bars
-    const typeData = [
-      { label: 'แลกท่อ O₂',     val: all.filter(r => (r.o2_05q||0)+(r.o2_07q||0)+(r.o2_15q||0)+(r.o2_6q||0)+(r.o2_7q||0)+(r.o2_other_qty||0) > 0).length },
-      { label: 'แลกท่อชนิดอื่น', val: all.filter(r => (r.co2_6kg||0)+(r.co2_25kg||0)+(r.n2o_25kg||0)+(r.n2_7q||0) > 0).length },
-      { label: 'ยืมอุปกรณ์',     val: all.filter(r => (r.loan_flowmeter||0)+(r.loan_flowmeter_pto||0) > 0).length },
-      { label: 'แจ้งซ่อม',       val: all.filter(r => r.repair_medical_air||r.repair_oxygen||r.repair_vacuum).length },
-    ].filter(d => d.val > 0);
-    renderBarList('dash-type-bars', typeData, 'yellow');
-
-    // Repair bars
-    const repairData = [
-      { label: 'Medical Air',    val: all.filter(r=>r.repair_medical_air).length },
-      { label: 'Medical Oxygen', val: all.filter(r=>r.repair_oxygen).length      },
-      { label: 'Medical Vacuum', val: all.filter(r=>r.repair_vacuum).length      },
-    ].filter(d => d.val > 0);
-    renderBarList('dash-repair-bars', repairData, 'red');
-
-  } catch(err) {
-    ['d-pending','d-inprog','d-done','d-total'].forEach(id => document.getElementById(id).textContent = 'Err');
-  }
+    renderBarList('dash-o2-bars',[{label:'O₂ 0.5Q',val:all.reduce((s,r)=>s+(r.o2_05q||0),0)},{label:'O₂ 0.7Q',val:all.reduce((s,r)=>s+(r.o2_07q||0),0)},{label:'O₂ 1.5Q',val:all.reduce((s,r)=>s+(r.o2_15q||0),0)},{label:'O₂ 6Q',val:all.reduce((s,r)=>s+(r.o2_6q||0),0)},{label:'O₂ 7Q',val:all.reduce((s,r)=>s+(r.o2_7q||0),0)},{label:'อื่นๆ',val:all.reduce((s,r)=>s+(r.o2_other_qty||0),0)}].filter(d=>d.val>0));
+    renderBarList('dash-gas-bars',[{label:'CO₂ 6Kg',val:all.reduce((s,r)=>s+(r.co2_6kg||0),0)},{label:'CO₂ 25Kg',val:all.reduce((s,r)=>s+(r.co2_25kg||0),0)},{label:'N₂O 25Kg',val:all.reduce((s,r)=>s+(r.n2o_25kg||0),0)},{label:'N₂ 7Q',val:all.reduce((s,r)=>s+(r.n2_7q||0),0)}].filter(d=>d.val>0),'p');
+    const deptMap={};
+    all.forEach(r=>{deptMap[r.department]=(deptMap[r.department]||0)+1;});
+    renderBarList('dash-dept-bars',Object.entries(deptMap).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>({label:k,val:v})),'g');
+    renderBarList('dash-repair-bars',[{label:'Medical Air',val:all.filter(r=>r.repair_medical_air).length},{label:'Medical Oxygen',val:all.filter(r=>r.repair_oxygen).length},{label:'Medical Vacuum',val:all.filter(r=>r.repair_vacuum).length}].filter(d=>d.val>0),'r');
+    renderBarList('dash-loan-bars',[{label:'Flowmeter',val:all.reduce((s,r)=>s+(r.loan_flowmeter||0),0)},{label:'Flowmeter+PTO',val:all.reduce((s,r)=>s+(r.loan_flowmeter_pto||0),0)}].filter(d=>d.val>0),'y');
+    renderBarList('dash-type-bars',[{label:'แลกท่อ O₂',val:all.filter(r=>(r.o2_05q||0)+(r.o2_07q||0)+(r.o2_15q||0)+(r.o2_6q||0)+(r.o2_7q||0)+(r.o2_other_qty||0)>0).length},{label:'แลกท่อชนิดอื่น',val:all.filter(r=>(r.co2_6kg||0)+(r.co2_25kg||0)+(r.n2o_25kg||0)+(r.n2_7q||0)>0).length},{label:'ยืมอุปกรณ์',val:all.filter(r=>(r.loan_flowmeter||0)+(r.loan_flowmeter_pto||0)>0).length},{label:'แจ้งซ่อม',val:all.filter(r=>r.repair_medical_air||r.repair_oxygen||r.repair_vacuum).length}].filter(d=>d.val>0),'o');
+  } catch(err) { toast('โหลด Dashboard ไม่สำเร็จ: '+err.message,'error'); }
 }
 
-function renderBarList(containerId, data, colorClass = '') {
+function renderBarList(containerId, data, colorClass='') {
   const el = document.getElementById(containerId);
-  if (!data.length) { el.innerHTML = '<div style="color:var(--text-3);font-size:12px">ไม่มีข้อมูล</div>'; return; }
+  if (!data.length) { el.innerHTML='<div style="color:var(--text-3);font-size:12px">ไม่มีข้อมูล</div>'; return; }
   const max = Math.max(...data.map(d=>d.val));
-  el.innerHTML = data.map(d => `
-    <div class="bar-item">
-      <div class="bar-item-label"><span>${d.label}</span><span>${d.val}</span></div>
-      <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${Math.round(d.val/max*100)}%"></div></div>
-    </div>`).join('');
+  el.innerHTML = data.map(d=>`<div class="bar-item"><div class="bar-lbl"><span>${d.label}</span><span>${d.val}</span></div><div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${Math.round(d.val/max*100)}%"></div></div></div>`).join('');
 }
 
 // ===== UTIL =====
 function getSummaryItems(r) {
-  const parts = [];
-  if ((r.o2_05q||0)+(r.o2_07q||0)+(r.o2_15q||0)+(r.o2_6q||0)+(r.o2_7q||0)+(r.o2_other_qty||0) > 0) parts.push('แลกท่อ O₂');
-  if ((r.co2_6kg||0)+(r.co2_25kg||0)+(r.n2o_25kg||0)+(r.n2_7q||0) > 0) parts.push('แลกท่อชนิดอื่น');
-  if ((r.loan_flowmeter||0)+(r.loan_flowmeter_pto||0) > 0) parts.push('ยืมอุปกรณ์');
-  if (r.repair_medical_air||r.repair_oxygen||r.repair_vacuum) parts.push('แจ้งซ่อม');
-  return parts.join(', ') || '—';
+  const p=[];
+  if((r.o2_05q||0)+(r.o2_07q||0)+(r.o2_15q||0)+(r.o2_6q||0)+(r.o2_7q||0)+(r.o2_other_qty||0)>0) p.push('แลกท่อ O₂');
+  if((r.co2_6kg||0)+(r.co2_25kg||0)+(r.n2o_25kg||0)+(r.n2_7q||0)>0) p.push('แลกท่อชนิดอื่น');
+  if((r.loan_flowmeter||0)+(r.loan_flowmeter_pto||0)>0) p.push('ยืมอุปกรณ์');
+  if(r.repair_medical_air||r.repair_oxygen||r.repair_vacuum) p.push('แจ้งซ่อม');
+  return p.join(', ')||'—';
 }
-
 function getSummaryItemsFull(r) {
-  const parts = [];
-  if (r.o2_05q > 0) parts.push(`O₂ 0.5Q × ${r.o2_05q}`);
-  if (r.o2_07q > 0) parts.push(`O₂ 0.7Q × ${r.o2_07q}`);
-  if (r.o2_15q > 0) parts.push(`O₂ 1.5Q × ${r.o2_15q}`);
-  if (r.o2_6q  > 0) parts.push(`O₂ 6Q × ${r.o2_6q}`);
-  if (r.o2_7q  > 0) parts.push(`O₂ 7Q × ${r.o2_7q}`);
-  if (r.o2_other_qty > 0) parts.push(`O₂ ${r.o2_other_size||'อื่น'} × ${r.o2_other_qty}`);
-  if (r.co2_6kg  > 0) parts.push(`CO₂ 6Kg × ${r.co2_6kg}`);
-  if (r.co2_25kg > 0) parts.push(`CO₂ 25Kg × ${r.co2_25kg}`);
-  if (r.n2o_25kg > 0) parts.push(`N₂O 25Kg × ${r.n2o_25kg}`);
-  if (r.n2_7q    > 0) parts.push(`N₂ 7Q × ${r.n2_7q}`);
-  if (r.loan_flowmeter     > 0) parts.push(`Flowmeter × ${r.loan_flowmeter}`);
-  if (r.loan_flowmeter_pto > 0) parts.push(`Flowmeter+PTO × ${r.loan_flowmeter_pto}`);
-  if (r.repair_medical_air) parts.push('ซ่อม Air');
-  if (r.repair_oxygen)      parts.push('ซ่อม O₂');
-  if (r.repair_vacuum)      parts.push('ซ่อม Vacuum');
-  return parts.join(' | ') || '—';
+  const p=[];
+  if(r.o2_05q>0) p.push(`O₂ 0.5Q×${r.o2_05q}`); if(r.o2_07q>0) p.push(`O₂ 0.7Q×${r.o2_07q}`);
+  if(r.o2_15q>0) p.push(`O₂ 1.5Q×${r.o2_15q}`); if(r.o2_6q>0)  p.push(`O₂ 6Q×${r.o2_6q}`);
+  if(r.o2_7q>0)  p.push(`O₂ 7Q×${r.o2_7q}`);
+  if(r.o2_other_qty>0) p.push(`O₂ ${r.o2_other_size||'อื่น'}×${r.o2_other_qty}`);
+  if(r.co2_6kg>0)  p.push(`CO₂ 6Kg×${r.co2_6kg}`);  if(r.co2_25kg>0) p.push(`CO₂ 25Kg×${r.co2_25kg}`);
+  if(r.n2o_25kg>0) p.push(`N₂O 25Kg×${r.n2o_25kg}`); if(r.n2_7q>0)    p.push(`N₂ 7Q×${r.n2_7q}`);
+  if(r.loan_flowmeter>0)     p.push(`Flowmeter×${r.loan_flowmeter}`);
+  if(r.loan_flowmeter_pto>0) p.push(`Flowmeter+PTO×${r.loan_flowmeter_pto}`);
+  if(r.repair_medical_air) p.push('ซ่อม Air'); if(r.repair_oxygen) p.push('ซ่อม O₂'); if(r.repair_vacuum) p.push('ซ่อม Vacuum');
+  return p.join(' | ')||'—';
 }
-
-function badgeHtml(status) {
-  const map = { pending: ['badge-pending','รอดำเนินการ'], in_progress: ['badge-progress','กำลังดำเนินการ'], done: ['badge-done','เสร็จสิ้น'] };
-  const [cls, label] = map[status] || ['','—'];
-  return `<span class="badge ${cls}">${label}</span>`;
+function badgeHtml(s) {
+  const m={pending:['badge-pending','รอดำเนินการ'],in_progress:['badge-progress','กำลังดำเนินการ'],done:['badge-done','เสร็จสิ้น']};
+  const [c,l]=m[s]||['','—'];
+  return `<span class="badge ${c}">${l}</span>`;
 }
-
-function formatDate(d) {
-  if (!d) return '—';
-  const dt = new Date(d + 'T00:00:00');
-  return dt.toLocaleDateString('th-TH', { year:'numeric', month:'short', day:'numeric' });
-}
-
-function formatDatetime(d) {
-  if (!d) return '—';
-  return new Date(d).toLocaleString('th-TH', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
-}
-
-function localDatetimeValue(d) {
-  const pad = n => String(n).padStart(2,'0');
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
+function formatDate(d) { if(!d) return '—'; return new Date(d+'T00:00:00').toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'}); }
+function formatDatetime(d) { if(!d) return '—'; return new Date(d).toLocaleString('th-TH',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
   setTodayDate();
+  setTimeout(() => document.getElementById('auth-email').focus(), 200);
 });
 </script>
 </body>

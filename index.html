@@ -263,6 +263,24 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
   </div>
 </div>
 
+<!-- ===== SVC PIN MODAL ===== -->
+<div class="modal-overlay hidden" id="svc-pin-modal">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px 28px;width:320px;text-align:center;box-shadow:var(--shadow)">
+    <div style="font-size:36px;margin-bottom:8px">🔒</div>
+    <h2 style="font-size:18px;color:var(--text-1);margin-bottom:6px" id="svc-pin-title">ยืนยันการดำเนินการ</h2>
+    <p style="font-size:13px;color:var(--text-2);margin-bottom:16px">กรุณาใส่ PIN เพื่อยืนยัน</p>
+    <input type="password" id="svc-pin-input" maxlength="4" placeholder="••••"
+      style="width:100%;background:var(--bg-input);border:2px solid var(--border);border-radius:var(--radius);color:var(--text-1);font-size:22px;letter-spacing:8px;padding:12px;text-align:center;font-family:monospace;margin-bottom:8px;outline:none;transition:border-color .15s"
+      onkeydown="if(event.key==='Enter')checkSvcPin()" onkeyup="if(this.value.length===4)checkSvcPin()"
+      onfocus="this.style.borderColor='var(--border-focus)'" onblur="this.style.borderColor='var(--border)'">
+    <div style="color:var(--red);font-size:12px;min-height:18px;margin-bottom:12px" id="svc-pin-error"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-outline" style="flex:1;justify-content:center" onclick="closeSvcPin()">ยกเลิก</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="checkSvcPin()">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== APP ===== -->
 <div class="app-wrapper" id="app" style="display:none">
 
@@ -332,13 +350,17 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
           <tr><td><input type="checkbox" class="custom-check svc-check" data-id="co2_25kg"></td><td>แลกท่อ CO₂ ขนาด 25 Kg</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-co2_25kg" min="0" value="0"></td><td>—</td></tr>
           <tr><td><input type="checkbox" class="custom-check svc-check" data-id="n2o_25kg"></td><td>แลกท่อ N₂O ขนาด 25 Kg</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-n2o_25kg" min="0" value="0"></td><td>—</td></tr>
           <tr><td><input type="checkbox" class="custom-check svc-check" data-id="n2_7q"></td><td>แลกท่อ N₂ ขนาด 7 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-n2_7q" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="other_gas_other"></td><td>แก๊สชนิดอื่นๆ (ระบุ)</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-other_gas_other_qty" min="0" value="0"></td><td><input type="text" class="prob-input" id="txt-other_gas_other_detail" placeholder="ระบุชนิด/ขนาด..."></td></tr>
           <tr class="grp"><td colspan="4">ยืมอุปกรณ์</td></tr>
           <tr><td><input type="checkbox" class="custom-check svc-check" data-id="loan_flowmeter"></td><td>ยืม Oxygen flow meter regulator</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-loan_flowmeter" min="0" value="0"></td><td>—</td></tr>
           <tr><td><input type="checkbox" class="custom-check svc-check" data-id="loan_flowmeter_pto"></td><td>ยืม Oxygen flow meter regulator with power take off</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-loan_flowmeter_pto" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="loan_other"></td><td>ยืมอุปกรณ์อื่นๆ (ระบุ)</td><td style="text-align:center"><input type="number" class="qty-input" id="qty-loan_other_qty" min="0" value="0"></td><td><input type="text" class="prob-input" id="txt-loan_other_detail" placeholder="ระบุชื่ออุปกรณ์..."></td></tr>
           <tr class="grp"><td colspan="4">แจ้งซ่อมระบบ Pipeline</td></tr>
           <tr><td><input type="checkbox" class="custom-check svc-check" data-id="repair_medical_air"></td><td>Medical Air</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="txt-repair_air_problem" placeholder="ปัญหาที่พบ..."></td></tr>
           <tr><td><input type="checkbox" class="custom-check svc-check" data-id="repair_oxygen"></td><td>Medical Oxygen</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="txt-repair_oxygen_problem" placeholder="ปัญหาที่พบ..."></td></tr>
           <tr><td><input type="checkbox" class="custom-check svc-check" data-id="repair_vacuum"></td><td>Medical Vacuum</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="txt-repair_vacuum_problem" placeholder="ปัญหาที่พบ..."></td></tr>
+          <tr class="grp"><td colspan="4">แจ้งขอรับบริการเรื่องอื่นๆ</td></tr>
+          <tr><td><input type="checkbox" class="custom-check svc-check" data-id="general_other"></td><td>แจ้งขอรับบริการเรื่องอื่นๆ (ระบุ)</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="txt-general_other_detail" placeholder="ระบุรายละเอียด..."></td></tr>
         </tbody>
       </table></div>
     </div>
@@ -416,13 +438,17 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
           <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="co2_25kg"></td><td>CO₂ 25 Kg</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-co2_25kg" min="0" value="0"></td><td>—</td></tr>
           <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="n2o_25kg"></td><td>N₂O 25 Kg</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-n2o_25kg" min="0" value="0"></td><td>—</td></tr>
           <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="n2_7q"></td><td>N₂ 7 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-n2_7q" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="other_gas_other"></td><td>แก๊สชนิดอื่นๆ (ระบุ)</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-other_gas_other_qty" min="0" value="0"></td><td><input type="text" class="prob-input" id="edit-txt-other_gas_other_detail" placeholder="ระบุชนิด/ขนาด..."></td></tr>
           <tr class="grp"><td colspan="4">ยืมอุปกรณ์</td></tr>
           <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="loan_flowmeter"></td><td>ยืม Flowmeter regulator</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-loan_flowmeter" min="0" value="0"></td><td>—</td></tr>
           <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="loan_flowmeter_pto"></td><td>ยืม Flowmeter + PTO</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-loan_flowmeter_pto" min="0" value="0"></td><td>—</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="loan_other"></td><td>ยืมอุปกรณ์อื่นๆ (ระบุ)</td><td style="text-align:center"><input type="number" class="qty-input" id="edit-qty-loan_other_qty" min="0" value="0"></td><td><input type="text" class="prob-input" id="edit-txt-loan_other_detail" placeholder="ระบุชื่ออุปกรณ์..."></td></tr>
           <tr class="grp"><td colspan="4">แจ้งซ่อม Pipeline</td></tr>
           <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="repair_medical_air"></td><td>Medical Air</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="edit-txt-repair_air_problem" placeholder="ปัญหาที่พบ..."></td></tr>
           <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="repair_oxygen"></td><td>Medical Oxygen</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="edit-txt-repair_oxygen_problem" placeholder="ปัญหาที่พบ..."></td></tr>
           <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="repair_vacuum"></td><td>Medical Vacuum</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="edit-txt-repair_vacuum_problem" placeholder="ปัญหาที่พบ..."></td></tr>
+          <tr class="grp"><td colspan="4">แจ้งขอรับบริการเรื่องอื่นๆ</td></tr>
+          <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="general_other"></td><td>แจ้งขอรับบริการเรื่องอื่นๆ (ระบุ)</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="edit-txt-general_other_detail" placeholder="ระบุรายละเอียด..."></td></tr>
         </tbody>
       </table></div>
       <div class="form-row c1" style="margin-top:10px">
@@ -451,12 +477,12 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
       <div id="repair-result-section" style="display:none">
         <div class="form-group" style="margin-bottom:12px"><label class="form-label">ผลการซ่อม / วิธีแก้ไข</label><textarea class="form-textarea" id="svc-repair-result" rows="2" placeholder="บันทึกผลการซ่อม..."></textarea></div>
       </div>
-      <div class="form-group"><label class="form-label">หมายเหตุช่าง</label><textarea class="form-textarea" id="svc-note" rows="2" placeholder="หมายเหตุ..."></textarea></div>
+      <div class="form-group"><label class="form-label">หมายเหตุ <span style="font-weight:400;text-transform:none;color:var(--text-3)">(ให้ลงรายละเอียดการซ่อม/เรื่องอื่น)</span></label><textarea class="form-textarea" id="svc-note" rows="2" placeholder="หมายเหตุ..."></textarea></div>
     </div>
 
     <div class="form-actions">
       <button class="btn btn-outline" onclick="cancelSvcForm()">ยกเลิก</button>
-      <button class="btn btn-success" onclick="submitFullEdit()" id="btn-save-svc">
+      <button class="btn btn-success" onclick="requireSvcPin('ยืนยันการบันทึก', submitFullEdit)" id="btn-save-svc">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
         บันทึก
       </button>
@@ -617,6 +643,7 @@ const SUPA_URL  = 'https://kmteuxpvpcqchacpefmy.supabase.co';
 const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttdGV1eHB2cGNxY2hhY3BlZm15Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNTgwMDUsImV4cCI6MjA5NjkzNDAwNX0.HpVuvxq9Nx1flqWYzOuQ5_iB6I7DeBN_YxgfzIERvDc';
 const TABLE     = 'exchang-repair-loan-gas-system';
 const ADMIN_PIN = '9999';
+const SVC_PIN   = '4321';  // PIN สำหรับบันทึก/ลบ ในหน้าบันทึกให้บริการ
 
 const BUILDING_DEPTS = {
   '100':['100/9','100/8','100/7','100/6'],
@@ -860,6 +887,12 @@ document.getElementById('form-request').addEventListener('submit', async functio
       repair_oxygen_problem: document.getElementById('txt-repair_oxygen_problem').value.trim()||null,
       repair_vacuum:         document.querySelector('[data-id="repair_vacuum"]').checked,
       repair_vacuum_problem: document.getElementById('txt-repair_vacuum_problem').value.trim()||null,
+      other_gas_other_qty:    +document.getElementById('qty-other_gas_other_qty').value||0,
+      other_gas_other_detail: document.getElementById('txt-other_gas_other_detail').value.trim()||null,
+      loan_other_qty:         +document.getElementById('qty-loan_other_qty').value||0,
+      loan_other_detail:      document.getElementById('txt-loan_other_detail').value.trim()||null,
+      general_other:          document.querySelector('[data-id="general_other"]').checked,
+      general_other_detail:   document.getElementById('txt-general_other_detail').value.trim()||null,
     };
     await supaFetch('POST', '', row);
     toast('ส่งคำร้องเรียบร้อยแล้ว ✅', 'success');
@@ -889,7 +922,7 @@ async function loadPendingList() {
         <td>${badgeHtml(r.status)}</td>
         <td><div style="display:flex;gap:5px;flex-wrap:wrap">
           <button class="btn btn-primary btn-sm" onclick="openSvcForm(${r.id})">📝 บันทึก</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteRecord(${r.id},'pending')">🗑️</button>
+          <button class="btn btn-danger btn-sm" onclick="requireSvcPin('ยืนยันการลบรายการ #${r.id}', ()=>deleteRecord(${r.id},'pending'))">🗑️</button>
         </div></td>
       </tr>`;
     });
@@ -943,6 +976,18 @@ async function openSvcForm(id) {
       const txt = document.getElementById(`edit-txt-${repairProbs[i]}`);
       if (txt) txt.value = r[repairProbs[i]] || '';
     });
+    // โหลด field ใหม่
+    const ogChk = document.querySelector('.edit-svc-check[data-id="other_gas_other"]');
+    if (ogChk) ogChk.checked = (r.other_gas_other_qty||0) > 0;
+    const ogQty = document.getElementById('edit-qty-other_gas_other_qty'); if (ogQty) ogQty.value = r.other_gas_other_qty||0;
+    const ogTxt = document.getElementById('edit-txt-other_gas_other_detail'); if (ogTxt) ogTxt.value = r.other_gas_other_detail||'';
+    const loChk = document.querySelector('.edit-svc-check[data-id="loan_other"]');
+    if (loChk) loChk.checked = (r.loan_other_qty||0) > 0;
+    const loQty = document.getElementById('edit-qty-loan_other_qty'); if (loQty) loQty.value = r.loan_other_qty||0;
+    const loTxt = document.getElementById('edit-txt-loan_other_detail'); if (loTxt) loTxt.value = r.loan_other_detail||'';
+    const goChk = document.querySelector('.edit-svc-check[data-id="general_other"]');
+    if (goChk) goChk.checked = !!r.general_other;
+    const goTxt = document.getElementById('edit-txt-general_other_detail'); if (goTxt) goTxt.value = r.general_other_detail||'';
 
     // --- ใบบันทึก ---
     document.getElementById('svc-tech').value   = r.technician_name || '';
@@ -1010,6 +1055,12 @@ async function submitFullEdit() {
       repair_oxygen_problem: document.getElementById('edit-txt-repair_oxygen_problem').value.trim()||null,
       repair_vacuum:         document.querySelector('.edit-svc-check[data-id="repair_vacuum"]').checked,
       repair_vacuum_problem: document.getElementById('edit-txt-repair_vacuum_problem').value.trim()||null,
+      other_gas_other_qty:    +document.getElementById('edit-qty-other_gas_other_qty').value||0,
+      other_gas_other_detail: document.getElementById('edit-txt-other_gas_other_detail').value.trim()||null,
+      loan_other_qty:         +document.getElementById('edit-qty-loan_other_qty').value||0,
+      loan_other_detail:      document.getElementById('edit-txt-loan_other_detail').value.trim()||null,
+      general_other:          document.querySelector('.edit-svc-check[data-id="general_other"]').checked,
+      general_other_detail:   document.getElementById('edit-txt-general_other_detail').value.trim()||null,
       // ใบบันทึก
       technician_name: document.getElementById('svc-tech').value.trim()||null,
       status:          document.getElementById('svc-status').value,
@@ -1035,6 +1086,29 @@ async function submitFullEdit() {
 }
 
 function cancelSvcForm() { document.getElementById('svc-form-card').style.display='none'; currentSvcId=null; }
+
+// ===== SVC PIN (บันทึก/ลบ หน้าบันทึกให้บริการ) =====
+let svcPinCallback = null;
+function requireSvcPin(title, callback) {
+  svcPinCallback = callback;
+  document.getElementById('svc-pin-title').textContent = title;
+  document.getElementById('svc-pin-input').value = '';
+  document.getElementById('svc-pin-error').textContent = '';
+  document.getElementById('svc-pin-modal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('svc-pin-input').focus(), 100);
+}
+function checkSvcPin() {
+  const val = document.getElementById('svc-pin-input').value;
+  if (val === SVC_PIN) {
+    document.getElementById('svc-pin-modal').classList.add('hidden');
+    if (svcPinCallback) svcPinCallback();
+  } else {
+    document.getElementById('svc-pin-error').textContent = 'PIN ไม่ถูกต้อง';
+    document.getElementById('svc-pin-input').value = '';
+    document.getElementById('svc-pin-input').focus();
+  }
+}
+function closeSvcPin() { document.getElementById('svc-pin-modal').classList.add('hidden'); svcPinCallback = null; }
 
 // ===== DELETE =====
 function deleteRecord(id, context='') {
@@ -1109,7 +1183,7 @@ async function openDetail(id) {
       html += dpSection('🔧 ปัญหาแจ้งซ่อม',repairs);
     }
     if (r.technician_name) {
-      html += dpSection('⚙️ ผลการให้บริการ',[['ช่าง',r.technician_name],['เริ่มบริการ',r.service_start_at?formatDatetime(r.service_start_at):'—'],['สิ้นสุด',r.service_end_at?formatDatetime(r.service_end_at):'—'],['ผลซ่อม',r.repair_result||'—'],['หมายเหตุช่าง',r.note_service||'—']]);
+      html += dpSection('⚙️ ผลการให้บริการ',[['ช่าง',r.technician_name],['เริ่มบริการ',r.service_start_at?formatDatetime(r.service_start_at):'—'],['สิ้นสุด',r.service_end_at?formatDatetime(r.service_end_at):'—'],['ผลซ่อม',r.repair_result||'—'],['หมายเหตุ/รายละเอียด',r.note_service||'—']]);
       const af=[['O₂ 0.5Q',r.actual_o2_05q],['O₂ 0.7Q',r.actual_o2_07q],['O₂ 1.5Q',r.actual_o2_15q],['O₂ 6Q',r.actual_o2_6q],['O₂ 7Q',r.actual_o2_7q],['O₂ อื่น',r.actual_o2_other_qty],['CO₂ 6Kg',r.actual_co2_6kg],['CO₂ 25Kg',r.actual_co2_25kg],['N₂O 25Kg',r.actual_n2o_25kg],['N₂ 7Q',r.actual_n2_7q],['Flowmeter',r.actual_loan_flowmeter],['Flowmeter+PTO',r.actual_loan_flowmeter_pto]].filter(f=>f[1]>0);
       if(af.length) html += dpSection('📊 จำนวนจ่ายจริง',af.map(f=>[f[0],`${f[1]} ชิ้น/ถัง`]));
     }
@@ -1219,6 +1293,9 @@ function getSummaryItems(r) {
   if((r.co2_6kg||0)+(r.co2_25kg||0)+(r.n2o_25kg||0)+(r.n2_7q||0)>0) p.push('แลกท่อชนิดอื่น');
   if((r.loan_flowmeter||0)+(r.loan_flowmeter_pto||0)>0) p.push('ยืมอุปกรณ์');
   if(r.repair_medical_air||r.repair_oxygen||r.repair_vacuum) p.push('แจ้งซ่อม');
+  if((r.other_gas_other_qty||0)>0) p.push('แก๊สอื่นๆ');
+  if((r.loan_other_qty||0)>0) p.push('ยืมอื่นๆ');
+  if(r.general_other) p.push('เรื่องอื่นๆ');
   return p.join(', ')||'—';
 }
 function getSummaryItemsFull(r) {
@@ -1232,6 +1309,9 @@ function getSummaryItemsFull(r) {
   if(r.loan_flowmeter>0)     p.push(`Flowmeter×${r.loan_flowmeter}`);
   if(r.loan_flowmeter_pto>0) p.push(`Flowmeter+PTO×${r.loan_flowmeter_pto}`);
   if(r.repair_medical_air) p.push('ซ่อม Air'); if(r.repair_oxygen) p.push('ซ่อม O₂'); if(r.repair_vacuum) p.push('ซ่อม Vacuum');
+  if((r.other_gas_other_qty||0)>0) p.push(`แก๊สอื่น(${r.other_gas_other_detail||'?'})×${r.other_gas_other_qty}`);
+  if((r.loan_other_qty||0)>0) p.push(`ยืม(${r.loan_other_detail||'?'})×${r.loan_other_qty}`);
+  if(r.general_other) p.push(`อื่นๆ: ${r.general_other_detail||'ไม่ระบุ'}`);
   return p.join(' | ')||'—';
 }
 function badgeHtml(s) {

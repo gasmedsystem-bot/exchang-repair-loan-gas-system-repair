@@ -191,6 +191,23 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
 
 /* ===== ADMIN BADGE ===== */
 .admin-tag{display:inline-flex;align-items:center;gap:4px;background:rgba(255,154,60,.15);border:1px solid rgba(255,154,60,.4);color:var(--orange);border-radius:20px;font-size:10px;font-weight:700;padding:2px 8px}
+/* ===== ADMIN TABS ===== */
+.admin-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap}
+.admin-tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--text-2);padding:10px 16px;cursor:pointer;font-size:13px;font-family:var(--font);font-weight:600;transition:all .15s;margin-bottom:-1px}
+.admin-tab:hover{color:var(--text-1)}
+.admin-tab.active{color:var(--orange);border-bottom-color:var(--orange)}
+.admin-tab-panel{display:none}.admin-tab-panel.active{display:block}
+/* ===== PING STATUS ===== */
+.ping-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--text-3);margin-right:6px;transition:background .3s}
+.ping-dot.ok{background:var(--green);box-shadow:0 0 6px var(--green)}
+.ping-dot.err{background:var(--red);box-shadow:0 0 6px var(--red)}
+.ping-dot.loading{background:var(--yellow);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+/* ===== TECH PRESET TAGS ===== */
+.tag-wrap{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.tech-tag{display:inline-flex;align-items:center;gap:5px;background:var(--bg-card2);border:1px solid var(--border);color:var(--text-1);border-radius:6px;padding:5px 10px;font-size:13px}
+.tech-tag button{background:none;border:none;color:var(--text-3);cursor:pointer;font-size:14px;line-height:1;padding:0 0 0 2px}
+.tech-tag button:hover{color:var(--red)}
 
 /* ===== SPINNER ===== */
 .spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
@@ -364,6 +381,20 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
         </tbody>
       </table></div>
     </div>
+    <!-- B+ Custom Items Section — ไม่แตะ hardcode เดิม -->
+    <div class="card" id="custom-items-card" style="display:none">
+      <div class="card-title">
+        <div class="card-title-l">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          รายการเพิ่มเติม (Admin กำหนด)
+        </div>
+        <span style="font-size:11px;color:var(--text-3);font-weight:400">เลือกได้มากกว่า 1 รายการ</span>
+      </div>
+      <div id="custom-items-section">
+        <div style="font-size:13px;color:var(--text-3);padding:8px 0">กำลังโหลดรายการ...</div>
+      </div>
+    </div>
+
     <div class="card">
       <div class="card-title"><div class="card-title-l">💬 หมายเหตุ</div></div>
       <textarea class="form-textarea" id="req-note" placeholder="ข้อมูลเพิ่มเติม..." rows="3"></textarea>
@@ -451,6 +482,11 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
           <tr><td><input type="checkbox" class="custom-check edit-svc-check" data-id="general_other"></td><td>แจ้งขอรับบริการเรื่องอื่นๆ (ระบุ)</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="edit-txt-general_other_detail" placeholder="ระบุรายละเอียด..."></td></tr>
         </tbody>
       </table></div>
+      <!-- B+ edit custom items section -->
+      <div id="edit-custom-items-card" style="margin-top:10px;display:none">
+        <div style="font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;margin-bottom:8px">รายการ B+ (Admin กำหนด)</div>
+        <div id="edit-custom-items-section"></div>
+      </div>
       <div class="form-row c1" style="margin-top:10px">
         <div class="form-group"><label class="form-label">หมายเหตุผู้แจ้ง</label><textarea class="form-textarea" id="edit-req-note" rows="2" placeholder="หมายเหตุ..."></textarea></div>
       </div>
@@ -460,7 +496,10 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
     <div style="background:rgba(63,185,80,.05);border:1px solid rgba(63,185,80,.2);border-radius:var(--radius);padding:14px">
       <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:12px;text-transform:uppercase;letter-spacing:.04em">⚙️ ข้อมูลใบบันทึกให้บริการ</div>
       <div class="form-row c2">
-        <div class="form-group"><label class="form-label">ผู้ให้บริการ (ช่าง)<span class="req">*</span></label><input type="text" class="form-input" id="svc-tech" placeholder="ชื่อช่างผู้ให้บริการ"></div>
+        <div class="form-group"><label class="form-label">ผู้ให้บริการ (ช่าง)<span class="req">*</span></label>
+          <input type="text" class="form-input" id="svc-tech" placeholder="พิมพ์หรือเลือกชื่อช่าง..." list="tech-datalist" autocomplete="off">
+          <datalist id="tech-datalist"></datalist>
+        </div>
         <div class="form-group"><label class="form-label">สถานะ<span class="req">*</span></label>
           <select class="form-select" id="svc-status">
             <option value="pending">🟡 รอดำเนินการ</option>
@@ -572,42 +611,197 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
 <div class="page" id="page-admin">
   <div class="page-header">
     <h1>🛡️ Admin Panel <span class="admin-tag">ADMIN</span></h1>
-    <p>จัดการรายการทั้งหมดในระบบ — สามารถแก้ไข/ลบทุกรายการได้</p>
+    <p>จัดการรายการทั้งหมด — จัดการ Preset ช่าง — Archive ข้อมูลเก่า — ตรวจสถานะระบบ</p>
   </div>
-  <div class="card admin-card">
-    <div class="date-preset-row">
-      <span style="font-size:11px;color:var(--text-3);align-self:center">ช่วงเวลา:</span>
-      <button class="preset-btn" onclick="setDatePreset('today','admin')">วันนี้</button>
-      <button class="preset-btn" onclick="setDatePreset('7','admin')">7 วัน</button>
-      <button class="preset-btn" onclick="setDatePreset('30','admin')">30 วัน</button>
-      <button class="preset-btn" onclick="setDatePreset('month','admin')">เดือนนี้</button>
-      <button class="preset-btn active" onclick="setDatePreset('all','admin')">ทั้งหมด</button>
-    </div>
-    <div class="filter-grid">
-      <div class="form-group"><label class="form-label">วันที่เริ่มต้น</label><input type="date" class="form-input" id="admin-date-from"></div>
-      <div class="form-group"><label class="form-label">วันที่สิ้นสุด</label><input type="date" class="form-input" id="admin-date-to"></div>
-      <div class="form-group"><label class="form-label">สถานะ</label>
-        <select class="form-select" id="admin-status"><option value="">ทั้งหมด</option><option value="pending">รอดำเนินการ</option><option value="in_progress">กำลังดำเนินการ</option><option value="done">เสร็จสิ้น</option></select>
+
+  <!-- ADMIN TABS -->
+  <div class="admin-tabs">
+    <button class="admin-tab active" onclick="switchAdminTab('records',this)">📋 จัดการรายการ</button>
+    <button class="admin-tab" onclick="switchAdminTab('techs',this)">👷 ชื่อช่าง Preset</button>
+    <button class="admin-tab" onclick="switchAdminTab('archive',this)">📦 Archive ข้อมูล</button>
+    <button class="admin-tab" onclick="switchAdminTab('ping',this)">🔌 สถานะระบบ</button>
+  </div>
+
+  <!-- TAB: จัดการรายการ -->
+  <div class="admin-tab-panel active" id="atab-records">
+    <div class="card admin-card">
+      <div class="date-preset-row">
+        <span style="font-size:11px;color:var(--text-3);align-self:center">ช่วงเวลา:</span>
+        <button class="preset-btn" onclick="setDatePreset('today','admin')">วันนี้</button>
+        <button class="preset-btn" onclick="setDatePreset('7','admin')">7 วัน</button>
+        <button class="preset-btn" onclick="setDatePreset('30','admin')">30 วัน</button>
+        <button class="preset-btn" onclick="setDatePreset('month','admin')">เดือนนี้</button>
+        <button class="preset-btn active" onclick="setDatePreset('all','admin')">ทั้งหมด</button>
       </div>
-      <div class="form-group"><label class="form-label">แผนก</label><input type="text" class="form-input" id="admin-dept" placeholder="ค้นหาแผนก..."></div>
-      <div class="form-group"><label class="form-label">ผู้แจ้ง</label><input type="text" class="form-input" id="admin-name" placeholder="ชื่อผู้แจ้ง..."></div>
-      <div class="form-group" style="align-self:flex-end"><button class="btn btn-orange" style="width:100%;justify-content:center" onclick="loadAdminList()">🔍 ค้นหา</button></div>
+      <div class="filter-grid">
+        <div class="form-group"><label class="form-label">วันที่เริ่มต้น</label><input type="date" class="form-input" id="admin-date-from"></div>
+        <div class="form-group"><label class="form-label">วันที่สิ้นสุด</label><input type="date" class="form-input" id="admin-date-to"></div>
+        <div class="form-group"><label class="form-label">สถานะ</label>
+          <select class="form-select" id="admin-status"><option value="">ทั้งหมด</option><option value="pending">รอดำเนินการ</option><option value="in_progress">กำลังดำเนินการ</option><option value="done">เสร็จสิ้น</option></select>
+        </div>
+        <div class="form-group"><label class="form-label">แผนก</label><input type="text" class="form-input" id="admin-dept" placeholder="ค้นหาแผนก..."></div>
+        <div class="form-group"><label class="form-label">ผู้แจ้ง</label><input type="text" class="form-input" id="admin-name" placeholder="ชื่อผู้แจ้ง..."></div>
+        <div class="form-group" style="align-self:flex-end"><button class="btn btn-orange" style="width:100%;justify-content:center" onclick="loadAdminList()">🔍 ค้นหา</button></div>
+      </div>
+    </div>
+    <div class="card admin-card" style="padding:0;overflow:hidden">
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <span id="admin-count" style="font-size:13px;color:var(--text-2)">— รายการ</span>
+        <button class="btn btn-outline btn-sm" onclick="loadAdminList()">🔄 รีเฟรช</button>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>#</th><th>วันที่แจ้ง</th><th>แผนก</th><th>ผู้แจ้ง</th><th>รายการ</th><th>สถานะ</th><th>ช่าง</th><th style="width:100px">จัดการ</th></tr></thead>
+          <tbody id="admin-tbody"><tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text-3)">กดค้นหาเพื่อโหลดข้อมูล</td></tr></tbody>
+        </table>
+      </div>
+      <div id="admin-pagination" style="padding:12px 14px;font-size:12px;color:var(--text-3);border-top:1px solid var(--border)"></div>
     </div>
   </div>
 
-  <div class="card admin-card" style="padding:0;overflow:hidden">
-    <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-      <span id="admin-count" style="font-size:13px;color:var(--text-2)">— รายการ</span>
-      <button class="btn btn-outline btn-sm" onclick="loadAdminList()">🔄 รีเฟรช</button>
+  <!-- TAB: ชื่อช่าง Preset -->
+  <div class="admin-tab-panel" id="atab-techs">
+    <!-- ชื่อช่าง -->
+    <div class="card admin-card">
+      <div class="card-title"><div class="card-title-l">👷 จัดการรายชื่อช่าง (Preset)</div></div>
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:14px">รายชื่อที่เพิ่มจะแสดงเป็น dropdown ในช่อง "ผู้ให้บริการ" — เก็บใน Supabase ตาราง <code style="color:var(--cyan)">gas_technicians</code></p>
+      <div class="form-row c2" style="margin-bottom:0">
+        <div class="form-group">
+          <label class="form-label">เพิ่มชื่อช่างใหม่</label>
+          <div style="display:flex;gap:8px">
+            <input type="text" class="form-input" id="new-tech-name" placeholder="ชื่อ-นามสกุล หรือชื่อเล่น..." onkeydown="if(event.key==='Enter')addTechPreset()">
+            <button class="btn btn-orange" onclick="addTechPreset()" style="flex-shrink:0">+ เพิ่ม</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <div class="form-label" style="margin-bottom:8px">รายชื่อที่บันทึกไว้ <span style="color:var(--text-3);font-weight:400">(✕=ปิด ✓=เปิด)</span></div>
+        <div class="tag-wrap" id="tech-tag-list"><span style="font-size:13px;color:var(--text-3)">กำลังโหลด...</span></div>
+      </div>
     </div>
-    <div class="data-table-wrap">
-      <table class="data-table">
-        <thead><tr><th>#</th><th>วันที่แจ้ง</th><th>แผนก</th><th>ผู้แจ้ง</th><th>รายการ</th><th>สถานะ</th><th>ช่าง</th><th style="width:140px">จัดการ</th></tr></thead>
-        <tbody id="admin-tbody"><tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text-3)">กดค้นหาเพื่อโหลดข้อมูล</td></tr></tbody>
-      </table>
+
+    <!-- B+ Custom Items -->
+    <div class="card admin-card" style="margin-top:4px">
+      <div class="card-title"><div class="card-title-l">✨ จัดการรายการ B+ (Custom Items)</div></div>
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:14px">รายการที่เพิ่มจะแสดงในฟอร์มแจ้งขอรับบริการ — เก็บใน Supabase ตาราง <code style="color:var(--cyan)">gas_custom_items</code></p>
+      <div class="form-row c2" style="margin-bottom:10px">
+        <div class="form-group">
+          <label class="form-label">หมวดหมู่</label>
+          <input type="text" class="form-input" id="new-ci-category" placeholder="เช่น อุปกรณ์พิเศษ, บริการอื่น...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">ชื่อรายการ<span class="req">*</span></label>
+          <div style="display:flex;gap:8px">
+            <input type="text" class="form-input" id="new-ci-label" placeholder="ระบุชื่อรายการ..." onkeydown="if(event.key==='Enter')addCustomItem()">
+            <button class="btn btn-orange" onclick="addCustomItem()" style="flex-shrink:0">+ เพิ่ม</button>
+          </div>
+        </div>
+      </div>
+      <div id="custom-items-admin-list">
+        <div style="font-size:13px;color:var(--text-3)">กำลังโหลด...</div>
+      </div>
+      <button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="loadCustomItemsAdmin()">🔄 โหลดใหม่</button>
     </div>
-    <div id="admin-pagination" style="padding:12px 14px;font-size:12px;color:var(--text-3);border-top:1px solid var(--border)"></div>
   </div>
+
+  <!-- TAB: Archive -->
+  <div class="admin-tab-panel" id="atab-archive">
+    <div class="card admin-card">
+      <div class="card-title"><div class="card-title-l">📦 Archive ข้อมูลเก่า</div></div>
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:16px">
+        ย้ายข้อมูลที่เก่ากว่าช่วงเวลาที่เลือกไปยังตาราง <code style="background:var(--bg-base);padding:1px 6px;border-radius:4px;color:var(--cyan)">gas-system-archive</code>
+        ใน Supabase — ข้อมูลในตารางหลักจะถูกลบออก แต่ยังคงอยู่ใน archive
+      </p>
+      <div class="form-row c2">
+        <div class="form-group">
+          <label class="form-label">Archive ข้อมูลเก่ากว่า<span class="req">*</span></label>
+          <select class="form-select" id="archive-months">
+            <option value="3">3 เดือน</option>
+            <option value="6">6 เดือน</option>
+            <option value="12" selected>12 เดือน</option>
+            <option value="24">24 เดือน</option>
+            <option value="36">36 เดือน</option>
+            <option value="48">48 เดือน</option>
+            <option value="60">60 เดือน (5 ปี)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">กรองเฉพาะสถานะ</label>
+          <select class="form-select" id="archive-status-filter">
+            <option value="">ทุกสถานะ</option>
+            <option value="done" selected>เฉพาะที่เสร็จสิ้นแล้ว (done)</option>
+            <option value="pending">รอดำเนินการ</option>
+            <option value="in_progress">กำลังดำเนินการ</option>
+          </select>
+        </div>
+      </div>
+      <div id="archive-preview" style="background:var(--bg-card2);border-radius:var(--radius);padding:14px;margin-bottom:16px;font-size:13px;color:var(--text-2);display:none">
+        <div id="archive-preview-text"></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-outline" onclick="previewArchive()">🔍 ดูตัวอย่างก่อน Archive</button>
+        <button class="btn btn-danger" onclick="runArchive()" id="btn-run-archive" disabled>📦 Archive เลย</button>
+      </div>
+    </div>
+
+    <!-- ดูข้อมูล Archive -->
+    <div class="card admin-card">
+      <div class="card-title">
+        <div class="card-title-l">📂 ข้อมูลใน Archive</div>
+        <button class="btn btn-outline btn-sm" onclick="loadArchiveList()">🔄 โหลด</button>
+      </div>
+      <div id="archive-list-wrap">
+        <div style="font-size:13px;color:var(--text-3);padding:8px 0">กด "โหลด" เพื่อดูข้อมูลใน Archive</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: สถานะระบบ -->
+  <div class="admin-tab-panel" id="atab-ping">
+    <div class="card admin-card">
+      <div class="card-title"><div class="card-title-l">🔌 สถานะการเชื่อมต่อ Supabase</div></div>
+      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg-card2);border-radius:var(--radius)">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-1)"><span class="ping-dot" id="ping-dot-api"></span>Supabase REST API</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:3px" id="ping-info-api">กด Ping เพื่อตรวจสอบ</div>
+          </div>
+          <span id="ping-ms-api" style="font-size:18px;font-weight:700;color:var(--text-3)">— ms</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg-card2);border-radius:var(--radius)">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-1)"><span class="ping-dot" id="ping-dot-db"></span>Database (ตารางหลัก)</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:3px" id="ping-info-db">กด Ping เพื่อตรวจสอบ</div>
+          </div>
+          <span id="ping-ms-db" style="font-size:18px;font-weight:700;color:var(--text-3)">— ms</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg-card2);border-radius:var(--radius)">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-1)"><span class="ping-dot" id="ping-dot-auth"></span>Auth Service</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:3px" id="ping-info-auth">กด Ping เพื่อตรวจสอบ</div>
+          </div>
+          <span id="ping-ms-auth" style="font-size:18px;font-weight:700;color:var(--text-3)">— ms</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="runPing()" id="btn-ping">🔌 Ping ทั้งหมด</button>
+        <button class="btn btn-outline" onclick="runAutoPing()" id="btn-autopng">⏱️ Auto Ping (6h)</button>
+        <span id="ping-auto-status" style="font-size:12px;color:var(--text-3)"></span>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:var(--bg-card2);border-radius:var(--radius)">
+        <div style="font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;margin-bottom:8px">ประวัติ Ping (ล่าสุด 10 ครั้ง)</div>
+        <div id="ping-history" style="font-size:12px;color:var(--text-3);font-family:monospace;line-height:1.8">—</div>
+      </div>
+    </div>
+    <div class="card admin-card" style="background:rgba(88,166,255,.03);border-color:rgba(88,166,255,.2)">
+      <div style="font-size:12px;color:var(--text-2);line-height:1.8">
+        <strong style="color:var(--cyan)">Supabase URL:</strong> <code style="color:var(--text-3)">kmteuxpvpcqchacpefmy.supabase.co</code><br>
+        <strong style="color:var(--cyan)">Table หลัก:</strong> <code style="color:var(--text-3)">exchang-repair-loan-gas-system</code><br>
+        <strong style="color:var(--cyan)">Table Archive:</strong> <code style="color:var(--text-3)">gas-system-archive</code>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 </div><!-- end app-wrapper -->
@@ -683,8 +877,8 @@ async function supaSignOut() {
 }
 
 // ===== SUPABASE DATA =====
-async function supaFetch(method, params='', body=null) {
-  const url = `${SUPA_URL}/rest/v1/${encodeURIComponent(TABLE)}${params}`;
+async function supaFetch(method, params='', body=null, tbl=TABLE) {
+  const url = `${SUPA_URL}/rest/v1/${encodeURIComponent(tbl)}${params}`;
   const headers = {
     'apikey': SUPA_ANON,
     'Authorization': `Bearer ${currentToken || SUPA_ANON}`,
@@ -720,6 +914,7 @@ async function doLogin() {
     document.getElementById('app').style.cssText = 'display:flex;flex-direction:column';
     setTodayDate();
     toast('เข้าสู่ระบบสำเร็จ ✅', 'success');
+    postLoginInit();  // โหลด tech preset + custom items
   } catch(err) {
     errEl.textContent = err.message;
     document.getElementById('auth-box').classList.add('auth-shake');
@@ -893,6 +1088,7 @@ document.getElementById('form-request').addEventListener('submit', async functio
       loan_other_detail:      document.getElementById('txt-loan_other_detail').value.trim()||null,
       general_other:          document.querySelector('[data-id="general_other"]').checked,
       general_other_detail:   document.getElementById('txt-general_other_detail').value.trim()||null,
+      custom_items_json:      buildCustomItemsJson(),
     };
     await supaFetch('POST', '', row);
     toast('ส่งคำร้องเรียบร้อยแล้ว ✅', 'success');
@@ -976,6 +1172,12 @@ async function openSvcForm(id) {
       const txt = document.getElementById(`edit-txt-${repairProbs[i]}`);
       if (txt) txt.value = r[repairProbs[i]] || '';
     });
+    // render custom items edit section
+    renderCustomItemsForm('edit');
+    const editCiCard = document.getElementById('edit-custom-items-card');
+    if (editCiCard) editCiCard.style.display = customItemsDefs.length ? '' : 'none';
+    setTimeout(() => loadCustomItemsIntoEditForm(r), 50);
+
     // โหลด field ใหม่
     const ogChk = document.querySelector('.edit-svc-check[data-id="other_gas_other"]');
     if (ogChk) ogChk.checked = (r.other_gas_other_qty||0) > 0;
@@ -1061,6 +1263,7 @@ async function submitFullEdit() {
       loan_other_detail:      document.getElementById('edit-txt-loan_other_detail').value.trim()||null,
       general_other:          document.querySelector('.edit-svc-check[data-id="general_other"]').checked,
       general_other_detail:   document.getElementById('edit-txt-general_other_detail').value.trim()||null,
+      custom_items_json:      buildCustomItemsJson('edit'),
       // ใบบันทึก
       technician_name: document.getElementById('svc-tech').value.trim()||null,
       status:          document.getElementById('svc-status').value,
@@ -1296,6 +1499,11 @@ function getSummaryItems(r) {
   if((r.other_gas_other_qty||0)>0) p.push('แก๊สอื่นๆ');
   if((r.loan_other_qty||0)>0) p.push('ยืมอื่นๆ');
   if(r.general_other) p.push('เรื่องอื่นๆ');
+  // B+ custom items
+  try {
+    const ci = r.custom_items_json ? JSON.parse(r.custom_items_json) : [];
+    if (ci.length) p.push(`รายการพิเศษ(${ci.length})`);
+  } catch(e) {}
   return p.join(', ')||'—';
 }
 function getSummaryItemsFull(r) {
@@ -1312,6 +1520,11 @@ function getSummaryItemsFull(r) {
   if((r.other_gas_other_qty||0)>0) p.push(`แก๊สอื่น(${r.other_gas_other_detail||'?'})×${r.other_gas_other_qty}`);
   if((r.loan_other_qty||0)>0) p.push(`ยืม(${r.loan_other_detail||'?'})×${r.loan_other_qty}`);
   if(r.general_other) p.push(`อื่นๆ: ${r.general_other_detail||'ไม่ระบุ'}`);
+  // B+ custom items
+  try {
+    const ci = r.custom_items_json ? JSON.parse(r.custom_items_json) : [];
+    ci.forEach(item => p.push(`${item.label}${item.qty>1?'×'+item.qty:''}`));
+  } catch(e) {}
   return p.join(' | ')||'—';
 }
 function badgeHtml(s) {
@@ -1322,11 +1535,390 @@ function badgeHtml(s) {
 function formatDate(d) { if(!d) return '—'; return new Date(d+'T00:00:00').toLocaleDateString('th-TH',{year:'numeric',month:'short',day:'numeric'}); }
 function formatDatetime(d) { if(!d) return '—'; return new Date(d).toLocaleString('th-TH',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
 
+// ===== ADMIN TABS =====
+function switchAdminTab(tab, btn) {
+  document.querySelectorAll('.admin-tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('atab-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'techs')   { renderTechTags(); loadCustomItemsAdmin(); }
+  if (tab === 'ping')    runPing();
+  if (tab === 'archive') document.getElementById('btn-run-archive').disabled = true;
+}
+
+// ===== B+ CUSTOM ITEMS (F1) =====
+let customItemsDefs = [];
+
+async function loadCustomItems() {
+  try {
+    const data = await supaFetch('GET','?select=id,category,label,active&order=category,label',null,'gas_custom_items');
+    customItemsDefs = (data||[]).filter(d=>d.active);
+    renderCustomItemsForm();
+    renderCustomItemsAdmin();
+  } catch(e) {
+    customItemsDefs = [];
+    const card = document.getElementById('custom-items-card');
+    if (card) card.style.display='none';
+  }
+}
+
+function renderCustomItemsForm(prefix='') {
+  const card = document.getElementById('custom-items-card');
+  const sec  = document.getElementById(prefix ? 'edit-custom-items-section' : 'custom-items-section');
+  if (!customItemsDefs.length) {
+    if (card) card.style.display='none';
+    if (sec) sec.innerHTML='';
+    return;
+  }
+  if (card) card.style.display='';
+  const cats={};
+  customItemsDefs.forEach(d=>{ (cats[d.category||'ทั่วไป']=cats[d.category||'ทั่วไป']||[]).push(d); });
+  const p=prefix?'edit-':'';
+  let html='<div style="overflow-x:auto"><table class="svc-table"><thead><tr>'
+    +'<th style="width:32px">✓</th><th>รายการ</th>'
+    +'<th style="width:80px;text-align:center">จำนวน</th>'
+    +'<th style="width:120px">หมายเหตุ</th></tr></thead><tbody>';
+  Object.entries(cats).forEach(([cat,items])=>{
+    html+=`<tr class="grp"><td colspan="4">${cat}</td></tr>`;
+    items.forEach(d=>{
+      html+=`<tr>
+        <td><input type="checkbox" class="custom-check ${p}ci-check" data-cid="${d.id}" data-label="${d.label.replace(/"/g,'&quot;')}"></td>
+        <td>${d.label}</td>
+        <td style="text-align:center"><input type="number" class="qty-input" id="${p}ci-qty-${d.id}" min="0" value="0"></td>
+        <td><input type="text" class="prob-input" id="${p}ci-note-${d.id}" placeholder="หมายเหตุ..."></td>
+      </tr>`;
+    });
+  });
+  html+='</tbody></table></div>';
+  if (sec) sec.innerHTML=html;
+}
+
+function buildCustomItemsJson(prefix='') {
+  const p=prefix?'edit-':'';
+  const checks=document.querySelectorAll(`.${p}ci-check:checked`);
+  if (!checks.length) return null;
+  const result=[];
+  checks.forEach(chk=>{
+    const cid=chk.dataset.cid;
+    result.push({id:+cid,label:chk.dataset.label,qty:+(document.getElementById(`${p}ci-qty-${cid}`)?.value||1),note:document.getElementById(`${p}ci-note-${cid}`)?.value.trim()||''});
+  });
+  return result.length?JSON.stringify(result):null;
+}
+
+function loadCustomItemsIntoEditForm(r) {
+  if (!r.custom_items_json) return;
+  try {
+    JSON.parse(r.custom_items_json).forEach(item=>{
+      const chk=document.querySelector(`.edit-ci-check[data-cid="${item.id}"]`);
+      if (chk) { chk.checked=true;
+        const q=document.getElementById(`edit-ci-qty-${item.id}`); if(q) q.value=item.qty||1;
+        const n=document.getElementById(`edit-ci-note-${item.id}`); if(n) n.value=item.note||'';
+      }
+    });
+  } catch(e) {}
+}
+
+let customItemsAll=[];
+async function loadCustomItemsAdmin() {
+  try { customItemsAll=await supaFetch('GET','?select=id,category,label,active&order=category,label',null,'gas_custom_items')||[]; }
+  catch(e) { customItemsAll=[]; }
+  renderCustomItemsAdmin();
+}
+
+function renderCustomItemsAdmin() {
+  const wrap=document.getElementById('custom-items-admin-list');
+  if (!wrap) return;
+  if (!customItemsAll.length) { wrap.innerHTML='<div style="font-size:13px;color:var(--text-3)">ยังไม่มีรายการ — เพิ่มจากฟอร์มด้านบน</div>'; return; }
+  wrap.innerHTML=customItemsAll.map(d=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:11px;color:var(--text-3);min-width:80px">${d.category||'ทั่วไป'}</span>
+      <span style="flex:1;font-size:13px;color:${d.active?'var(--text-1)':'var(--text-3)'};${d.active?'':'text-decoration:line-through'}">${d.label}</span>
+      <button class="btn btn-outline btn-sm" onclick="toggleCustomItem(${d.id},${!d.active})">${d.active?'ปิด':'เปิด'}</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteCustomItem(${d.id})">🗑️</button>
+    </div>`).join('');
+}
+
+async function addCustomItem() {
+  const cat=document.getElementById('new-ci-category').value.trim()||'ทั่วไป';
+  const label=document.getElementById('new-ci-label').value.trim();
+  if (!label) { toast('กรุณาระบุชื่อรายการ','error'); return; }
+  try {
+    await supaFetch('POST','',{category:cat,label,active:true},'gas_custom_items');
+    document.getElementById('new-ci-label').value='';
+    await loadCustomItemsAdmin(); await loadCustomItems();
+    toast(`เพิ่ม "${label}" แล้ว`,'success');
+  } catch(e) { toast('เพิ่มไม่สำเร็จ: '+e.message,'error'); }
+}
+
+async function toggleCustomItem(id,active) {
+  try {
+    await supaFetch('PATCH',`?id=eq.${id}`,{active},'gas_custom_items');
+    await loadCustomItemsAdmin(); await loadCustomItems();
+  } catch(e) { toast('อัพเดทไม่สำเร็จ: '+e.message,'error'); }
+}
+
+async function deleteCustomItem(id) {
+  showConfirm('ลบรายการ','ต้องการลบรายการ B+ นี้ใช่หรือไม่?',async()=>{
+    try {
+      await supaFetch('DELETE',`?id=eq.${id}`,null,'gas_custom_items');
+      await loadCustomItemsAdmin(); await loadCustomItems();
+      toast('ลบแล้ว','info');
+    } catch(e) { toast('ลบไม่สำเร็จ: '+e.message,'error'); }
+  });
+}
+
+// ===== TECH PRESET (F2) — Supabase gas_technicians =====
+const TECH_TBL='gas_technicians';
+
+async function loadTechList() {
+  try { return ((await supaFetch('GET','?select=name,active&order=name',null,TECH_TBL))||[]).filter(d=>d.active).map(d=>d.name); }
+  catch(e) { return []; }
+}
+
+async function refreshTechDatalist() {
+  const dl=document.getElementById('tech-datalist'); if (!dl) return;
+  const list=await loadTechList();
+  dl.innerHTML=list.map(n=>`<option value="${n}">`).join('');
+}
+
+async function renderTechTags() {
+  const wrap=document.getElementById('tech-tag-list'); if (!wrap) return;
+  wrap.innerHTML='<div class="spinner" style="width:14px;height:14px;display:inline-block"></div>';
+  try {
+    const all=(await supaFetch('GET','?select=id,name,active&order=name',null,TECH_TBL))||[];
+    if (!all.length) { wrap.innerHTML='<span style="font-size:13px;color:var(--text-3)">ยังไม่มีรายชื่อ</span>'; return; }
+    wrap.innerHTML=all.map(d=>`<span class="tech-tag" style="${d.active?'':'opacity:.5'}">${d.name}
+      <button onclick="toggleTech(${d.id},${!d.active})" title="${d.active?'ปิด':'เปิด'}" style="color:${d.active?'var(--text-3)':'var(--green)'}">
+        ${d.active?'✕':'✓'}</button></span>`).join('');
+  } catch(e) { wrap.innerHTML=`<span style="color:var(--red);font-size:12px">โหลดไม่สำเร็จ: ${e.message}</span>`; }
+}
+
+async function addTechPreset() {
+  const inp=document.getElementById('new-tech-name');
+  const name=inp.value.trim();
+  if (!name) { toast('กรุณาระบุชื่อช่าง','error'); return; }
+  try {
+    await supaFetch('POST','',{name,active:true},TECH_TBL);
+    inp.value='';
+    await renderTechTags(); await refreshTechDatalist();
+    toast(`เพิ่ม "${name}" แล้ว`,'success');
+  } catch(e) { toast('เพิ่มไม่สำเร็จ: '+e.message,'error'); }
+}
+
+async function toggleTech(id,active) {
+  try {
+    await supaFetch('PATCH',`?id=eq.${id}`,{active},TECH_TBL);
+    await renderTechTags(); await refreshTechDatalist();
+    toast(active?'เปิดใช้งานแล้ว':'ปิดใช้งานแล้ว','info');
+  } catch(e) { toast('อัพเดทไม่สำเร็จ: '+e.message,'error'); }
+}
+
+// ===== PING =====
+let autoPingTimer = null;
+const pingHistory = [];
+
+async function pingOne(label, dotId, infoId, msId, fetchFn) {
+  document.getElementById(dotId).className = 'ping-dot loading';
+  document.getElementById(infoId).textContent = 'กำลัง ping...';
+  document.getElementById(msId).textContent = '…';
+  const t0 = performance.now();
+  try {
+    await fetchFn();
+    const ms = Math.round(performance.now() - t0);
+    document.getElementById(dotId).className = 'ping-dot ok';
+    document.getElementById(infoId).textContent = `✅ เชื่อมต่อได้ — ${new Date().toLocaleTimeString('th-TH')}`;
+    document.getElementById(msId).style.color = ms < 300 ? 'var(--green)' : ms < 800 ? 'var(--yellow)' : 'var(--red)';
+    document.getElementById(msId).textContent = `${ms} ms`;
+    return { label, ms, ok: true };
+  } catch(err) {
+    const ms = Math.round(performance.now() - t0);
+    document.getElementById(dotId).className = 'ping-dot err';
+    document.getElementById(infoId).textContent = `❌ ${err.message}`;
+    document.getElementById(msId).style.color = 'var(--red)';
+    document.getElementById(msId).textContent = `${ms} ms`;
+    return { label, ms, ok: false };
+  }
+}
+
+async function runPing() {
+  const btn = document.getElementById('btn-ping');
+  btn.disabled = true;
+
+  const results = await Promise.all([
+    pingOne('REST API', 'ping-dot-api', 'ping-info-api', 'ping-ms-api',
+      () => fetch(`${SUPA_URL}/rest/v1/`, { headers: { 'apikey': SUPA_ANON } })),
+    pingOne('Database', 'ping-dot-db', 'ping-info-db', 'ping-ms-db',
+      () => supaFetch('GET', `?limit=1&select=id`)),
+    pingOne('Auth', 'ping-dot-auth', 'ping-info-auth', 'ping-ms-auth',
+      () => fetch(`${SUPA_URL}/auth/v1/health`, { headers: { 'apikey': SUPA_ANON } })),
+  ]);
+
+  const time = new Date().toLocaleTimeString('th-TH');
+  const summary = results.map(r => `${r.ok ? '✅' : '❌'} ${r.label}: ${r.ms}ms`).join(' | ');
+  pingHistory.unshift(`[${time}] ${summary}`);
+  if (pingHistory.length > 10) pingHistory.pop();
+  document.getElementById('ping-history').innerHTML = pingHistory.join('<br>');
+  btn.disabled = false;
+}
+
+function runAutoPing() {
+  const btn = document.getElementById('btn-autopng');
+  const statusEl = document.getElementById('ping-auto-status');
+  if (autoPingTimer) {
+    clearInterval(autoPingTimer);
+    autoPingTimer = null;
+    btn.textContent = '⏱️ Auto Ping (30s)';
+    statusEl.textContent = '';
+    return;
+  }
+  autoPingTimer = setInterval(() => { runPing(); }, 6*60*60*1000);
+  btn.textContent = '⏹️ หยุด Auto Ping (6h)';
+  statusEl.textContent = 'Auto ping ทุก 6 ชั่วโมง...';
+  runPing();
+}
+
+// ===== ARCHIVE =====
+const ARCHIVE_TABLE = 'gas-system-archive';
+
+async function supaFetchArchive(method, params='', body=null) {
+  const url = `${SUPA_URL}/rest/v1/${encodeURIComponent(ARCHIVE_TABLE)}${params}`;
+  const headers = {
+    'apikey': SUPA_ANON,
+    'Authorization': `Bearer ${currentToken || SUPA_ANON}`,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  };
+  const opts = { method, headers };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.message || `HTTP ${res.status}`); }
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+function getArchiveCutoffDate(months) {
+  const d = new Date();
+  d.setMonth(d.getMonth() - months);
+  return d.toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+async function previewArchive() {
+  const months = +document.getElementById('archive-months').value;
+  const statusF = document.getElementById('archive-status-filter').value;
+  const cutoff  = getArchiveCutoffDate(months);
+  const preview = document.getElementById('archive-preview');
+  const previewText = document.getElementById('archive-preview-text');
+  const btnRun  = document.getElementById('btn-run-archive');
+
+  previewText.innerHTML = '<div class="spinner" style="width:14px;height:14px;display:inline-block"></div> กำลังนับรายการ...';
+  preview.style.display = '';
+  btnRun.disabled = true;
+
+  try {
+    let params = `?request_date=lt.${cutoff}&select=id`;
+    if (statusF) params += `&status=eq.${statusF}`;
+    const data = await supaFetch('GET', params);
+    const count = data ? data.length : 0;
+
+    if (count === 0) {
+      previewText.innerHTML = `<span style="color:var(--green)">✅ ไม่มีรายการที่ตรงเงื่อนไข — ไม่มีอะไรต้อง Archive</span>`;
+      btnRun.disabled = true;
+    } else {
+      const statusLabel = statusF || 'ทุกสถานะ';
+      previewText.innerHTML = `⚠️ พบ <strong style="color:var(--orange);font-size:16px">${count}</strong> รายการ
+        ที่มีวันที่แจ้งก่อน <strong style="color:var(--cyan)">${formatDate(cutoff)}</strong>
+        (เก่ากว่า ${months} เดือน) สถานะ: ${statusLabel}<br>
+        <span style="color:var(--text-3);font-size:12px">รายการเหล่านี้จะถูกย้ายไป Archive และลบออกจากตารางหลัก</span>`;
+      btnRun.disabled = false;
+    }
+  } catch(err) {
+    previewText.innerHTML = `<span style="color:var(--red)">❌ ${err.message}</span>`;
+    btnRun.disabled = true;
+  }
+}
+
+async function runArchive() {
+  const months = +document.getElementById('archive-months').value;
+  const statusF = document.getElementById('archive-status-filter').value;
+  const cutoff  = getArchiveCutoffDate(months);
+  const btnRun  = document.getElementById('btn-run-archive');
+
+  showConfirm(
+    '⚠️ ยืนยันการ Archive',
+    `ย้ายข้อมูลที่เก่ากว่า ${months} เดือน (ก่อน ${formatDate(cutoff)}) ไปยัง Archive ใช่หรือไม่?`,
+    async () => {
+      btnRun.disabled = true;
+      const previewText = document.getElementById('archive-preview-text');
+      previewText.innerHTML = '<div class="spinner" style="width:14px;height:14px;display:inline-block"></div> กำลัง Archive...';
+
+      try {
+        // 1. ดึงข้อมูลที่จะ archive
+        let params = `?request_date=lt.${cutoff}`;
+        if (statusF) params += `&status=eq.${statusF}`;
+        const rows = await supaFetch('GET', params);
+        if (!rows || !rows.length) { toast('ไม่มีรายการ', 'info'); return; }
+
+        // 2. เพิ่ม archived_at แต่ละ row แล้ว insert ไป archive table
+        const archiveRows = rows.map(r => ({ ...r, archived_at: new Date().toISOString(), id: undefined }));
+        // insert ทีละ batch 50
+        const BATCH = 50;
+        let inserted = 0;
+        for (let i = 0; i < archiveRows.length; i += BATCH) {
+          const batch = archiveRows.slice(i, i + BATCH);
+          await supaFetchArchive('POST', '', batch);
+          inserted += batch.length;
+        }
+
+        // 3. ลบออกจากตารางหลัก (ใช้ id list)
+        const ids = rows.map(r => r.id);
+        await supaFetch('DELETE', `?id=in.(${ids.join(',')})`);
+
+        previewText.innerHTML = `<span style="color:var(--green)">✅ Archive สำเร็จ — ย้าย ${inserted} รายการ ไปยังตาราง Archive แล้ว</span>`;
+        toast(`Archive ${inserted} รายการสำเร็จ ✅`, 'success');
+      } catch(err) {
+        previewText.innerHTML = `<span style="color:var(--red)">❌ เกิดข้อผิดพลาด: ${err.message}</span>`;
+        toast('Archive ไม่สำเร็จ: ' + err.message, 'error');
+        btnRun.disabled = false;
+      }
+    }
+  );
+}
+
+async function loadArchiveList() {
+  const wrap = document.getElementById('archive-list-wrap');
+  wrap.innerHTML = '<div class="spinner" style="width:16px;height:16px;display:inline-block"></div> กำลังโหลด...';
+  try {
+    const data = await supaFetchArchive('GET', '?order=request_date.desc&limit=50&select=id,request_date,department,requester_name,status,technician_name,archived_at');
+    if (!data || !data.length) { wrap.innerHTML = '<div style="font-size:13px;color:var(--text-3);padding:8px 0">ไม่มีข้อมูลใน Archive</div>'; return; }
+    let html = '<div class="data-table-wrap"><table class="data-table"><thead><tr><th>#</th><th>วันที่แจ้ง</th><th>แผนก</th><th>ผู้แจ้ง</th><th>สถานะ</th><th>ช่าง</th><th>Archived เมื่อ</th></tr></thead><tbody>';
+    data.forEach(r => {
+      html += `<tr>
+        <td style="color:var(--text-3)">#${r.id||'—'}</td>
+        <td>${formatDate(r.request_date)}</td>
+        <td>${r.department||'—'}</td>
+        <td>${r.requester_name||'—'}</td>
+        <td>${badgeHtml(r.status)}</td>
+        <td style="color:var(--text-2)">${r.technician_name||'—'}</td>
+        <td style="color:var(--text-3);font-size:12px">${r.archived_at ? formatDatetime(r.archived_at) : '—'}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div><div style="font-size:12px;color:var(--text-3);padding:8px 0">แสดง ${data.length} รายการล่าสุด</div>`;
+    wrap.innerHTML = html;
+  } catch(err) {
+    wrap.innerHTML = `<div style="font-size:13px;color:var(--red)">โหลดไม่สำเร็จ: ${err.message}</div>`;
+  }
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
   setTodayDate();
   setTimeout(() => document.getElementById('auth-email').focus(), 200);
 });
+
+// โหลด tech datalist + custom items หลัง login สำเร็จ (เรียกจาก doLogin)
+async function postLoginInit() {
+  await Promise.all([refreshTechDatalist(), loadCustomItems()]);
+}
 </script>
 </body>
 </html>

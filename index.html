@@ -6,13 +6,24 @@
 <title>งานบริการระบบแก๊สทางการแพทย์</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* ===== DARK THEME (default) ===== */
 :root{
   --bg-base:#0d1117;--bg-card:#161b22;--bg-card2:#1c2230;--bg-input:#0d1117;
   --border:#30363d;--border-focus:#4493f8;--accent:#1f6feb;--accent-h:#388bfd;
   --green:#3fb950;--green-bg:#0d2d1a;--yellow:#d29922;--yellow-bg:#2d1f00;
-  --red:#f85149;--red-bg:#2d0e0e;--text-1:#e6edf3;--text-2:#8b949e;--text-3:#6e7681;
+  --red:#f85149;--red-bg:#3d0e0e;--text-1:#e6edf3;--text-2:#8b949e;--text-3:#6e7681;
   --cyan:#58a6ff;--purple:#bc8cff;--orange:#ff9a3c;
-  --font:'Segoe UI','Sarabun',sans-serif;--radius:8px;--radius-lg:12px;--shadow:0 4px 24px rgba(0,0,0,.5);
+  --font:'Segoe UI','Sarabun',sans-serif;--radius:8px;--radius-lg:12px;
+  --shadow:0 4px 24px rgba(0,0,0,.5);
+}
+/* ===== LIGHT THEME ===== */
+[data-theme="light"]{
+  --bg-base:#f0f2f5;--bg-card:#ffffff;--bg-card2:#f5f7fa;--bg-input:#ffffff;
+  --border:#d0d7de;--border-focus:#0969da;--accent:#0969da;--accent-h:#0860ca;
+  --green:#1a7f37;--green-bg:#dafbe1;--yellow:#9a6700;--yellow-bg:#fff8c5;
+  --red:#cf222e;--red-bg:#ffebe9;--text-1:#1f2328;--text-2:#656d76;--text-3:#9198a1;
+  --cyan:#0550ae;--purple:#6639ba;--orange:#bc4c00;
+  --shadow:0 2px 12px rgba(0,0,0,.12);
 }
 html{scroll-behavior:smooth}
 body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-height:100vh;font-size:15px;line-height:1.6}
@@ -61,6 +72,29 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
 .nav-btn.admin-btn.active{color:var(--orange);border-color:var(--orange);background:rgba(255,154,60,.1)}
 .topbar-logout{background:none;border:1px solid var(--border);color:var(--text-3);padding:5px 10px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-family:var(--font);transition:all .15s;display:flex;align-items:center;gap:5px;flex-shrink:0}
 .topbar-logout:hover{border-color:var(--red);color:var(--red)}
+/* ===== THEME TOGGLE ===== */
+.theme-toggle{background:none;border:1px solid var(--border);color:var(--text-2);padding:5px 9px;border-radius:var(--radius);cursor:pointer;font-size:14px;font-family:var(--font);transition:all .15s;display:flex;align-items:center;gap:5px;flex-shrink:0;line-height:1}
+.theme-toggle:hover{border-color:var(--border-focus);color:var(--cyan)}
+/* light mode adjustments */
+[data-theme="light"] .svc-table .grp td{background:rgba(9,105,218,.06);color:var(--accent)}
+[data-theme="light"] .admin-card{border-color:rgba(188,76,0,.35);background:linear-gradient(135deg,var(--bg-card) 0%,rgba(188,76,0,.03) 100%)}
+[data-theme="light"] .admin-tag{background:rgba(188,76,0,.12);border-color:rgba(188,76,0,.35);color:var(--orange)}
+[data-theme="light"] .admin-tab.active{color:var(--orange);border-bottom-color:var(--orange)}
+[data-theme="light"] .nav-btn.admin-btn{color:var(--orange)}
+[data-theme="light"] .nav-btn.admin-btn.active{color:var(--orange);border-color:var(--orange);background:rgba(188,76,0,.08)}
+[data-theme="light"] .badge-pending{background:var(--yellow-bg);color:var(--yellow);border-color:rgba(154,103,0,.3)}
+[data-theme="light"] .badge-progress{background:rgba(9,105,218,.1);color:var(--accent);border-color:rgba(9,105,218,.3)}
+[data-theme="light"] .badge-done{background:var(--green-bg);color:var(--green);border-color:rgba(26,127,55,.3)}
+[data-theme="light"] .ping-dot.ok{box-shadow:0 0 5px var(--green)}
+[data-theme="light"] .ping-dot.err{box-shadow:0 0 5px var(--red)}
+[data-theme="light"] .bar-fill{background:var(--accent)}
+[data-theme="light"] .bar-fill.g{background:var(--green)}
+[data-theme="light"] .bar-fill.y{background:var(--yellow)}
+[data-theme="light"] .bar-fill.r{background:var(--red)}
+[data-theme="light"] .bar-fill.p{background:var(--purple)}
+[data-theme="light"] .bar-fill.o{background:var(--orange)}
+[data-theme="light"] .auth-box{box-shadow:0 4px 24px rgba(0,0,0,.1)}
+[data-theme="light"] .tech-tag{background:var(--bg-card2);border-color:var(--border)}
 .topbar-user{font-size:11px;color:var(--text-3);white-space:nowrap}
 
 /* ===== PAGE ===== */
@@ -317,6 +351,7 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
     <button class="nav-btn admin-btn" onclick="requireAdminPin()" id="nav-admin">🛡️ Admin</button>
   </div>
   <span class="topbar-user" id="topbar-user"></span>
+  <button class="theme-toggle" onclick="toggleTheme()" id="theme-toggle-btn" title="เปลี่ยน Light/Dark">🌙</button>
   <button class="topbar-logout" onclick="doLogout()">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
     ออกจากระบบ
@@ -1909,8 +1944,35 @@ async function loadArchiveList() {
   }
 }
 
+// ===== THEME =====
+const THEME_KEY = 'gasmed_theme';
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = document.getElementById('theme-toggle-btn');
+  if (btn) btn.textContent = theme === 'light' ? '🌙' : '☀️';
+  // light mode: select option background
+  document.querySelectorAll('.form-select option, .form-select optgroup').forEach(el => {
+    el.style.background = theme === 'light' ? '#ffffff' : '';
+  });
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next    = current === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  localStorage.setItem(THEME_KEY, next);
+}
+
+function initTheme() {
+  // ตรวจ localStorage ก่อน ถ้าไม่มีให้ใช้ system preference
+  const saved = localStorage.getItem(THEME_KEY);
+  applyTheme(saved || 'dark');
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   setTodayDate();
   setTimeout(() => document.getElementById('auth-email').focus(), 200);
 });

@@ -1970,10 +1970,44 @@ function initTheme() {
   applyTheme(saved || 'dark');
 }
 
+// ===== SUPABASE KEEPALIVE (ป้องกัน project pause) =====
+// Supabase Free tier pause หลัง 7 วันไม่มี activity
+// query เบาๆ ทุก 5 วัน เพื่อรักษา project ให้ active
+const KEEPALIVE_MS  = 5 * 24 * 60 * 60 * 1000; // 5 วัน
+const KEEPALIVE_KEY = 'gasmed_keepalive_last';
+
+async function supabaseKeepalive() {
+  // ใช้ fetch ตรงๆ ด้วย anon key — ทำงานได้แม้ยังไม่ login
+  // ถ้า project pause อยู่ request นี้จะ wake it up อัตโนมัติ
+  try {
+    const res = await fetch(
+      `${SUPA_URL}/rest/v1/${encodeURIComponent(TABLE)}?limit=1&select=id`,
+      { headers: { 'apikey': SUPA_ANON, 'Authorization': `Bearer ${SUPA_ANON}` } }
+    );
+    const now = new Date().toISOString();
+    localStorage.setItem(KEEPALIVE_KEY, now);
+    const status = res.ok ? 'OK' : `HTTP ${res.status}`;
+    console.log(`[Keepalive] Supabase pinged at ${now} — ${status}`);
+  } catch(e) {
+    console.warn('[Keepalive] ping failed:', e.message);
+  }
+  // chain setTimeout แทน setInterval — ไม่สะสม drift
+  setTimeout(supabaseKeepalive, KEEPALIVE_MS);
+}
+
+function startKeepalive() {
+  const last    = +(new Date(localStorage.getItem(KEEPALIVE_KEY)||0));
+  const elapsed = Date.now() - last;
+  // ถ้าเกิน 5 วันแล้ว → ping ทันที, ถ้ายังไม่ถึง → รอให้ครบก่อน
+  const delay = elapsed >= KEEPALIVE_MS ? 0 : KEEPALIVE_MS - elapsed;
+  setTimeout(supabaseKeepalive, delay);
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   setTodayDate();
+  startKeepalive(); // เริ่ม keepalive ทันที ก่อน login — ป้องกัน Supabase pause
   setTimeout(() => document.getElementById('auth-email').focus(), 200);
 });
 

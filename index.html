@@ -206,6 +206,10 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
 .bar-lbl span:last-child{font-weight:700;color:var(--text-1)}
 .bar-track{background:var(--bg-base);border-radius:4px;height:7px;overflow:hidden}
 .bar-fill{height:100%;border-radius:4px;background:var(--accent);transition:width .4s}
+.bar-item.clickable{cursor:pointer}
+.bar-item.clickable:hover .bar-track{box-shadow:0 0 0 2px var(--border-focus)}
+.bar-item.clickable:hover .bar-lbl{color:var(--cyan)}
+.bar-item.clickable:hover .bar-lbl span:last-child{color:var(--cyan)}
 .bar-fill.g{background:var(--green)}.bar-fill.y{background:var(--yellow)}
 .bar-fill.r{background:var(--red)}.bar-fill.p{background:var(--purple)}
 .bar-fill.o{background:var(--orange)}
@@ -225,6 +229,14 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
 
 /* ===== ADMIN BADGE ===== */
 .admin-tag{display:inline-flex;align-items:center;gap:4px;background:rgba(255,154,60,.15);border:1px solid rgba(255,154,60,.4);color:var(--orange);border-radius:20px;font-size:10px;font-weight:700;padding:2px 8px}
+/* ===== SERVICE TABS ===== */
+.svc-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap}
+.svc-tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--text-2);padding:10px 16px;cursor:pointer;font-size:13px;font-family:var(--font);font-weight:600;transition:all .15s;margin-bottom:-1px}
+.svc-tab:hover{color:var(--text-1)}
+.svc-tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.svc-tab-panel{display:none}.svc-tab-panel.active{display:block}
+/* quick form grid */
+.quick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:12px}
 /* ===== ADMIN TABS ===== */
 .admin-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap}
 .admin-tab{background:none;border:none;border-bottom:2px solid transparent;color:var(--text-2);padding:10px 16px;cursor:pointer;font-size:13px;font-family:var(--font);font-weight:600;transition:all .15s;margin-bottom:-1px}
@@ -446,13 +458,150 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
 
 <!-- ======== PAGE 2: บันทึกให้บริการ ======== -->
 <div class="page" id="page-service">
-  <div class="page-header"><h1>✏️ บันทึกให้บริการ</h1><p>เลือกรายการเพื่อบันทึกผล — รายการ pending และกำลังดำเนินการ</p></div>
-  <div class="card">
-    <div class="card-title">
-      <div class="card-title-l">รายการรอดำเนินการ</div>
-      <button class="btn btn-outline btn-sm" onclick="loadPendingList()">🔄 รีเฟรช</button>
+  <div class="page-header"><h1>✏️ บันทึกให้บริการ</h1><p>เลือกจากรายการ หรือบันทึกด่วนได้เลย</p></div>
+
+  <div class="svc-tabs">
+    <button class="svc-tab active" onclick="switchSvcTab('list',this)">📋 จากรายการคำร้อง</button>
+    <button class="svc-tab" onclick="switchSvcTab('quick',this)">⚡ บันทึกด่วน (จบในหน้าเดียว)</button>
+  </div>
+
+  <!-- TAB: รายการคำร้อง -->
+  <div class="svc-tab-panel active" id="stab-list">
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-l">รายการรอดำเนินการ</div>
+        <button class="btn btn-outline btn-sm" onclick="loadPendingList()">🔄 รีเฟรช</button>
+      </div>
+      <div id="pending-list-wrap"><div class="empty-state"><div class="spinner"></div><p>กำลังโหลด...</p></div></div>
     </div>
-    <div id="pending-list-wrap"><div class="empty-state"><div class="spinner"></div><p>กำลังโหลด...</p></div></div>
+  </div>
+
+  <!-- TAB: บันทึกด่วน -->
+  <div class="svc-tab-panel" id="stab-quick">
+    <div class="card">
+      <div class="card-title"><div class="card-title-l">⚡ บันทึกการให้บริการด่วน</div></div>
+      <p style="font-size:13px;color:var(--text-2);margin-bottom:16px">กรอกและบันทึกได้เลย ไม่ต้องมีคำร้องก่อน — ระบบจะสร้างรายการใหม่พร้อมสถานะ "เสร็จสิ้น" ทันที</p>
+
+      <!-- ข้อมูลผู้แจ้ง -->
+      <div style="background:rgba(88,166,255,.05);border:1px solid rgba(88,166,255,.2);border-radius:var(--radius);padding:14px;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">📋 ข้อมูลผู้แจ้ง</div>
+        <div class="form-row c3">
+          <div class="form-group">
+            <label class="form-label">วันที่แจ้ง <span class="req">*</span></label>
+            <input type="date" class="form-input" id="q-date">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ผู้แจ้ง <span class="req">*</span></label>
+            <input type="text" class="form-input" id="q-name" placeholder="ชื่อ-นามสกุล">
+          </div>
+          <div class="form-group">
+            <label class="form-label">แผนก <span class="req">*</span></label>
+            <select class="form-select" id="q-dept">
+              <option value="">-- เลือกแผนก --</option>
+              <optgroup label="🏢 อาคาร 100 ปี"><option>100/9</option><option>100/8</option><option>100/7</option><option>100/6</option></optgroup>
+              <optgroup label="🏢 อาคาร 80 พรรษา"><option>80/10</option><option>80/9</option><option>80/8</option><option>ศช</option><option>ศญ</option><option>80/5</option><option>OR สูติ</option><option>OR ตา</option><option>PICU</option><option>80/2</option><option>80/1</option></optgroup>
+              <optgroup label="🏢 อาคาร 14 ชั้น (ทศมบพิตร)"><option>14/9</option><option>14/8</option><option>14/7</option><option>อญ</option><option>อช</option><option>ห้องเคมีบำบัด</option></optgroup>
+              <optgroup label="🏢 อาคารเชิดบุญเมือง"><option>MICU</option></optgroup>
+              <optgroup label="🏢 อาคารผู้ป่วยนอก"><option>ER</option><option>OPD โรคเลือด</option><option>OPD ทันตกรรม</option><option>OPD ทางเดินอาหาร</option><option>OPD ทางเดินหายใจ</option><option>เวรแปล</option><option>OPD อายุรกรรม</option></optgroup>
+              <optgroup label="🏢 อาคารพิเคราะห์และบำบัดโรค"><option>CICU</option><option>SICU</option><option>OPD ENT</option><option>OPD ตา</option><option>OPD กระดูก</option><option>OPD ศัยกรรม</option><option>รังสี</option><option>HBO</option><option>OPD จักษุ</option><option>OPD นรีเวชกรรม</option><option>OPD กุมาร</option><option>ห้องตรวจ พิเศษศัลย์ ฯ</option><option>OR ศัลย์</option><option>OR ENT</option><option>แผนกไตเทียม</option><option>Cath lab</option><option>ศูนย์สมอง</option></optgroup>
+              <option value="other">อื่นๆ (ระบุ)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row c1" id="q-dept-other-row" style="display:none">
+          <div class="form-group">
+            <label class="form-label">ระบุแผนก</label>
+            <input type="text" class="form-input" id="q-dept-other" placeholder="ระบุชื่อแผนก...">
+          </div>
+        </div>
+      </div>
+
+      <!-- รายการบริการ — table เดียวกับหน้าแจ้งขอรับบริการ -->
+      <div style="background:rgba(88,166,255,.05);border:1px solid rgba(88,166,255,.2);border-radius:var(--radius);padding:14px;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px">
+          📦 รายการขอรับบริการ <span style="font-weight:400;text-transform:none;color:var(--text-3)">(เลือกได้มากกว่า 1 รายการ)</span>
+        </div>
+        <div style="overflow-x:auto">
+        <table class="svc-table">
+          <thead><tr>
+            <th style="width:32px">✓</th>
+            <th>รายการ</th>
+            <th style="width:80px;text-align:center">จำนวน</th>
+            <th style="width:160px">หมายเหตุ/ขนาด</th>
+          </tr></thead>
+          <tbody>
+            <tr class="grp"><td colspan="4">แลกท่อแก๊ส Oxygen</td></tr>
+            <tr><td><input type="checkbox" class="custom-check q-check" data-id="q-o2-05q"></td><td>ขนาด 0.5 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="q-o2-05q" min="0" value="0"></td><td>—</td></tr>
+            <tr><td><input type="checkbox" class="custom-check q-check" data-id="q-o2-07q"></td><td>ขนาด 0.7 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="q-o2-07q" min="0" value="0"></td><td>—</td></tr>
+            <tr><td><input type="checkbox" class="custom-check q-check" data-id="q-o2-15q"></td><td>ขนาด 1.5 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="q-o2-15q" min="0" value="0"></td><td>—</td></tr>
+            <tr><td><input type="checkbox" class="custom-check q-check" data-id="q-o2-6q"></td><td>ขนาด 6 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="q-o2-6q" min="0" value="0"></td><td>—</td></tr>
+            <tr><td><input type="checkbox" class="custom-check q-check" data-id="q-o2-7q"></td><td>ขนาด 7 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="q-o2-7q" min="0" value="0"></td><td>—</td></tr>
+            <tr><td><input type="checkbox" class="custom-check q-check" data-id="q-o2-other-qty"></td><td>ขนาดอื่นๆ</td><td style="text-align:center"><input type="number" class="qty-input" id="q-o2-other-qty" min="0" value="0"></td><td><input type="text" class="prob-input" id="q-o2-other-size" placeholder="ระบุขนาด..."></td></tr>
+
+            <tr class="grp"><td colspan="4">แลกท่อแก๊สชนิดอื่นๆ</td></tr>
+            <tr><td><input type="checkbox" class="custom-check q-check" data-id="q-co2-6kg"></td><td>แลกท่อ CO₂ ขนาด 6 Kg</td><td style="text-align:center"><input type="number" class="qty-input" id="q-co2-6kg" min="0" value="0"></td><td>—</td></tr>
+            <tr><td><input type="checkbox" class="custom-check q-check" data-id="q-co2-25kg"></td><td>แลกท่อ CO₂ ขนาด 25 Kg</td><td style="text-align:center"><input type="number" class="qty-input" id="q-co2-25kg" min="0" value="0"></td><td>—</td></tr>
+            <tr><td><input type="checkbox" class="custom-check q-check" data-id="q-n2o-25kg"></td><td>แลกท่อ N₂O ขนาด 25 Kg</td><td style="text-align:center"><input type="number" class="qty-input" id="q-n2o-25kg" min="0" value="0"></td><td>—</td></tr>
+            <tr><td><input type="checkbox" class="custom-check q-check" data-id="q-n2-7q"></td><td>แลกท่อ N₂ ขนาด 7 Q</td><td style="text-align:center"><input type="number" class="qty-input" id="q-n2-7q" min="0" value="0"></td><td>—</td></tr>
+            <tr><td><input type="checkbox" class="custom-check q-check" data-id="q-other-gas-qty"></td><td>แก๊สชนิดอื่นๆ (ระบุ)</td><td style="text-align:center"><input type="number" class="qty-input" id="q-other-gas-qty" min="0" value="0"></td><td><input type="text" class="prob-input" id="q-other-gas-detail" placeholder="ระบุชนิด/ขนาด..."></td></tr>
+
+            <tr class="grp"><td colspan="4">ยืมอุปกรณ์</td></tr>
+            <tr><td><input type="checkbox" class="custom-check q-check" data-id="q-flowmeter"></td><td>ยืม Oxygen flow meter regulator</td><td style="text-align:center"><input type="number" class="qty-input" id="q-flowmeter" min="0" value="0"></td><td>—</td></tr>
+            <tr><td><input type="checkbox" class="custom-check q-check" data-id="q-flowmeter-pto"></td><td>ยืม Oxygen flow meter regulator with power take off</td><td style="text-align:center"><input type="number" class="qty-input" id="q-flowmeter-pto" min="0" value="0"></td><td>—</td></tr>
+            <tr><td><input type="checkbox" class="custom-check q-check" data-id="q-loan-other-qty"></td><td>ยืมอุปกรณ์อื่นๆ (ระบุ)</td><td style="text-align:center"><input type="number" class="qty-input" id="q-loan-other-qty" min="0" value="0"></td><td><input type="text" class="prob-input" id="q-loan-other-detail" placeholder="ระบุชื่ออุปกรณ์..."></td></tr>
+
+            <tr class="grp"><td colspan="4">แจ้งซ่อมระบบ Pipeline</td></tr>
+            <tr><td><input type="checkbox" class="custom-check" id="q-repair-air"></td><td>Medical Air</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="q-repair-air-prob" placeholder="ปัญหาที่พบ..."></td></tr>
+            <tr><td><input type="checkbox" class="custom-check" id="q-repair-o2"></td><td>Medical Oxygen</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="q-repair-o2-prob" placeholder="ปัญหาที่พบ..."></td></tr>
+            <tr><td><input type="checkbox" class="custom-check" id="q-repair-vac"></td><td>Medical Vacuum</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="q-repair-vac-prob" placeholder="ปัญหาที่พบ..."></td></tr>
+
+            <tr class="grp"><td colspan="4">แจ้งขอรับบริการเรื่องอื่นๆ</td></tr>
+            <tr><td><input type="checkbox" class="custom-check" id="q-general-other"></td><td>แจ้งขอรับบริการเรื่องอื่นๆ (ระบุ)</td><td style="text-align:center">—</td><td><input type="text" class="prob-input" id="q-general-other-detail" placeholder="ระบุรายละเอียด..."></td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <!-- ข้อมูลการให้บริการ -->
+      <div style="background:rgba(63,185,80,.05);border:1px solid rgba(63,185,80,.2);border-radius:var(--radius);padding:14px;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">⚙️ ผลการให้บริการ</div>
+        <div class="form-row c2">
+          <div class="form-group">
+            <label class="form-label">ผู้ให้บริการ (ช่าง) <span class="req">*</span></label>
+            <input type="text" class="form-input" id="q-tech" placeholder="พิมพ์หรือเลือกชื่อช่าง..." list="tech-datalist">
+          </div>
+          <div class="form-group">
+            <label class="form-label">สถานะ</label>
+            <select class="form-select" id="q-status">
+              <option value="done">🟢 เสร็จสิ้น</option>
+              <option value="in_progress">🔵 กำลังดำเนินการ</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row c2">
+          <div class="form-group">
+            <label class="form-label">เวลาเริ่ม</label>
+            <input type="datetime-local" class="form-input" id="q-start">
+          </div>
+          <div class="form-group">
+            <label class="form-label">เวลาเสร็จ</label>
+            <input type="datetime-local" class="form-input" id="q-end">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">หมายเหตุ <span style="font-weight:400;text-transform:none;color:var(--text-3)">(ให้ลงรายละเอียดการซ่อม/เรื่องอื่น)</span></label>
+          <textarea class="form-textarea" id="q-note" rows="2" placeholder="บันทึกรายละเอียด..."></textarea>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="resetQuickForm()">ล้างข้อมูล</button>
+        <button class="btn btn-success" onclick="requireSvcPin('ยืนยันบันทึกด่วน', submitQuickForm)" id="btn-quick-submit">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          บันทึกด่วน
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- FULL EDIT FORM (ใบแจ้ง + ใบบันทึก รวม) -->
@@ -580,10 +729,66 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
       <div class="form-group"><label class="form-label">วันที่เริ่มต้น</label><input type="date" class="form-input" id="hist-date-from"></div>
       <div class="form-group"><label class="form-label">วันที่สิ้นสุด</label><input type="date" class="form-input" id="hist-date-to"></div>
       <div class="form-group"><label class="form-label">สถานะ</label>
-        <select class="form-select" id="hist-status"><option value="">ทั้งหมด</option><option value="pending">รอดำเนินการ</option><option value="in_progress">กำลังดำเนินการ</option><option value="done">เสร็จสิ้น</option></select>
+        <select class="form-select" id="hist-status">
+          <option value="">ทั้งหมด</option>
+          <option value="pending">รอดำเนินการ</option>
+          <option value="in_progress">กำลังดำเนินการ</option>
+          <option value="done">เสร็จสิ้น</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">อาคาร</label>
+        <select class="form-select" id="hist-building">
+          <option value="">ทุกอาคาร</option>
+          <option value="100">อาคาร 100 ปี</option>
+          <option value="80">อาคาร 80 พรรษา</option>
+          <option value="14">อาคาร 14 ชั้น</option>
+          <option value="เชิด">อาคารเชิดบุญเมือง</option>
+          <option value="ผู้ป่วยนอก">อาคารผู้ป่วยนอก</option>
+          <option value="พิเคราะห์">อาคารพิเคราะห์และบำบัดโรค</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">ประเภทบริการ</label>
+        <select class="form-select" id="hist-svctype">
+          <option value="">ทุกประเภท</option>
+          <option value="o2">แลกท่อ O₂</option>
+          <option value="other_gas">แลกท่อชนิดอื่น</option>
+          <option value="loan">ยืมอุปกรณ์</option>
+          <option value="repair">แจ้งซ่อม</option>
+          <option value="general">เรื่องอื่นๆ</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">รายการย่อย (O₂)</label>
+        <select class="form-select" id="hist-o2-item">
+          <option value="">ทุกขนาด</option>
+          <option value="o2_05q">O₂ 0.5Q</option>
+          <option value="o2_07q">O₂ 0.7Q</option>
+          <option value="o2_15q">O₂ 1.5Q</option>
+          <option value="o2_6q">O₂ 6Q</option>
+          <option value="o2_7q">O₂ 7Q</option>
+          <option value="o2_other_qty">O₂ ขนาดอื่นๆ</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">รายการย่อย (แก๊สอื่น)</label>
+        <select class="form-select" id="hist-gas-item">
+          <option value="">ทุกชนิด</option>
+          <option value="co2_6kg">CO₂ 6Kg</option>
+          <option value="co2_25kg">CO₂ 25Kg</option>
+          <option value="n2o_25kg">N₂O 25Kg</option>
+          <option value="n2_7q">N₂ 7Q</option>
+          <option value="other_gas_other_qty">ชนิดอื่นๆ</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">รายการย่อย (ยืม)</label>
+        <select class="form-select" id="hist-loan-item">
+          <option value="">ทุกรายการ</option>
+          <option value="loan_flowmeter">Flowmeter</option>
+          <option value="loan_flowmeter_pto">Flowmeter+PTO</option>
+          <option value="loan_other_qty">อุปกรณ์อื่นๆ</option>
+        </select>
       </div>
       <div class="form-group"><label class="form-label">แผนก</label><input type="text" class="form-input" id="hist-dept" placeholder="ค้นหาแผนก..."></div>
       <div class="form-group"><label class="form-label">ผู้แจ้ง</label><input type="text" class="form-input" id="hist-name" placeholder="ชื่อผู้แจ้ง..."></div>
+      <div class="form-group"><label class="form-label">ช่าง</label><input type="text" class="form-input" id="hist-tech" placeholder="ชื่อช่าง..."></div>
       <div class="form-group" style="align-self:flex-end"><button class="btn btn-primary" style="width:100%;justify-content:center" onclick="loadHistory()">🔍 ค้นหา</button></div>
     </div>
   </div>
@@ -620,25 +825,66 @@ body{font-family:var(--font);background:var(--bg-base);color:var(--text-1);min-h
         <select class="form-select" id="dash-building"><option value="">ทุกอาคาร</option><option value="100">อาคาร 100 ปี</option><option value="80">อาคาร 80 พรรษา</option><option value="14">อาคาร 14 ชั้น</option><option value="เชิด">อาคารเชิดบุญเมือง</option><option value="ผู้ป่วยนอก">อาคารผู้ป่วยนอก</option><option value="พิเคราะห์">อาคารพิเคราะห์และบำบัดโรค</option></select>
       </div>
       <div class="form-group"><label class="form-label">ประเภทบริการ</label>
-        <select class="form-select" id="dash-svctype"><option value="">ทุกประเภท</option><option value="o2">แลกท่อ O₂</option><option value="other_gas">แลกท่อชนิดอื่น</option><option value="loan">ยืมอุปกรณ์</option><option value="repair">แจ้งซ่อม</option></select>
+        <select class="form-select" id="dash-svctype">
+          <option value="">ทุกประเภท</option>
+          <option value="o2">แลกท่อ O₂</option>
+          <option value="other_gas">แลกท่อชนิดอื่น</option>
+          <option value="loan">ยืมอุปกรณ์</option>
+          <option value="repair">แจ้งซ่อม</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">รายการย่อย (O₂)</label>
+        <select class="form-select" id="dash-o2-item">
+          <option value="">ทุกขนาด</option>
+          <option value="o2_05q">O₂ 0.5Q</option>
+          <option value="o2_07q">O₂ 0.7Q</option>
+          <option value="o2_15q">O₂ 1.5Q</option>
+          <option value="o2_6q">O₂ 6Q</option>
+          <option value="o2_7q">O₂ 7Q</option>
+          <option value="o2_other_qty">O₂ ขนาดอื่นๆ</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">รายการย่อย (แก๊สอื่น)</label>
+        <select class="form-select" id="dash-gas-item">
+          <option value="">ทุกชนิด</option>
+          <option value="co2_6kg">CO₂ 6Kg</option>
+          <option value="co2_25kg">CO₂ 25Kg</option>
+          <option value="n2o_25kg">N₂O 25Kg</option>
+          <option value="n2_7q">N₂ 7Q</option>
+          <option value="other_gas_other_qty">ชนิดอื่นๆ</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">รายการย่อย (ยืม)</label>
+        <select class="form-select" id="dash-loan-item">
+          <option value="">ทุกรายการ</option>
+          <option value="loan_flowmeter">Flowmeter</option>
+          <option value="loan_flowmeter_pto">Flowmeter+PTO</option>
+          <option value="loan_other_qty">อุปกรณ์อื่นๆ</option>
+        </select>
       </div>
       <div class="form-group"><label class="form-label">แผนก</label><input type="text" class="form-input" id="dash-dept" placeholder="ค้นหาแผนก..."></div>
       <div class="form-group" style="align-self:flex-end"><button class="btn btn-primary" style="width:100%;justify-content:center" onclick="loadDashboard()">📊 แสดงผล</button></div>
     </div>
   </div>
+
   <div class="stat-grid">
     <div class="stat-card yellow"><div class="lbl">รอดำเนินการ</div><div class="val" id="d-pending">—</div><div class="sub">รายการ</div></div>
     <div class="stat-card blue"><div class="lbl">กำลังดำเนินการ</div><div class="val" id="d-inprog">—</div><div class="sub">รายการ</div></div>
     <div class="stat-card green"><div class="lbl">เสร็จสิ้น</div><div class="val" id="d-done">—</div><div class="sub">รายการ</div></div>
     <div class="stat-card red"><div class="lbl">รวมทั้งหมด</div><div class="val" id="d-total">—</div><div class="sub">รายการ</div></div>
   </div>
+
+  <!-- chart grid ขยายเป็น 3 คอลัมน์ -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px" id="dash-charts-top">
+    <div class="chart-card" style="grid-column:span 1"><h3>📦 แลกท่อ O₂ (จำนวนถัง)</h3><div class="bar-list" id="dash-o2-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
+    <div class="chart-card" style="grid-column:span 1"><h3>🧪 แลกท่อแก๊สชนิดอื่น</h3><div class="bar-list" id="dash-gas-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
+    <div class="chart-card" style="grid-column:span 1"><h3>🛠️ ยืมอุปกรณ์</h3><div class="bar-list" id="dash-loan-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
+  </div>
   <div class="chart-grid">
-    <div class="chart-card"><h3>📦 แลกท่อ O₂</h3><div class="bar-list" id="dash-o2-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
-    <div class="chart-card"><h3>🧪 แลกท่อชนิดอื่น</h3><div class="bar-list" id="dash-gas-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
     <div class="chart-card"><h3>🏥 แผนกที่ขอบริการสูงสุด</h3><div class="bar-list" id="dash-dept-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
     <div class="chart-card"><h3>🔧 แจ้งซ่อม Pipeline</h3><div class="bar-list" id="dash-repair-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
-    <div class="chart-card"><h3>🛠️ ยืมอุปกรณ์</h3><div class="bar-list" id="dash-loan-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
     <div class="chart-card"><h3>📊 สรุปประเภทบริการ</h3><div class="bar-list" id="dash-type-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
+    <div class="chart-card"><h3>➕ รายการอื่นๆ</h3><div class="bar-list" id="dash-other-bars"><div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div></div></div>
   </div>
 </div>
 
@@ -1375,30 +1621,66 @@ async function loadHistory(page=0) {
   const tbody = document.getElementById('history-tbody');
   const pgEl  = document.getElementById('history-pagination');
   tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:28px"><div class="spinner"></div></td></tr>';
-  const from = document.getElementById('hist-date-from').value;
-  const to   = document.getElementById('hist-date-to').value;
-  const st   = document.getElementById('hist-status').value;
-  const dept = document.getElementById('hist-dept').value.trim();
-  const name = document.getElementById('hist-name').value.trim();
+
+  const from     = document.getElementById('hist-date-from').value;
+  const to       = document.getElementById('hist-date-to').value;
+  const st       = document.getElementById('hist-status').value;
+  const bldg     = document.getElementById('hist-building')?.value || '';
+  const svcType  = document.getElementById('hist-svctype')?.value || '';
+  const o2Item   = document.getElementById('hist-o2-item')?.value || '';
+  const gasItem  = document.getElementById('hist-gas-item')?.value || '';
+  const loanItem = document.getElementById('hist-loan-item')?.value || '';
+  const dept     = document.getElementById('hist-dept').value.trim();
+  const name     = document.getElementById('hist-name').value.trim();
+  const tech     = document.getElementById('hist-tech')?.value.trim() || '';
+
+  // server-side filters
   let params = `?order=created_at.desc&limit=${PAGE_SIZE}&offset=${page*PAGE_SIZE}`;
   if (from) params += `&request_date=gte.${from}`;
   if (to)   params += `&request_date=lte.${to}`;
   if (st)   params += `&status=eq.${st}`;
   if (dept) params += `&department=ilike.*${encodeURIComponent(dept)}*`;
   if (name) params += `&requester_name=ilike.*${encodeURIComponent(name)}*`;
+  if (tech) params += `&technician_name=ilike.*${encodeURIComponent(tech)}*`;
+  // server-side filter รายการย่อย (gt.0)
+  if (o2Item)   params += `&${o2Item}=gt.0`;
+  if (gasItem)  params += `&${gasItem}=gt.0`;
+  if (loanItem) params += `&${loanItem}=gt.0`;
+  // server-side filter ประเภทบริการเฉพาะที่ทำได้ server-side
+  if (svcType === 'repair')  params += '&repair_medical_air=eq.true,repair_oxygen=eq.true,repair_vacuum=eq.true'.split(',').map((v,i)=>i===0?'&or=(repair_medical_air.eq.true,repair_oxygen.eq.true,repair_vacuum.eq.true)':'').filter(Boolean).join('');
+  if (svcType === 'general') params += '&general_other=eq.true';
+
+  const histSelect = '&select=id,request_date,requester_name,department,status,technician_name,o2_05q,o2_07q,o2_15q,o2_6q,o2_7q,o2_other_qty,o2_other_size,co2_6kg,co2_25kg,n2o_25kg,n2_7q,loan_flowmeter,loan_flowmeter_pto,repair_medical_air,repair_oxygen,repair_vacuum,other_gas_other_qty,other_gas_other_detail,loan_other_qty,loan_other_detail,general_other,general_other_detail,custom_items_json';
+
   try {
-    const data = await supaFetch('GET', params);
-    if (!data||!data.length) { tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--text-3)">ไม่พบข้อมูล</td></tr>'; pgEl.textContent=''; return; }
+    let data = await supaFetch('GET', params + histSelect);
+    if (!data) data = [];
+
+    // client-side filters ที่ต้องทำเพิ่ม
+    if (bldg && BUILDING_DEPTS[bldg]) data = data.filter(r => BUILDING_DEPTS[bldg].includes(r.department));
+    if (svcType === 'o2')        data = data.filter(r=>(r.o2_05q||0)+(r.o2_07q||0)+(r.o2_15q||0)+(r.o2_6q||0)+(r.o2_7q||0)+(r.o2_other_qty||0)>0);
+    if (svcType === 'other_gas') data = data.filter(r=>(r.co2_6kg||0)+(r.co2_25kg||0)+(r.n2o_25kg||0)+(r.n2_7q||0)+(r.other_gas_other_qty||0)>0);
+    if (svcType === 'loan')      data = data.filter(r=>(r.loan_flowmeter||0)+(r.loan_flowmeter_pto||0)+(r.loan_other_qty||0)>0);
+
+    if (!data.length) {
+      tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:28px;color:var(--text-3)">ไม่พบข้อมูล</td></tr>';
+      pgEl.textContent=''; return;
+    }
     tbody.innerHTML = data.map(r => `<tr onclick="openDetail(${r.id})" style="cursor:pointer">
-      <td style="color:var(--text-3)">#${r.id}</td><td>${formatDate(r.request_date)}</td>
-      <td>${r.department}</td><td>${r.requester_name}</td>
+      <td style="color:var(--text-3)">#${r.id}</td>
+      <td>${formatDate(r.request_date)}</td>
+      <td>${r.department}</td>
+      <td>${r.requester_name}</td>
       <td style="font-size:12px;color:var(--text-2);max-width:180px">${getSummaryItems(r)}</td>
-      <td>${badgeHtml(r.status)}</td><td style="color:var(--text-2)">${r.technician_name||'—'}</td>
+      <td>${badgeHtml(r.status)}</td>
+      <td style="color:var(--text-2)">${r.technician_name||'—'}</td>
     </tr>`).join('');
     pgEl.innerHTML = `หน้า ${page+1} | ${data.length} รายการ
       ${page>0?`<button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="loadHistory(${page-1})">← ก่อนหน้า</button>`:''}
       ${data.length===PAGE_SIZE?`<button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="loadHistory(${page+1})">ถัดไป →</button>`:''}`;
-  } catch(err) { tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--red)">${err.message}</td></tr>`; }
+  } catch(err) {
+    tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--red)">${err.message}</td></tr>`;
+  }
 }
 
 // ===== DETAIL PANEL =====
@@ -1413,6 +1695,13 @@ async function openDetail(id) {
     let html = '';
     html += dpSection('📋 ข้อมูลผู้แจ้ง',[['วันที่แจ้ง',formatDate(r.request_date)],['ผู้แจ้ง',r.requester_name],['แผนก',r.department+(r.department_other?` (${r.department_other})`:'')],['หมายเหตุผู้แจ้ง',r.note_request||'—']]);
     html += dpSection('📦 รายการที่ขอ',[['รายการ',getSummaryItemsFull(r)]]);
+    // แสดง field อื่นๆ ถ้ามี
+    const otherRows = [];
+    if ((r.o2_other_qty||0)>0) otherRows.push([`O₂ ขนาด ${r.o2_other_size||'อื่น'}`, `${r.o2_other_qty} ถัง`]);
+    if ((r.other_gas_other_qty||0)>0) otherRows.push([`แก๊สอื่น (${r.other_gas_other_detail||'ไม่ระบุ'})`, `${r.other_gas_other_qty} ถัง`]);
+    if ((r.loan_other_qty||0)>0) otherRows.push([`ยืม (${r.loan_other_detail||'ไม่ระบุ'})`, `${r.loan_other_qty} ชิ้น`]);
+    if (r.general_other) otherRows.push(['เรื่องอื่นๆ', r.general_other_detail||'ไม่ระบุ']);
+    if (otherRows.length) html += dpSection('➕ รายการอื่นๆ', otherRows);
     if (r.repair_medical_air||r.repair_oxygen||r.repair_vacuum) {
       const repairs=[];
       if(r.repair_medical_air) repairs.push(['Medical Air',r.repair_air_problem||'ไม่ระบุ']);
@@ -1483,45 +1772,137 @@ function adminEdit(id) {
 // ===== DASHBOARD =====
 async function loadDashboard() {
   ['d-pending','d-inprog','d-done','d-total'].forEach(id => document.getElementById(id).textContent='…');
-  ['dash-o2-bars','dash-gas-bars','dash-dept-bars','dash-repair-bars','dash-loan-bars','dash-type-bars'].forEach(id => document.getElementById(id).innerHTML='<div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div>');
-  const from    = document.getElementById('dash-date-from').value;
-  const to      = document.getElementById('dash-date-to').value;
-  const statusV = document.getElementById('dash-status').value;
-  const bldg    = document.getElementById('dash-building').value;
-  const deptV   = document.getElementById('dash-dept').value.trim();
-  const svcType = document.getElementById('dash-svctype').value;
-  let params = '?select=status,department,o2_05q,o2_07q,o2_15q,o2_6q,o2_7q,o2_other_qty,co2_6kg,co2_25kg,n2o_25kg,n2_7q,loan_flowmeter,loan_flowmeter_pto,repair_medical_air,repair_oxygen,repair_vacuum,request_date';
+  ['dash-o2-bars','dash-gas-bars','dash-dept-bars','dash-repair-bars','dash-loan-bars','dash-type-bars','dash-other-bars']
+    .forEach(id => { const el=document.getElementById(id); if(el) el.innerHTML='<div style="color:var(--text-3);font-size:12px">กำลังโหลด...</div>'; });
+
+  const from     = document.getElementById('dash-date-from').value;
+  const to       = document.getElementById('dash-date-to').value;
+  const statusV  = document.getElementById('dash-status').value;
+  const bldg     = document.getElementById('dash-building').value;
+  const deptV    = document.getElementById('dash-dept').value.trim();
+  const svcType  = document.getElementById('dash-svctype').value;
+  const o2Item   = document.getElementById('dash-o2-item').value;
+  const gasItem  = document.getElementById('dash-gas-item').value;
+  const loanItem = document.getElementById('dash-loan-item').value;
+
+  let params = '?select=status,department,o2_05q,o2_07q,o2_15q,o2_6q,o2_7q,o2_other_qty,o2_other_size,co2_6kg,co2_25kg,n2o_25kg,n2_7q,loan_flowmeter,loan_flowmeter_pto,repair_medical_air,repair_oxygen,repair_vacuum,other_gas_other_qty,other_gas_other_detail,loan_other_qty,loan_other_detail,general_other,general_other_detail,request_date';
   if (from)    params += `&request_date=gte.${from}`;
   if (to)      params += `&request_date=lte.${to}`;
   if (statusV) params += `&status=eq.${statusV}`;
   if (deptV)   params += `&department=ilike.*${encodeURIComponent(deptV)}*`;
+
   try {
     let all = await supaFetch('GET', params);
+
+    // filter อาคาร
     if (bldg && BUILDING_DEPTS[bldg]) all = all.filter(r => BUILDING_DEPTS[bldg].includes(r.department));
+
+    // filter ประเภทบริการ
     if (svcType==='o2')        all = all.filter(r=>(r.o2_05q||0)+(r.o2_07q||0)+(r.o2_15q||0)+(r.o2_6q||0)+(r.o2_7q||0)+(r.o2_other_qty||0)>0);
-    if (svcType==='other_gas') all = all.filter(r=>(r.co2_6kg||0)+(r.co2_25kg||0)+(r.n2o_25kg||0)+(r.n2_7q||0)>0);
-    if (svcType==='loan')      all = all.filter(r=>(r.loan_flowmeter||0)+(r.loan_flowmeter_pto||0)>0);
+    if (svcType==='other_gas') all = all.filter(r=>(r.co2_6kg||0)+(r.co2_25kg||0)+(r.n2o_25kg||0)+(r.n2_7q||0)+(r.other_gas_other_qty||0)>0);
+    if (svcType==='loan')      all = all.filter(r=>(r.loan_flowmeter||0)+(r.loan_flowmeter_pto||0)+(r.loan_other_qty||0)>0);
     if (svcType==='repair')    all = all.filter(r=>r.repair_medical_air||r.repair_oxygen||r.repair_vacuum);
+
+    // filter รายการย่อย O₂
+    if (o2Item) all = all.filter(r=>(r[o2Item]||0)>0);
+    // filter รายการย่อย แก๊สอื่น
+    if (gasItem) all = all.filter(r=>(r[gasItem]||0)>0);
+    // filter รายการย่อย ยืม
+    if (loanItem) all = all.filter(r=>(r[loanItem]||0)>0);
+
+    // stat cards
     document.getElementById('d-pending').textContent = all.filter(r=>r.status==='pending').length;
     document.getElementById('d-inprog').textContent  = all.filter(r=>r.status==='in_progress').length;
     document.getElementById('d-done').textContent    = all.filter(r=>r.status==='done').length;
     document.getElementById('d-total').textContent   = all.length;
-    renderBarList('dash-o2-bars',[{label:'O₂ 0.5Q',val:all.reduce((s,r)=>s+(r.o2_05q||0),0)},{label:'O₂ 0.7Q',val:all.reduce((s,r)=>s+(r.o2_07q||0),0)},{label:'O₂ 1.5Q',val:all.reduce((s,r)=>s+(r.o2_15q||0),0)},{label:'O₂ 6Q',val:all.reduce((s,r)=>s+(r.o2_6q||0),0)},{label:'O₂ 7Q',val:all.reduce((s,r)=>s+(r.o2_7q||0),0)},{label:'อื่นๆ',val:all.reduce((s,r)=>s+(r.o2_other_qty||0),0)}].filter(d=>d.val>0));
-    renderBarList('dash-gas-bars',[{label:'CO₂ 6Kg',val:all.reduce((s,r)=>s+(r.co2_6kg||0),0)},{label:'CO₂ 25Kg',val:all.reduce((s,r)=>s+(r.co2_25kg||0),0)},{label:'N₂O 25Kg',val:all.reduce((s,r)=>s+(r.n2o_25kg||0),0)},{label:'N₂ 7Q',val:all.reduce((s,r)=>s+(r.n2_7q||0),0)}].filter(d=>d.val>0),'p');
+
+    // O₂ bars
+    const o2All = [
+      {label:'O₂ 0.5Q', val:all.reduce((s,r)=>s+(r.o2_05q||0),0)},
+      {label:'O₂ 0.7Q', val:all.reduce((s,r)=>s+(r.o2_07q||0),0)},
+      {label:'O₂ 1.5Q', val:all.reduce((s,r)=>s+(r.o2_15q||0),0)},
+      {label:'O₂ 6Q',   val:all.reduce((s,r)=>s+(r.o2_6q||0),0)},
+      {label:'O₂ 7Q',   val:all.reduce((s,r)=>s+(r.o2_7q||0),0)},
+      {label:'O₂ อื่นๆ',val:all.reduce((s,r)=>s+(r.o2_other_qty||0),0)},
+    ];
+    const o2Labels = {o2_05q:'O₂ 0.5Q',o2_07q:'O₂ 0.7Q',o2_15q:'O₂ 1.5Q',o2_6q:'O₂ 6Q',o2_7q:'O₂ 7Q',o2_other_qty:'O₂ อื่นๆ'};
+    renderBarList('dash-o2-bars', o2Item ? o2All.filter(d=>d.label===o2Labels[o2Item]) : o2All.filter(d=>d.val>0), '', 'dashClickO2');
+
+    // แก๊สอื่น
+    const gasAll = [
+      {label:'CO₂ 6Kg',  val:all.reduce((s,r)=>s+(r.co2_6kg||0),0)},
+      {label:'CO₂ 25Kg', val:all.reduce((s,r)=>s+(r.co2_25kg||0),0)},
+      {label:'N₂O 25Kg', val:all.reduce((s,r)=>s+(r.n2o_25kg||0),0)},
+      {label:'N₂ 7Q',    val:all.reduce((s,r)=>s+(r.n2_7q||0),0)},
+      {label:'แก๊สอื่นๆ',val:all.reduce((s,r)=>s+(r.other_gas_other_qty||0),0)},
+    ];
+    const gasLabels = {co2_6kg:'CO₂ 6Kg',co2_25kg:'CO₂ 25Kg',n2o_25kg:'N₂O 25Kg',n2_7q:'N₂ 7Q',other_gas_other_qty:'แก๊สอื่นๆ'};
+    renderBarList('dash-gas-bars', gasItem ? gasAll.filter(d=>d.label===gasLabels[gasItem]) : gasAll.filter(d=>d.val>0), 'p', 'dashClickGas');
+
+    // ยืมอุปกรณ์
+    const loanAll = [
+      {label:'Flowmeter',    val:all.reduce((s,r)=>s+(r.loan_flowmeter||0),0)},
+      {label:'Flowmeter+PTO',val:all.reduce((s,r)=>s+(r.loan_flowmeter_pto||0),0)},
+      {label:'อุปกรณ์อื่นๆ', val:all.reduce((s,r)=>s+(r.loan_other_qty||0),0)},
+    ];
+    const loanLabels = {loan_flowmeter:'Flowmeter',loan_flowmeter_pto:'Flowmeter+PTO',loan_other_qty:'อุปกรณ์อื่นๆ'};
+    renderBarList('dash-loan-bars', loanItem ? loanAll.filter(d=>d.label===loanLabels[loanItem]) : loanAll.filter(d=>d.val>0), 'y', 'dashClickLoan');
+
+    // แผนก
     const deptMap={};
     all.forEach(r=>{deptMap[r.department]=(deptMap[r.department]||0)+1;});
-    renderBarList('dash-dept-bars',Object.entries(deptMap).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>({label:k,val:v})),'g');
-    renderBarList('dash-repair-bars',[{label:'Medical Air',val:all.filter(r=>r.repair_medical_air).length},{label:'Medical Oxygen',val:all.filter(r=>r.repair_oxygen).length},{label:'Medical Vacuum',val:all.filter(r=>r.repair_vacuum).length}].filter(d=>d.val>0),'r');
-    renderBarList('dash-loan-bars',[{label:'Flowmeter',val:all.reduce((s,r)=>s+(r.loan_flowmeter||0),0)},{label:'Flowmeter+PTO',val:all.reduce((s,r)=>s+(r.loan_flowmeter_pto||0),0)}].filter(d=>d.val>0),'y');
-    renderBarList('dash-type-bars',[{label:'แลกท่อ O₂',val:all.filter(r=>(r.o2_05q||0)+(r.o2_07q||0)+(r.o2_15q||0)+(r.o2_6q||0)+(r.o2_7q||0)+(r.o2_other_qty||0)>0).length},{label:'แลกท่อชนิดอื่น',val:all.filter(r=>(r.co2_6kg||0)+(r.co2_25kg||0)+(r.n2o_25kg||0)+(r.n2_7q||0)>0).length},{label:'ยืมอุปกรณ์',val:all.filter(r=>(r.loan_flowmeter||0)+(r.loan_flowmeter_pto||0)>0).length},{label:'แจ้งซ่อม',val:all.filter(r=>r.repair_medical_air||r.repair_oxygen||r.repair_vacuum).length}].filter(d=>d.val>0),'o');
+    renderBarList('dash-dept-bars', Object.entries(deptMap).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>({label:k,val:v})), 'g', 'dashClickDept');
+
+    // ซ่อม
+    renderBarList('dash-repair-bars',[
+      {label:'Medical Air',    val:all.filter(r=>r.repair_medical_air).length},
+      {label:'Medical Oxygen', val:all.filter(r=>r.repair_oxygen).length},
+      {label:'Medical Vacuum', val:all.filter(r=>r.repair_vacuum).length},
+    ].filter(d=>d.val>0), 'r', 'dashClickRepair');
+
+    // สรุปประเภท
+    renderBarList('dash-type-bars',[
+      {label:'แลกท่อ O₂',      val:all.filter(r=>(r.o2_05q||0)+(r.o2_07q||0)+(r.o2_15q||0)+(r.o2_6q||0)+(r.o2_7q||0)+(r.o2_other_qty||0)>0).length},
+      {label:'แลกท่อชนิดอื่น', val:all.filter(r=>(r.co2_6kg||0)+(r.co2_25kg||0)+(r.n2o_25kg||0)+(r.n2_7q||0)+(r.other_gas_other_qty||0)>0).length},
+      {label:'ยืมอุปกรณ์',     val:all.filter(r=>(r.loan_flowmeter||0)+(r.loan_flowmeter_pto||0)+(r.loan_other_qty||0)>0).length},
+      {label:'แจ้งซ่อม',       val:all.filter(r=>r.repair_medical_air||r.repair_oxygen||r.repair_vacuum).length},
+      {label:'เรื่องอื่นๆ',    val:all.filter(r=>r.general_other).length},
+    ].filter(d=>d.val>0), 'o', 'dashClickType');
+
+    // รายการอื่นๆ
+    renderBarList('dash-other-bars',[
+      {label:'O₂ ขนาดอื่น',  val:all.reduce((s,r)=>s+(r.o2_other_qty||0),0)},
+      {label:'แก๊สอื่นๆ',    val:all.reduce((s,r)=>s+(r.other_gas_other_qty||0),0)},
+      {label:'ยืมอื่นๆ',     val:all.reduce((s,r)=>s+(r.loan_other_qty||0),0)},
+      {label:'เรื่องอื่นๆ',  val:all.filter(r=>r.general_other).length},
+    ].filter(d=>d.val>0), 'p', 'dashClickType');
+
+    // stat cards clickable — ใส่ tooltip และ cursor
+    ['d-pending','d-inprog','d-done','d-total'].forEach((id,i) => {
+      const card = document.getElementById(id)?.closest('.stat-card');
+      if (!card) return;
+      const statusMap = ['pending','in_progress','done',''];
+      card.style.cursor = 'pointer';
+      card.title = i < 3 ? 'คลิกเพื่อดูรายการ' : '';
+      card.onclick = () => { if(statusMap[i] !== undefined) dashClickStatus(statusMap[i]); };
+    });
+
   } catch(err) { toast('โหลด Dashboard ไม่สำเร็จ: '+err.message,'error'); }
 }
 
-function renderBarList(containerId, data, colorClass='') {
+function renderBarList(containerId, data, colorClass='', onClickFn=null) {
   const el = document.getElementById(containerId);
+  if (!el) return;
   if (!data.length) { el.innerHTML='<div style="color:var(--text-3);font-size:12px">ไม่มีข้อมูล</div>'; return; }
   const max = Math.max(...data.map(d=>d.val));
-  el.innerHTML = data.map(d=>`<div class="bar-item"><div class="bar-lbl"><span>${d.label}</span><span>${d.val}</span></div><div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${Math.round(d.val/max*100)}%"></div></div></div>`).join('');
+  el.innerHTML = data.map(d=>{
+    const clickable = onClickFn ? 'clickable' : '';
+    const onclick   = onClickFn ? `onclick="${onClickFn}('${d.key||d.label}')"` : '';
+    return `<div class="bar-item ${clickable}" ${onclick} title="${onClickFn?'คลิกเพื่อกรองประวัติ':''}">
+      <div class="bar-lbl"><span>${d.label}</span><span>${d.val}</span></div>
+      <div class="bar-track"><div class="bar-fill ${colorClass}" style="width:${Math.round(d.val/max*100)}%"></div></div>
+    </div>`;
+  }).join('');
 }
 
 // ===== UTIL =====
@@ -1968,6 +2349,277 @@ function initTheme() {
   // ตรวจ localStorage ก่อน ถ้าไม่มีให้ใช้ system preference
   const saved = localStorage.getItem(THEME_KEY);
   applyTheme(saved || 'dark');
+}
+
+// ===== SERVICE TAB =====
+function switchSvcTab(tab, btn) {
+  document.querySelectorAll('.svc-tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.svc-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('stab-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'list')  loadPendingList();
+  if (tab === 'quick') initQuickForm();
+}
+
+function initQuickForm() {
+  const d = new Date();
+  const p = n => String(n).padStart(2,'0');
+  const dateStr = `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+  const dtStr   = `${dateStr}T${p(d.getHours())}:${p(d.getMinutes())}`;
+  const dateEl = document.getElementById('q-date');
+  if (dateEl && !dateEl.value) dateEl.value = dateStr;
+  const startEl = document.getElementById('q-start');
+  if (startEl && !startEl.value) startEl.value = dtStr;
+}
+
+function resetQuickForm() {
+  // text fields
+  const ids = ['q-name','q-note','q-tech','q-dept-other','q-end',
+    'q-o2-other-size','q-other-gas-detail','q-loan-other-detail',
+    'q-general-other-detail','q-repair-air-prob','q-repair-o2-prob','q-repair-vac-prob'];
+  ids.forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  // number fields
+  const nums = ['q-o2-05q','q-o2-07q','q-o2-15q','q-o2-6q','q-o2-7q',
+                'q-co2-6kg','q-co2-25kg','q-n2o-25kg','q-n2-7q',
+                'q-flowmeter','q-flowmeter-pto',
+                'q-o2-other-qty','q-other-gas-qty','q-loan-other-qty'];
+  nums.forEach(id => { const el=document.getElementById(id); if(el) el.value=0; });
+  // checkboxes
+  ['q-repair-air','q-repair-o2','q-repair-vac','q-general-other'].forEach(id => {
+    const el=document.getElementById(id); if(el) el.checked=false;
+  });
+  // q-check checkboxes (table format)
+  document.querySelectorAll('.q-check').forEach(el => el.checked=false);
+  const deptEl = document.getElementById('q-dept'); if(deptEl) deptEl.value='';
+  const statusEl = document.getElementById('q-status'); if(statusEl) statusEl.value='done';
+  document.getElementById('q-dept-other-row').style.display='none';
+  initQuickForm();
+}
+
+async function submitQuickForm() {
+  const date  = document.getElementById('q-date').value;
+  const name  = document.getElementById('q-name').value.trim();
+  const dept  = document.getElementById('q-dept').value;
+  const tech  = document.getElementById('q-tech').value.trim();
+  if (!date)  { toast('กรุณาระบุวันที่','error'); return; }
+  if (!name)  { toast('กรุณาระบุชื่อผู้แจ้ง','error'); return; }
+  if (!dept)  { toast('กรุณาเลือกแผนก','error'); return; }
+  if (!tech)  { toast('กรุณาระบุชื่อช่าง','error'); return; }
+
+  const btn = document.getElementById('btn-quick-submit');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:13px;height:13px"></div> กำลังบันทึก...';
+
+  const g = id => +document.getElementById(id)?.value || 0;
+  const gc = id => document.getElementById(id)?.checked || false;
+  const deptOther = dept === 'other' ? document.getElementById('q-dept-other').value.trim() : null;
+  const startVal  = document.getElementById('q-start').value || null;
+  const endVal    = document.getElementById('q-end').value   || null;
+  const noteVal   = document.getElementById('q-note').value.trim() || null;
+  const statusVal = document.getElementById('q-status').value;
+
+  const row = {
+    request_date:    date,
+    requester_name:  name,
+    department:      dept === 'other' ? 'อื่นๆ' : dept,
+    department_other: deptOther,
+    status:          statusVal,
+    note_request:    null,
+    // รายการที่ให้บริการ
+    o2_05q:  g('q-o2-05q'), o2_07q: g('q-o2-07q'), o2_15q: g('q-o2-15q'),
+    o2_6q:   g('q-o2-6q'),  o2_7q:  g('q-o2-7q'),
+    co2_6kg: g('q-co2-6kg'), co2_25kg: g('q-co2-25kg'),
+    n2o_25kg: g('q-n2o-25kg'), n2_7q: g('q-n2-7q'),
+    loan_flowmeter: g('q-flowmeter'), loan_flowmeter_pto: g('q-flowmeter-pto'),
+    repair_medical_air:    gc('q-repair-air'),
+    repair_air_problem:    document.getElementById('q-repair-air-prob')?.value.trim()||null,
+    repair_oxygen:         gc('q-repair-o2'),
+    repair_oxygen_problem: document.getElementById('q-repair-o2-prob')?.value.trim()||null,
+    repair_vacuum:         gc('q-repair-vac'),
+    repair_vacuum_problem: document.getElementById('q-repair-vac-prob')?.value.trim()||null,
+    // ผลบริการ (actual = requested เพราะบันทึกด่วน)
+    technician_name:  tech,
+    service_start_at: startVal,
+    service_end_at:   endVal,
+    note_service:     noteVal,
+    actual_o2_05q:  g('q-o2-05q'), actual_o2_07q: g('q-o2-07q'), actual_o2_15q: g('q-o2-15q'),
+    actual_o2_6q:   g('q-o2-6q'),  actual_o2_7q:  g('q-o2-7q'),
+    actual_co2_6kg: g('q-co2-6kg'), actual_co2_25kg: g('q-co2-25kg'),
+    actual_n2o_25kg: g('q-n2o-25kg'), actual_n2_7q: g('q-n2-7q'),
+    actual_loan_flowmeter: g('q-flowmeter'), actual_loan_flowmeter_pto: g('q-flowmeter-pto'),
+  };
+
+  // field อื่นๆ
+  const qO2OtherQty      = +document.getElementById('q-o2-other-qty')?.value || 0;
+  const qO2OtherSize     = document.getElementById('q-o2-other-size')?.value.trim() || null;
+  const qOtherGasQty     = +document.getElementById('q-other-gas-qty')?.value || 0;
+  const qOtherGasDetail  = document.getElementById('q-other-gas-detail')?.value.trim() || null;
+  const qLoanOtherQty    = +document.getElementById('q-loan-other-qty')?.value || 0;
+  const qLoanOtherDetail = document.getElementById('q-loan-other-detail')?.value.trim() || null;
+  const qGeneralDetail   = document.getElementById('q-general-other-detail')?.value.trim() || null;
+  const qGeneralOther    = !!(document.getElementById('q-general-other')?.checked) || !!qGeneralDetail;
+
+  Object.assign(row, {
+    o2_other_qty:           qO2OtherQty,
+    o2_other_size:          qO2OtherSize,
+    actual_o2_other_qty:    qO2OtherQty,
+    other_gas_other_qty:    qOtherGasQty,
+    other_gas_other_detail: qOtherGasDetail,
+    loan_other_qty:         qLoanOtherQty,
+    loan_other_detail:      qLoanOtherDetail,
+    general_other:          qGeneralOther,
+    general_other_detail:   qGeneralDetail,
+  });
+
+  // ตรวจว่ามีรายการอย่างน้อย 1
+  const hasItem = ['o2_05q','o2_07q','o2_15q','o2_6q','o2_7q','co2_6kg','co2_25kg',
+    'n2o_25kg','n2_7q','loan_flowmeter','loan_flowmeter_pto'].some(k => row[k] > 0)
+    || row.repair_medical_air || row.repair_oxygen || row.repair_vacuum
+    || qO2OtherQty > 0 || qOtherGasQty > 0 || qLoanOtherQty > 0 || qGeneralOther
+  || document.querySelectorAll('.q-check:checked').length > 0;
+  if (!hasItem) {
+    toast('กรุณาระบุรายการที่ให้บริการอย่างน้อย 1 รายการ','error');
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> บันทึกด่วน';
+    return;
+  }
+
+  try {
+    await supaFetch('POST','',row);
+    toast('บันทึกด่วนเสร็จสิ้น ✅','success');
+    resetQuickForm();
+  } catch(e) {
+    toast('บันทึกไม่สำเร็จ: '+e.message,'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> บันทึกด่วน';
+  }
+}
+
+// dept toggle สำหรับ quick form
+document.addEventListener('DOMContentLoaded', () => {
+  const qDept = document.getElementById('q-dept');
+  if (qDept) qDept.addEventListener('change', function() {
+    const row = document.getElementById('q-dept-other-row');
+    row.style.display = this.value === 'other' ? '' : 'none';
+  });
+});
+
+// ===== DASHBOARD INTERACTIVE =====
+// คลิก bar → ไปหน้าประวัติพร้อม filter ที่เลือก
+function dashClickDept(dept) {
+  showPage('history');
+  // copy date range จาก dashboard
+  const df = document.getElementById('dash-date-from').value;
+  const dt = document.getElementById('dash-date-to').value;
+  if (df) document.getElementById('hist-date-from').value = df;
+  if (dt) document.getElementById('hist-date-to').value   = dt;
+  // set dept filter
+  const deptEl = document.getElementById('hist-dept');
+  if (deptEl) deptEl.value = dept === 'ทั้งหมด' ? '' : dept;
+  // reset filter อื่น
+  document.getElementById('hist-building').value  = '';
+  document.getElementById('hist-svctype').value   = '';
+  document.getElementById('hist-o2-item').value   = '';
+  document.getElementById('hist-gas-item').value  = '';
+  document.getElementById('hist-loan-item').value = '';
+  document.getElementById('hist-status').value    = '';
+  loadHistory();
+}
+
+function dashClickO2(key) {
+  showPage('history');
+  _copyDashDateToHist();
+  const o2Map = {'O₂ 0.5Q':'o2_05q','O₂ 0.7Q':'o2_07q','O₂ 1.5Q':'o2_15q',
+                 'O₂ 6Q':'o2_6q','O₂ 7Q':'o2_7q','O₂ อื่นๆ':'o2_other_qty'};
+  document.getElementById('hist-svctype').value   = 'o2';
+  document.getElementById('hist-o2-item').value   = o2Map[key] || '';
+  document.getElementById('hist-gas-item').value  = '';
+  document.getElementById('hist-loan-item').value = '';
+  document.getElementById('hist-building').value  = '';
+  document.getElementById('hist-dept').value      = '';
+  document.getElementById('hist-status').value    = '';
+  loadHistory();
+}
+
+function dashClickGas(key) {
+  showPage('history');
+  _copyDashDateToHist();
+  const gasMap = {'CO₂ 6Kg':'co2_6kg','CO₂ 25Kg':'co2_25kg','N₂O 25Kg':'n2o_25kg',
+                  'N₂ 7Q':'n2_7q','แก๊สอื่นๆ':'other_gas_other_qty'};
+  document.getElementById('hist-svctype').value   = 'other_gas';
+  document.getElementById('hist-gas-item').value  = gasMap[key] || '';
+  document.getElementById('hist-o2-item').value   = '';
+  document.getElementById('hist-loan-item').value = '';
+  document.getElementById('hist-building').value  = '';
+  document.getElementById('hist-dept').value      = '';
+  document.getElementById('hist-status').value    = '';
+  loadHistory();
+}
+
+function dashClickLoan(key) {
+  showPage('history');
+  _copyDashDateToHist();
+  const loanMap = {'Flowmeter':'loan_flowmeter','Flowmeter+PTO':'loan_flowmeter_pto',
+                   'อุปกรณ์อื่นๆ':'loan_other_qty'};
+  document.getElementById('hist-svctype').value   = 'loan';
+  document.getElementById('hist-loan-item').value = loanMap[key] || '';
+  document.getElementById('hist-o2-item').value   = '';
+  document.getElementById('hist-gas-item').value  = '';
+  document.getElementById('hist-building').value  = '';
+  document.getElementById('hist-dept').value      = '';
+  document.getElementById('hist-status').value    = '';
+  loadHistory();
+}
+
+function dashClickRepair(key) {
+  showPage('history');
+  _copyDashDateToHist();
+  document.getElementById('hist-svctype').value   = 'repair';
+  document.getElementById('hist-o2-item').value   = '';
+  document.getElementById('hist-gas-item').value  = '';
+  document.getElementById('hist-loan-item').value = '';
+  document.getElementById('hist-building').value  = '';
+  document.getElementById('hist-dept').value      = '';
+  document.getElementById('hist-status').value    = '';
+  loadHistory();
+}
+
+function dashClickType(key) {
+  showPage('history');
+  _copyDashDateToHist();
+  const typeMap = {
+    'แลกท่อ O₂':'o2', 'แลกท่อชนิดอื่น':'other_gas',
+    'ยืมอุปกรณ์':'loan', 'แจ้งซ่อม':'repair', 'เรื่องอื่นๆ':'general'
+  };
+  document.getElementById('hist-svctype').value   = typeMap[key] || '';
+  document.getElementById('hist-o2-item').value   = '';
+  document.getElementById('hist-gas-item').value  = '';
+  document.getElementById('hist-loan-item').value = '';
+  document.getElementById('hist-building').value  = '';
+  document.getElementById('hist-dept').value      = '';
+  document.getElementById('hist-status').value    = '';
+  loadHistory();
+}
+
+function dashClickStatus(status) {
+  showPage('history');
+  _copyDashDateToHist();
+  document.getElementById('hist-status').value    = status;
+  document.getElementById('hist-svctype').value   = '';
+  document.getElementById('hist-o2-item').value   = '';
+  document.getElementById('hist-gas-item').value  = '';
+  document.getElementById('hist-loan-item').value = '';
+  document.getElementById('hist-building').value  = '';
+  document.getElementById('hist-dept').value      = '';
+  loadHistory();
+}
+
+function _copyDashDateToHist() {
+  const df = document.getElementById('dash-date-from').value;
+  const dt = document.getElementById('dash-date-to').value;
+  if (df) document.getElementById('hist-date-from').value = df;
+  if (dt) document.getElementById('hist-date-to').value   = dt;
 }
 
 // ===== SUPABASE KEEPALIVE (ป้องกัน project pause) =====
